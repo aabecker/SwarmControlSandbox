@@ -8,11 +8,10 @@ BFS = [98; 105; 154; 244; 154; 123; 123; 116; 140; 211; 249; 425; 490; 263; 217]
 %...to plot the boxplot...
 Time = [MDP; BFS];
 
+
 group = ['MDP';'MDP';'MDP';'MDP';'MDP';'MDP';'MDP';'MDP';'MDP';'MDP';'MDP';'MDP';'MDP';'MDP';'MDP';'BFS';'BFS';'BFS';'BFS';'BFS';'BFS';'BFS';'BFS';'BFS';'BFS';'BFS';'BFS';'BFS';'BFS';'BFS'; ];
 
 boxplot(Time,group);
-scatter(Time, MDP);
-scatter(Time, BFS);
 title('Comparison of BFS and VI');
 xlabel('Algorithm');
 ylabel('Time (s)');

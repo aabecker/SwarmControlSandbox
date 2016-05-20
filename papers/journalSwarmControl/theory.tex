@@ -161,7 +161,7 @@ x_{2,n}
 \ldots \right]
 \end{equation}  
 \subsection{Controlling Mean Position}\label{sec:controlMeanPosition}
-This means \emph{any} number of robots controlled by a global command have just two controllable states in each axis. We can not control the position of all the robots, but what states are controllable? To answer this question we create the following reduced order system that represents the average $x$ position and $x$ velocity of the $n$ robots:
+This means \emph{any} number of robots controlled by a global command have just two controllable states in each axis. We cannot arbitrarily control the position of two or more robots, but what states are controllable? One option is to control the position of the $j^{th}$ robot. To find a potentially more useful option, we create the following reduced order system that represents the average $x$ position and $x$ velocity of the $n$ robots:
 \begin{align}
 \begin{bmatrix}\nonumber
 \dot{\bar{x}}_1 \\
@@ -222,7 +222,7 @@ We again analyze $\mathcal{C}$:
 This matrix has rank two, and thus the average position and average velocity are controllable.
 
 
-Due to symmetry, only the mean position and mean velocity are controllable. However, there are several techniques for breaking symmetry, for example by allowing independent noise sources \cite{beckerIJRR2014}, or by using obstacles \cite{Becker2013b}.
+Due to symmetry of the control input, only the mean position and mean velocity are controllable. However, there are several techniques for breaking symmetry, for example by allowing independent noise sources \cite{beckerIJRR2014}, or by using obstacles \cite{Becker2013b}.
 
 \subsection{Controlling the variance of many robots}\label{sec:VarianceControl}
 

@@ -76,26 +76,32 @@ Experimental results are summarized in Fig.~\ref{fig:AutoControlVaryN}.  Althoug
 
 \begin{figure}
 \centering
-\begin{overpic}[scale=0.2]{BFSMode.png}
+\begin{overpic}[scale=0.19]{BFSMode.png}
 \end{overpic}
-\begin{overpic}[scale=0.2]{GradientView.png}
+\begin{overpic}[scale=0.19]{GradientView.png}
+\end{overpic}
+\begin{overpic}[scale=0.19]{PolicyIter.png}
 \end{overpic}
 \vspace{-1em}
-\caption{\label{fig:BFSGradient}The BFS algorithm finds the shortest path for the moveable block (left), which is used to compute gradient vectors (right).
+\caption{\label{fig:BFSGradient}The BFS algorithm finds the shortest path for the moveable block (left), which is used to compute gradient vectors (middle). Using policy iterations enables encoding penalties for being near obstacles (right).
 %\vspace{-2em}
 }
 \end{figure}
 
 
-
-
-\begin{figure}
+\begin{figure*}
 \centering
-\begin{overpic}[width = \columnwidth]{AutoControlVaryN.pdf}\end{overpic}
-\vspace{-2em}
-\caption{\label{fig:AutoControlVaryN} Completion-time results using the automatic controller from Alg.~\ref{alg:BlockPushing} for different numbers of robots.  Each bar is labelled with the number of trials.
+\renewcommand{\figwid}{0.4\columnwidth}
+\begin{overpic}[width =0.4\columnwidth]{AutoControlVaryN.pdf}
+\end{overpic}
+\begin{overpic}[width =0.5\columnwidth]{PolicyIter.eps}
+\end{overpic}
+\vspace{-1em}
+\caption{\label{fig:NumRobotsVSPolicy}Completion-time results using the automatic controller from Alg.~\ref{alg:BlockPushing} for different numbers of robots.  Each bar is labelled with the number of trials.
+%\vspace{-2em}
 }
-\end{figure}
+\end{figure*}
+
 
 
 

@@ -6,7 +6,7 @@
 
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(2);
+cam = webcam(1);
 
 
 % We have 8 Relays.
@@ -69,7 +69,7 @@ again = true;
 % set(hq,'linewidth',2);
 % Using Arduino for our lamps, this is how we define arduino in Matlab:
 load('Map1', 'movesX', 'movesY','corners');
-a = arduino('/dev/tty.usbmodem1411','uno');
+a = arduino('/dev/tty.usbmodem1421','uno');
 
 figure
 counter = 1;
