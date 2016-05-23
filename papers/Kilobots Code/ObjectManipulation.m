@@ -6,7 +6,7 @@
 
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(2);
+cam = webcam(1);
 
 
 % We have 8 Relays.
