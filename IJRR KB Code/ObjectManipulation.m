@@ -36,6 +36,7 @@ success = false;
 again = true;
 %%% First finding value iteration and creating the map:
 originalImage = snapshot(cam);
+
 img = imcrop(originalImage,[345 60 1110 850]);
 s = size(img);
 scale = 10;
