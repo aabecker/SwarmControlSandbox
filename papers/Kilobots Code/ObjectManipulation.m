@@ -8,8 +8,6 @@
 %is the default webcam.
 cam = webcam(1);
 
-isWindows=false;
-
 % We have 8 Relays.
 %west
 RELAY1 = 9;
@@ -71,7 +69,7 @@ again = true;
 % Using Arduino for our lamps, this is how we define arduino in Matlab:
 load('Map1', 'movesX', 'movesY','corners');
 
-if (isWindows)  
+if (ispc)  
     a = arduino('Com4','uno');
 else 
     a = arduino('/dev/tty.usbmodem1421','uno');
@@ -96,7 +94,7 @@ while success == false
 % Read in a webcam snapshot.
 rgbIm = snapshot(cam);
 %crop to have just the table view.
-if (isWindows)  
+if (ispc)  
     originalImage = imcrop(rgbIm,[50 10 500 400]);
 else 
     originalImage = imcrop(rgbIm,[345 60 1110 850]);

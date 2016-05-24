@@ -13,7 +13,6 @@ goalYM = 434;
 %this is the mean x goal
 goalXM = 600;
 
-isWindows=false;
 
 %These are the goal covariance matrices.
 goalC1 = [12000 -6000; -6000 12000];
@@ -42,7 +41,7 @@ while success == false
 rgbIm = snapshot(cam);
     %imwrite(rgbIm,'FailImage6.png');
     %crop to have just the table view.
-if (isWindows)  
+if (ispc)  
     originalImage = imcrop(rgbIm,[50 10 500 400]);
 else 
     originalImage = imcrop(rgbIm,[345 60 1110 850]);
