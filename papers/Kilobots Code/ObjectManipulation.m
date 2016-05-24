@@ -148,11 +148,12 @@ BW(stat(index).PixelIdxList)=0;
     
     h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
-    if s < 38
+    if s < 60
         c = c+1;
+        DateString = datestr(datetime)
         name = 'fail';
         
-        fullName = strcat(name,num2str(c),'.jpeg' );
+        fullName = strcat(name,DateString,'.jpeg' );
         imwrite(originalImage,fullName);
     end
     if s > 5 
