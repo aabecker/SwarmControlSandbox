@@ -180,7 +180,7 @@ BW(stat(index).PixelIdxList)=0;
         end
     end
     if ~VarCont
-     r = 0.1;
+     r = 1; %was 0.1
     indX = floor(M(1,1)/scale);
     indY = floor(M(1,2)/scale);
     indOX = floor(ObjectCentroidX/scale);
