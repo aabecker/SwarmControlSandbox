@@ -31,8 +31,8 @@ VarCont = false;
 
 epsilon = 5;
 
-goalX = 12;
-goalY = 12;
+goalX = 10;
+goalY = 10;
 
 success = false;
 again = true;
@@ -73,6 +73,7 @@ a = arduino('/dev/tty.usbmodem1421','uno');
 
 figure
 counter = 1;
+c = 0;
 while success == false
 
     if again== true
@@ -139,18 +140,26 @@ BW(stat(index).PixelIdxList)=0;
     
     h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
+    if s < 38
+        c = c+1;
+        name = 'fail';
+        
+        fullName = strcat(name,num2str(c),'.jpeg' );
+        imwrite(originalImage,fullName);
+    end
     if s > 5 
         again = false;
     hold on
         minDis = 10000;
     corInd = 100;
     maxVar = 16000;
-    minVar = 8000;
+    minVar = 12000;
     %%%%Variance Control
     if V > maxVar
         VarCont = true;
         for i = 1:size(corners)
-            dist = sqrt(sum((M - corners(i)) .^ 2));
+            %dist = sqrt(sum((M - corners(i)) .^ 2));
+            dist = sqrt(sum((centroids(index) - corners(i)) .^ 2));
             if minDis > dist
                 minDis = dist;
                 corInd = i;
@@ -188,7 +197,7 @@ BW(stat(index).PixelIdxList)=0;
     counter = counter+1;
     hold off
     
-    delayTime = 3;
+    delayTime = 7;
 
     
     if M(1,1) > currgoalX+epsilon
