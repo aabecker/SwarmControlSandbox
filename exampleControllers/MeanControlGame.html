@@ -565,7 +565,37 @@ function init()
         if (m_controlState == ROBOT_INPUT.ROBOT_RIGHT)
         {impulseV.x+=impulse;}
         if (m_controlState == ROBOT_INPUT.ROBOT_DOWN)
-        {impulseV.y+=impulse;}
+        { impulseV.y += impulse; }
+
+        //allows for multiple key presses 
+        if (m_controlState & ROBOT_INPUT.ROBOT_LEFT)
+        { impulseV.x -= impulse; }
+        if (m_controlState & ROBOT_INPUT.ROBOT_UP)
+        { impulseV.y -= impulse; }
+        if (m_controlState & ROBOT_INPUT.ROBOT_RIGHT)
+        { impulseV.x += impulse; }
+        if (m_controlState & ROBOT_INPUT.ROBOT_DOWN)
+        { impulseV.y += impulse; }
+        //normalize
+        var denom = Math.sqrt(impulseV.x * impulseV.x + impulseV.y * impulseV.y);
+        if (denom > impulse) {
+            impulseV.x = impulseV.x / denom;
+            impulseV.y = impulseV.y / denom;
+        }
+
+        //instructions on the screen
+        var startstring = "Try to hit the light blue target <br> with the red dot";
+        if (index_goal==0) {
+            $("canvas").drawText(
+            {
+                strokeStyle: "Blue",
+                strokeWidth: 3,
+                x: 8 * mapScale, y: goalPositionYDraw * mapScale,
+                fontSize: 40,
+                fontFamily: 'Verdana, sans-serif',
+                text: startstring
+            }).restoreCanvas();
+        }
 
         //apply Brownian noise:
         var brownianImpulse = new b2Vec2(0, 0);
@@ -728,7 +758,8 @@ function init()
             overall_time = day.getTime();
         }
         var elapsedTimeSec = (day.getTime() - overall_time) / 1000;
-        string = "Time = " + elapsedTimeSec + "s<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
+        elapsedTimeSec = Math.round(elapsedTimeSec * 10) / 10;
+        string = "Time = " + elapsedTimeSec + "s<br>Level " + Level[numrobotsRand] + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
         $('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////
