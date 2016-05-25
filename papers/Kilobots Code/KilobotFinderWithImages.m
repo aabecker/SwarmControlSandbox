@@ -4,25 +4,25 @@
 % ******************Loading input Image**********************************
 %fn = 'BadResult.png';  % robots are 14 px in diameter in this
 %fn = 'FailImageGreen.png';
-fn = 'FailImage8.png';
+fn = 'fail119.jpeg';
 rgbIm = imread(fn);
 % Crop the image to use ROI.
-rgbIm = imcrop(rgbIm,[345 60 1110 850]);
+%rgbIm = imcrop(rgbIm,[345 60 1110 850]);
 % make grayscale.
 I = rgb2hsv(rgbIm);
 
-% 
+
 % Define thresholds for channel 1 based on histogram settings
-channel1Min = 0.065;
-channel1Max = 0.567;
+channel1Min = 0.199;
+channel1Max = 0.302;
 
 % Define thresholds for channel 2 based on histogram settings
-channel2Min = 0.288;
-channel2Max = 1.000;
+channel2Min = 0.084;
+channel2Max = 0.646;
 
 % Define thresholds for channel 3 based on histogram settings
-channel3Min = 0.400;
-channel3Max = 1.000;
+channel3Min = 0.551;
+channel3Max = 0.807;
 
 % % Define thresholds for channel 1 based on histogram settings
 % channel1Min = 0.087;
