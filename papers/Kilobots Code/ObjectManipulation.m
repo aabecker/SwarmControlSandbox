@@ -136,7 +136,7 @@ BW(stat(index).PixelIdxList)=0;
 
   %threshold the image to remove shadows (and only show dark parts of kilobots)
   if ispc
-     [centers, radii] = imfindcircles(BW,[5 8],'ObjectPolarity','bright','Sensitivity',0.95); 
+     [centers, radii] = imfindcircles(BW,[4 6],'ObjectPolarity','bright','Sensitivity',0.97); 
   else
     [centers, radii] = imfindcircles(BW,[10 19],'ObjectPolarity','bright','Sensitivity',0.92 );
   end
@@ -152,11 +152,13 @@ BW(stat(index).PixelIdxList)=0;
     
     h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
-    if s < 38
+    if s < 60
         c = c+1;
+        DateString = datestr(datetime, 'mm-dd-yyyy');
+        timeString=datestr(datetime, 'HH.MM.SS');
         name = 'fail';
         
-        fullName = strcat(name,num2str(c),'.jpeg' );
+        fullName = strcat(name,DateString,timeString,'.jpeg' );
         imwrite(originalImage,fullName);
     end
     if s > 5 
@@ -184,7 +186,7 @@ BW(stat(index).PixelIdxList)=0;
         end
     end
     if ~VarCont
-    r = 0.1;
+     r = 1; %was 0.1
     indX = floor(M(1,1)/scale);
     indY = floor(M(1,2)/scale);
     indOX = floor(ObjectCentroidX/scale);
