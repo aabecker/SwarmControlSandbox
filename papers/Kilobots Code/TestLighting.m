@@ -26,7 +26,7 @@ RELAY8 = 4;
 cam = webcam(2);
 t0 = tic;
 success = false;
-ifArd = false;
+ifArd = true;
 if ifArd
     if (ispc)  
         a = arduino('Com4','uno');
@@ -37,27 +37,36 @@ end
 while success == false
 
    if ifArd
-               writeDigitalPin(a, RELAY1,0);
-        writeDigitalPin(a,RELAY2,0);
-        writeDigitalPin(a,RELAY3,0);
-        writeDigitalPin(a,RELAY4,0);
-        writeDigitalPin(a, RELAY5,0);
+        writeDigitalPin(a, RELAY1,1);
+        writeDigitalPin(a,RELAY2,1);
+        writeDigitalPin(a,RELAY3,1);
+        writeDigitalPin(a,RELAY4,1);
+        writeDigitalPin(a,RELAY5,1);
         writeDigitalPin(a,RELAY6,0);
-        writeDigitalPin(a,RELAY7,0);
-        writeDigitalPin(a,RELAY8,0);
-    pause (1);
+        writeDigitalPin(a,RELAY7,1);
+        writeDigitalPin(a,RELAY8,1);
+    pause (120);
    end
     % Read in a webcam snapshot.
-rgbIm = snapshot(cam);
-    %imwrite(rgbIm,'FailImage6.png');
+    rgbIm = snapshot(cam);
+
     %crop to have just the table view.
+rgbIm = snapshot(cam);
 if (ispc)  
     originalImage = imcrop(rgbIm,[50 10 500 400]);
 else 
     originalImage = imcrop(rgbIm,[345 60 1110 850]);
 end 
 % make grayscale.
-I = rgb2hsv(originalImage);
+%printing image
+% I = rgb2hsv(originalImage);
+% 
+%     DateString = datestr(datetime, '_mm-dd-yyyy_');
+%     timeString=datestr(datetime, 'HH.MM.SS');
+%     name = 'RelayALL';
+% 
+%     fullName = strcat(name,DateString,timeString,'.jpeg' );
+%     imwrite(originalImage,fullName);
 % Define thresholds for channel 1 based on histogram settings
 channel1Min = 0.065;
 channel1Max = 0.567;
@@ -69,6 +78,8 @@ channel2Max = 1.000;
 % Define thresholds for channel 3 based on histogram settings
 channel3Min = 0.400;
 channel3Max = 1.000;
+
+
 
 % Create mask based on chosen histogram thresholds
 BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
