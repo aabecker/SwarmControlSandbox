@@ -76,7 +76,7 @@ else
 end 
 
 %initialize mean controller 
-meanControlCount=0;
+%meanControlCount=0;
 delayTime = 7;
 
 
@@ -157,7 +157,7 @@ BW(stat(index).PixelIdxList)=0;
     
     h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
-    if s < 96
+    if s < 85
         DateString = datestr(datetime, 'mm-dd-yyyy');
         timeString=datestr(datetime, 'HH.MM.SS');
         name = 'fail';
@@ -175,7 +175,8 @@ BW(stat(index).PixelIdxList)=0;
         
     
     %%%%Variance Control
-    if ((V > maxVar) |(meanControlCount>3))
+   % if ((V > maxVar) |(meanControlCount>3))
+   if ((V > maxVar))
         VarCont = true;
         for i = 1:size(corners)
             %dist = sqrt(sum((M - corners(i)) .^ 2));
@@ -187,7 +188,7 @@ BW(stat(index).PixelIdxList)=0;
         end
         currgoalX = corners(corInd,1)*scale;
         currgoalY = corners(corInd,2)*scale;
-        delayTime=21;
+        %delayTime=42;
     else if V< minVar
             VarCont = false;
         end
@@ -231,7 +232,7 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY6,1);
         writeDigitalPin(a,RELAY7,1);
         writeDigitalPin(a,RELAY8,1);
-        meanControlCount=0;
+      %  meanControlCount=0;
         hold on 
         title('Relay 2')
         hold off
@@ -248,7 +249,7 @@ BW(stat(index).PixelIdxList)=0;
         hold on 
         title('Relay 8')
         hold off
-        meanControlCount=0;
+      %  meanControlCount=0;
         pause(delayTime);
             else
         writeDigitalPin(a, RELAY1,0);
@@ -262,7 +263,7 @@ BW(stat(index).PixelIdxList)=0;
         hold on 
         title('Relay 1')
         hold off
-        meanControlCount=0;
+      %  meanControlCount=0;
         pause(delayTime);
             end
         end
@@ -280,7 +281,7 @@ BW(stat(index).PixelIdxList)=0;
         hold on 
         title('Relay 4')
         hold off
-        meanControlCount=0;
+        %meanControlCount=0;
         pause(delayTime);
         else if M(1,2) < currgoalY - epsilon
         writeDigitalPin(a, RELAY1,1);
@@ -294,7 +295,7 @@ BW(stat(index).PixelIdxList)=0;
         hold on 
         title('Relay 6')
         hold off
-        meanControlCount=0;
+       % meanControlCount=0;
         pause(delayTime);
             else
         writeDigitalPin(a, RELAY1,1);
@@ -308,7 +309,7 @@ BW(stat(index).PixelIdxList)=0;
         hold on 
         title('Relay 5')
         hold off
-        meanControlCount=0;
+       % meanControlCount=0;
         pause(delayTime);
             end
         end
@@ -325,7 +326,7 @@ BW(stat(index).PixelIdxList)=0;
         hold on 
         title('Relay 3')
         hold off
-        meanControlCount=0;
+       % meanControlCount=0;
         pause(delayTime);
        
             else if M(1,2) < currgoalY-epsilon
@@ -340,7 +341,7 @@ BW(stat(index).PixelIdxList)=0;
         hold on 
         title('Relay 7')
         hold off
-        meanControlCount=0;
+       % meanControlCount=0;
                 pause(delayTime);
                 else       
         writeDigitalPin(a, RELAY1,0);
@@ -354,7 +355,7 @@ BW(stat(index).PixelIdxList)=0;
         hold on 
         title('All Relays on')
         hold off
-        meanControlCount=meanControlCount+1
+       % meanControlCount=meanControlCount+1
                     pause(delayTime);
                     again = true;
                 end
