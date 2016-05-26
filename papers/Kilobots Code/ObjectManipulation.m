@@ -103,6 +103,10 @@ end
 I = rgb2hsv(originalImage);
 % Define thresholds for channel 1 based on histogram settings
 channel1Min = 0.065;
+channel1Max = 0.567;
+
+% Define thresholds for channel 2 based on histogram settings
+channel2Min = 0.288;
 channel2Max = 1.000;
 
 % Define thresholds for channel 3 based on histogram settings
@@ -127,7 +131,7 @@ stat = regionprops(L,'Centroid','Area','PixelIdxList');
 centroids = cat(1, stat.Centroid);
 ObjectCentroidX = centroids(index,1);
 ObjectCentroidY = centroids(index,2);
-plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','orange','linewidth',3);
+plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
 BW(stat(index).PixelIdxList)=0;
 
   %threshold the image to remove shadows (and only show dark parts of kilobots)
@@ -148,7 +152,7 @@ BW(stat(index).PixelIdxList)=0;
     
     h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
-    if s < 98
+    if s < 96
         DateString = datestr(datetime, 'mm-dd-yyyy');
         timeString=datestr(datetime, 'HH.MM.SS');
         name = 'fail';
