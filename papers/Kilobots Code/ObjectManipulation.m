@@ -232,6 +232,9 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY7,1);
         writeDigitalPin(a,RELAY8,1);
         meanControlCount=0;
+        hold on 
+        title('Relay 2')
+        hold off
         pause(delayTime);
         else if M(1,2) < currgoalY - epsilon
         writeDigitalPin(a, RELAY1,1);
@@ -242,6 +245,9 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY6,1);
         writeDigitalPin(a,RELAY7,1);
         writeDigitalPin(a,RELAY8,0);
+        hold on 
+        title('Relay 8')
+        hold off
         meanControlCount=0;
         pause(delayTime);
             else
@@ -253,6 +259,9 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY6,1);
         writeDigitalPin(a,RELAY7,1);
         writeDigitalPin(a,RELAY8,1);
+        hold on 
+        title('Relay 1')
+        hold off
         meanControlCount=0;
         pause(delayTime);
             end
@@ -268,6 +277,9 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY6,1);
         writeDigitalPin(a,RELAY7,1);
         writeDigitalPin(a,RELAY8,1);
+        hold on 
+        title('Relay 4')
+        hold off
         meanControlCount=0;
         pause(delayTime);
         else if M(1,2) < currgoalY - epsilon
@@ -279,6 +291,9 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY6,0);
         writeDigitalPin(a,RELAY7,1);
         writeDigitalPin(a,RELAY8,1);
+        hold on 
+        title('Relay 6')
+        hold off
         meanControlCount=0;
         pause(delayTime);
             else
@@ -290,6 +305,9 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY6,1);
         writeDigitalPin(a,RELAY7,1);
         writeDigitalPin(a,RELAY8,1);
+        hold on 
+        title('Relay 5')
+        hold off
         meanControlCount=0;
         pause(delayTime);
             end
@@ -304,6 +322,9 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY6,1);
         writeDigitalPin(a,RELAY7,1);
         writeDigitalPin(a,RELAY8,1);
+        hold on 
+        title('Relay 3')
+        hold off
         meanControlCount=0;
         pause(delayTime);
        
@@ -316,6 +337,9 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY6,1);
         writeDigitalPin(a,RELAY7,0);
         writeDigitalPin(a,RELAY8,1);
+        hold on 
+        title('Relay 7')
+        hold off
         meanControlCount=0;
                 pause(delayTime);
                 else       
@@ -327,6 +351,9 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY6,0);
         writeDigitalPin(a,RELAY7,0);
         writeDigitalPin(a,RELAY8,0);
+        hold on 
+        title('All Relays on')
+        hold off
         meanControlCount=meanControlCount+1
                     pause(delayTime);
                     again = true;
