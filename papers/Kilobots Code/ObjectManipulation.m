@@ -6,7 +6,7 @@
 
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(1);
+cam = webcam(2);
 
 % We have 8 Relays.
 %west
@@ -135,7 +135,11 @@ plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','cyan','linew
 BW(stat(index).PixelIdxList)=0;
 
   %threshold the image to remove shadows (and only show dark parts of kilobots)
+  if ispc
+     [centers, radii] = imfindcircles(BW,[4 6],'ObjectPolarity','bright','Sensitivity',0.97); 
+  else
     [centers, radii] = imfindcircles(BW,[10 19],'ObjectPolarity','bright','Sensitivity',0.92 );
+  end
     
     % %Mean
     M = mean(centers);
@@ -150,10 +154,11 @@ BW(stat(index).PixelIdxList)=0;
     [s, l] = size(centers);
     if s < 60
         c = c+1;
-        DateString = datestr(datetime)
+        DateString = datestr(datetime, 'mm-dd-yyyy');
+        timeString=datestr(datetime, 'HH.MM.SS');
         name = 'fail';
         
-        fullName = strcat(name,DateString,'.jpeg' );
+        fullName = strcat(name,DateString,timeString,'.jpeg' );
         imwrite(originalImage,fullName);
     end
     if s > 5 

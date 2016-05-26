@@ -1,18 +1,17 @@
-originalImage = imread('testImage12.png');
+originalImage = imread('fail05-25-201609.21.11.jpeg');
 % make HSV scale.
 I = rgb2hsv(originalImage);
 % Define thresholds for channel 1 based on histogram settings
-channel1Min = 0.065;
-channel1Max = 0.567;
+channel1Min = 0.292;
+channel1Max = 0.437;
 
 % Define thresholds for channel 2 based on histogram settings
-channel2Min = 0.288;
-channel2Max = 1.000;
+channel2Min = 0.113;
+channel2Max = 0.538;
 
 % Define thresholds for channel 3 based on histogram settings
-channel3Min = 0.400;
-channel3Max = 1.000;
-
+channel3Min = 0.383;
+channel3Max = 0.765;
 % Create mask based on chosen histogram thresholds
 BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
     (I(:,:,2) >= channel2Min ) & (I(:,:,2) <= channel2Max) & ...
