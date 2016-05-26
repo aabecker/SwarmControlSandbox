@@ -77,8 +77,6 @@ end
 
 %initialize mean controller 
 meanControlCount=0;
-delayTime = 7;
-
 
 figure
 counter = 1;
@@ -149,7 +147,7 @@ BW(stat(index).PixelIdxList)=0;
     % %Mean
     M = mean(centers);
     %Variance
-    V = var(centers);
+    V = var(centers)
     %Covariance
     C = cov(centers);
 
@@ -175,7 +173,7 @@ BW(stat(index).PixelIdxList)=0;
         
     
     %%%%Variance Control
-    if ((V > maxVar) |(meanControlCount>3))
+    if ((V > maxVar) | (meanControlCount>=3))
         VarCont = true;
         for i = 1:size(corners)
             %dist = sqrt(sum((M - corners(i)) .^ 2));
@@ -187,7 +185,6 @@ BW(stat(index).PixelIdxList)=0;
         end
         currgoalX = corners(corInd,1)*scale;
         currgoalY = corners(corInd,2)*scale;
-        delayTime=21;
     else if V< minVar
             VarCont = false;
         end
@@ -217,6 +214,8 @@ BW(stat(index).PixelIdxList)=0;
     %M(counter) = getframe();
     counter = counter+1;
     hold off
+    
+    delayTime = 7;
 
     %Mean Control activates Variance Control when the mean and goal are on
     %top of each other for more than 5 times 
@@ -327,7 +326,7 @@ BW(stat(index).PixelIdxList)=0;
         writeDigitalPin(a,RELAY6,0);
         writeDigitalPin(a,RELAY7,0);
         writeDigitalPin(a,RELAY8,0);
-        meanControlCount=meanControlCount+1
+        meanControlCount=meanControlCount+1;
                     pause(delayTime);
                     again = true;
                 end
@@ -335,6 +334,5 @@ BW(stat(index).PixelIdxList)=0;
         end
     end
     end
-    delayTime = 7;
 end
     
