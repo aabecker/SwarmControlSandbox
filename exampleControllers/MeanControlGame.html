@@ -46,14 +46,14 @@ var ROBOT_INPUT = { //robot commands
 	WAIT : 0x40
 };
 
-var numrobotsOptions=[2,5,10,50,75,100,200,300,500]; //array of possible # of numRobots
-var Time_Score; //time played
 
 var numrobotsOptions = [2, 5, 10, 50, 75, 100, 200]; //array of possible # of numRobots
 var numrobotsRand = Math.floor(Math.random() * 7);
 var Level = [7, 6, 5, 4, 3, 2, 1];
 var levelTimes = [];
-var Time_Score; //time played
+var Time_Score = 0; //time played
+var Time_Score_Boo = false;
+var Time_Score_Stop;
 
 var vary = 1; //Brownian noise variable
 var width = 600;
@@ -492,13 +492,13 @@ function init()
     ////create the robots
     bodyDef.type = b2Body.b2_dynamicBody;
     var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
-    var numrobots = numrobotsOptions[Math.floor(Math.random()*9)];;
+    var numrobots = numrobotsOptions[numrobotsRand];
     if (BFSDebugMode || Gradient_DebugMode) {
         numrobots = 0;
     }
     fixDef.density = 1.0;
-    fixDef.friction = 0.5;
-    fixDef.restitution = 0.2; //bouncing value
+    fixDef.friction = 7; //was .5
+    fixDef.restitution = 1.3; //bouncing value was .2
     fixDef.isSensor = false;
     var m_Robot = new Array();
     var rowLength = Math.floor(5 / (2 * robotrad));
@@ -769,8 +769,14 @@ function init()
         }
         var elapsedTimeSec = (day.getTime() - overall_time) / 1000;
         elapsedTimeSec = Math.round(elapsedTimeSec * 10) / 10;
-        string = "Time = " + elapsedTimeSec + "s<br>Level " + Level[numrobotsRand] + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
-        $('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
+
+        
+        //if (index_goal > 3) {
+        //    string = "Time = " + Time_Score + "s<br>Level " + Level[numrobotsRand] + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
+        //} else
+        //    string = "Time = " + elapsedTimeSec + "s<br>Level " + Level[numrobotsRand] + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
+
+        //$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // CONTROLLER
@@ -843,15 +849,13 @@ function init()
             }).restoreCanvas();
         }
      
-      
+        
         //displaying winning time
-        if (index_goal > 85) {
+        if (index_goal > 3) {
             if (time_stop) {
                 Time_score = elapsedTimeSec;
                 time_stop = false;
-                console.log("e     " + elapsedTimeSec);
-                console.log("TimeScore     " + Time_score);
-
+                Time_Score_Boo = true;
             }
             var winstring = "You won in " + Time_score + "s\n with " + numrobots + " robots!";
             $("canvas").drawText(
@@ -862,8 +866,18 @@ function init()
                 fontSize: 40,
                 fontFamily: 'Verdana, sans-serif',
                 text: winstring
-            }).restoreCanvas();
+                }).restoreCanvas();
         }
+        if (Time_Score_Boo) {
+            Time_Score_Stop = elapsedTimeSec;
+            Time_Score_Boo = false;
+        }
+        var stringT;
+        if (index_goal > 3) {
+            stringT = "Time = " + Time_Score_Stop + "s<br>Level " + Level[numrobotsRand] + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
+        } else
+            stringT = "Time = " + elapsedTimeSec + "s<br>Level " + Level[numrobotsRand] + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
+        $('#cc').html(stringT); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
 
         //prevents screen from moving around with arrow keys
         window.addEventListener("keydown", function (e) {
