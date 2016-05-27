@@ -7,14 +7,14 @@ This is just for getting a movie of the swarm controlling variance and swapping 
 // We want to control variance and mean position and find a way to the goal.
 /////////////////////////////////////////////////////////////////////////
 //
-// Author: Shiva Shahrocki and Aaron T. Becker
+// Author: Shiva Shahrocki and Aaron T. Becker and Lillian Lin
 // Started" 11/01/2014 -- present
 // Description: controls the mean position of n holonomic disk robots using mean position as feedback
 /// uses a PD controller.
 //
 // Records output into a log file/
 //
-// Status {working, broken, in progress, replacedby}: broken: controller works, but log files are not yet working
+// Status {working, broken, in progress, replacedby}: in progress
 //
 ///////////////////////////////////////////////////////////////////////////////
 -->
@@ -64,6 +64,13 @@ var timeFinished = 1000;
 var score = 0; 
 var wroteFinish = false;
 
+var sectiontime=0;
+var sectionstart=null;
+var scoretime=0;
+var savedtime=0;
+var savedsectiontime=0;
+var insection=false;
+
 var numberOfGoals = 60;
 
 var map = new Array(mapXSize);
@@ -71,11 +78,9 @@ var gradient_x = new Array(mapXSize);
 var gradient_y = new Array(mapXSize);
 var gradient_angle = new Array(mapXSize);
 
-var goalsX = new Array(numberOfGoals);
-var goalsY = new Array(numberOfGoals);
-
 var index_goal = 0;
 var done = false;
+var want=0;
 
 
 for (var i = 0; i < mapXSize; i++) 
@@ -247,7 +252,6 @@ function init()
 	var canvas = $('#canvas');
 	var context = canvas.get(0).getContext('2d');
 	var timeStart = null;
-	var timeFinish = null;
 	var timer = null;
 	var passed = null;
 	var overall_time = null;
@@ -544,16 +548,15 @@ function init()
 	}
 
 	var day = new Date();
-	if( timeFinish == null && false)
-		{ timeFinish = day.getTime();}
 	if(overall_time == null) // set the start time
 	{
 		overall_time = day.getTime();
 	}
 	var elapsedTimeSec = (day.getTime()- overall_time )/1000;
-	string = "Time = "+ elapsedTimeSec +"s<br> Score = "+ score +" Points";
+	
+	/*string = "Time = "+ elapsedTimeSec +"s<br> Score = "+ score +" Points";
 	$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-
+*/
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// CONTROLLER
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -617,7 +620,10 @@ function init()
 				min_desired_var_y = min_desired_var_y1;
 				done = true;
 			}
-
+			savedtime = sectiontime + savedtime;
+			savedsectiontime=0;
+			sectiontime = null;
+			sectionstart = null;
 		}
 		if(min_desired_var_x == min_desired_var_x1)
 			{
@@ -631,11 +637,6 @@ function init()
 			}
 
 	}
-
-
-
-	//goalY = offsetY+ amplitudeY*( elapsedTimeSec%cycleInSec > cycleInSec/2  );
-	//goalX = offsetX+ amplitudeX*( elapsedTimeSec%cycleInSec > cycleInSec/2  );
 
 	for(var i = 0; i < numrobots; ++i) {
 		sum_position_x += m_Robot[i].GetPosition().x;
@@ -722,8 +723,10 @@ function init()
 				width: 3 * 30*Math.sqrt(minvar_xp2), height: 3 * 30*Math.sqrt(minvar_yp2),
 				rotate: angle_min_variance2
 			}).restoreCanvas();
+			want=0;
 		}
-		else if(min_desired_var_x == min_desired_var_x2){
+		else if(min_desired_var_x == min_desired_var_x2)
+		{
 			$("canvas").drawEllipse({
 				strokeStyle: "blue",
 				strokeWidth: 5,
@@ -738,40 +741,9 @@ function init()
 				width: 3 * 30*Math.sqrt(minvar_xp2), height: 3 * 30*Math.sqrt(minvar_yp2),
 				rotate: angle_min_variance2
 			}).restoreCanvas();
-		$("canvas")
-		.drawLine(
-		{
-			strokeStyle: 'RebeccaPurple',
-			strokeWidth: 2,
-			x1: (varianceGoalX[0] * mapScale)-(3 * 30*Math.sqrt(minvar_yp1)/2), y1: varianceGoalY[0] * mapScale,
-			x2: (varianceGoalX[0] * mapScale)+(3 * 30*Math.sqrt(minvar_yp1)/2), y2: varianceGoalY[0] * mapScale
-		})
-		.drawLine(
-		{
-			strokeStyle: 'RebeccaPurple',
-			strokeWidth: 2,
-			x1: varianceGoalX[0] * mapScale, y1: (varianceGoalY[0] * mapScale)-(3 * 30*Math.sqrt(minvar_xp1)/2),
-			x2: varianceGoalX[0] * mapScale, y2: (varianceGoalY[0] * mapScale)+(3 * 30*Math.sqrt(minvar_xp1)/2)
-		})
-		.restoreCanvas();
-		$("canvas")
-		.drawLine(
-		{
-			strokeStyle: 'RebeccaPurple',
-			strokeWidth: 2,
-			x1: (varianceGoalX[1] * mapScale)-(3 * 30*Math.sqrt(minvar_xp2)/2), y1: varianceGoalY[1] * mapScale,
-			x2: (varianceGoalX[1] * mapScale)+(3 * 30*Math.sqrt(minvar_xp2)/2), y2: varianceGoalY[1] * mapScale
-		})
-		.drawLine(
-		{
-			strokeStyle: 'RebeccaPurple',
-			strokeWidth: 2,
-			x1: varianceGoalX[1] * mapScale, y1: (varianceGoalY[1] * mapScale)-(3 * 30*Math.sqrt(minvar_yp2)/2),
-			x2: varianceGoalX[1] * mapScale, y2: (varianceGoalY[1] * mapScale)+(3 * 30*Math.sqrt(minvar_yp2)/2)
-		})
-		.restoreCanvas();
-		}
-
+			want=1;
+	}
+	
 	}else{
 
 		var winstring = "You won in "+timeFinished + "s\n with " + numrobots +" robots!";
@@ -786,16 +758,6 @@ function init()
 		}).restoreCanvas();
 	}
 	
-	for(var i = 0 ; i < index_goal; i++){
-		$("canvas").drawRect({
-			fillStyle: "green",
-			x: (goalsX[i]/2 -0.5)* mapScale, y: goalsY[i]/2 * mapScale,
-			width: 0.5 * mapScale,
-			height: 0.5 * mapScale,
-			cornerRadius: 0
-
-		}).restoreCanvas();
-	}
 	$("canvas").drawArc({ //draw the average position
 		strokeStyle: "red",
 		strokeWidth: 5,
@@ -822,50 +784,88 @@ function init()
 	
 	//Debugging to figure out what things do
 	
+	
+	coordinateRobotsX[0] = (mean_position_x*mapScale)-(3*30*Math.sqrt(var_x)/2);
+	coordinateRobotsX[1] = (mean_position_x*mapScale)+(3*30*Math.sqrt(var_x)/2);
+	coordinateRobotsX[2] = mean_position_x*mapScale;
+	coordinateRobotsX[3] = mean_position_x*mapScale;
+	coordinateRobotsY[0] = mean_position_y*mapScale;
+	coordinateRobotsY[1] = mean_position_y*mapScale;
+	coordinateRobotsY[2] = (mean_position_y*mapScale)-(3*30*Math.sqrt(var_y)/2);
+	coordinateRobotsY[3] = (mean_position_y*mapScale)+(3*30*Math.sqrt(var_y)/2);
+	
 	$("canvas")
 	.drawLine(
 	{
 		strokeStyle: 'yellow',
 		strokeWidth: 2,
-		x1: (mean_position_x* mapScale)-(3 * 30*Math.sqrt(var_x)/2), y1: mean_position_y* mapScale,
-		x2: (mean_position_x* mapScale)+(3 * 30*Math.sqrt(var_x)/2), y2: mean_position_y* mapScale
+		x1: coordinateRobotsX[0], y1: coordinateRobotsY[0],
+		x2: coordinateRobotsX[1], y2: coordinateRobotsY[1]
 	})
 	.drawLine(
 	{
 		strokeStyle: 'yellow',
 		strokeWidth: 2,
-		x1: mean_position_x* mapScale, y1: (mean_position_y* mapScale)-(3 * 30*Math.sqrt(var_y)/2),
-		x2: mean_position_x* mapScale, y2: (mean_position_y* mapScale)+(3 * 30*Math.sqrt(var_y)/2)
+		x1: coordinateRobotsX[2], y1: coordinateRobotsY[2],
+		x2: coordinateRobotsX[3], y2: coordinateRobotsY[3]
 	})
 	.restoreCanvas();
-	
-	coordinateRobotsX[0] = (mean_position_x* mapScale)-(3 * 30*Math.sqrt(var_x)/2);
-	coordinateRobotsX[1] = (mean_position_x* mapScale)+(3 * 30*Math.sqrt(var_x)/2);
-	coordinateRobotsX[2] = mean_position_x* mapScale;
-	coordinateRobotsX[3] = mean_position_x* mapScale;
-	coordinateRobotsY[0] = mean_position_y* mapScale;
-	coordinateRobotsY[1] = mean_position_y* mapScale;
-	coordinateRobotsY[2] = (mean_position_y* mapScale)-(3 * 30*Math.sqrt(var_y)/2);
-	coordinateRobotsY[3] = (mean_position_y* mapScale)-(3 * 30*Math.sqrt(var_y)/2);
-	
-	for(var k = 0; k < 2; k++)
+	while(true)
 	{
 		var teststring = "inside";
-		if(lineDistance(coordinateRobotsX[k],coordinateRobotsY[k],(varianceGoalX[1] * mapScale),(varianceGoalY[1] * mapScale))>(3 * 30*Math.sqrt(minvar_xp2)/2))
+		if(lineDistance(coordinateRobotsX[0],coordinateRobotsY[0],(varianceGoalX[want] * mapScale),(varianceGoalY[want] * mapScale))>(3*30*Math.sqrt(minvar_xp2)/2))
 		{
 			var teststring = "outside";
+			if(sectionstart)
+			{
+				savedsectiontime=savedsectiontime +((day.getTime()- sectionstart )/1000);
+				sectionstart=null;
+			}
 			break;
 		}
-	}
-	for(k; k < 4; k++)
-	{
-		if(lineDistance(coordinateRobotsX[k],coordinateRobotsY[k],varianceGoalX[1] * mapScale,varianceGoalY[1] * mapScale)>(3 * 30*Math.sqrt(minvar_yp2)))
+		if(lineDistance(coordinateRobotsX[1],coordinateRobotsY[1],(varianceGoalX[want] * mapScale),(varianceGoalY[want] * mapScale))>(3*30*Math.sqrt(minvar_xp2)/2))
 		{
-			break;
 			var teststring = "outside";
+			if(sectionstart)
+			{
+				savedsectiontime=savedsectiontime +((day.getTime()- sectionstart )/1000);
+				sectionstart=null;
+			}
+			break;
 		}
+		if(lineDistance(coordinateRobotsX[2],coordinateRobotsY[2],varianceGoalX[want] * mapScale,varianceGoalY[want] * mapScale)>(3*30*Math.sqrt(minvar_yp2)))
+		{
+			var teststring = "outside";
+			if(sectionstart)
+			{
+				savedsectiontime=savedsectiontime +((day.getTime()- sectionstart )/1000);
+				sectionstart=null;
+			}
+			break;
+		}
+		
+		if(lineDistance(coordinateRobotsX[3],coordinateRobotsY[3],varianceGoalX[want] * mapScale,varianceGoalY[want] * mapScale)>(3*30*Math.sqrt(minvar_yp2)))
+		{
+			var teststring = "outside";
+			if(sectionstart)
+			{
+				savedsectiontime=savedsectiontime +((day.getTime()- sectionstart )/1000);
+				sectionstart=null;
+			}
+			break;
+		}
+		if (sectionstart==null)
+		{
+			insection=true;
+			sectionstart=day.getTime();
+			break;
+		}
+		sectiontime=savedsectiontime +(day.getTime()- sectionstart )/1000;
+		break;
 	}
-	
+	scoretime = savedtime + sectiontime;
+	anotherstring ="Section Time = "+ sectiontime +"s<br>Score Time = "+ scoretime +"s";
+	$('#cc').html(anotherstring);
 	$("canvas").drawText(
 	{
 		strokeStyle: "yellowgreen",
