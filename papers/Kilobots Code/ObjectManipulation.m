@@ -8,23 +8,7 @@
 %is the default webcam.
 cam = webcam(2);
 
-% We have 8 Relays.
-%west
-RELAY1 = 9;
-% northwest
-RELAY2 = 8;
-%north
-RELAY3 = 5;
-% northeast
-RELAY4 = 2;
-%east
-RELAY5 = 7;
-%southeast
-RELAY6 = 3;
-%south
-RELAY7 = 6;
-%southwest
-RELAY8 = 4;
+
 
 Relay=0;
 
@@ -86,17 +70,13 @@ figure
 counter = 1;
 c = 0;
 meanControl=false;
+ 
+
+
 while success == false
 
     if again== true
-        writeDigitalPin(a, RELAY1,0);
-        writeDigitalPin(a,RELAY2,0);
-        writeDigitalPin(a,RELAY3,0);
-        writeDigitalPin(a,RELAY4,0);
-        writeDigitalPin(a, RELAY5,0);
-        writeDigitalPin(a,RELAY6,0);
-        writeDigitalPin(a,RELAY7,0);
-        writeDigitalPin(a,RELAY8,0);
+        relayOn(a,0);
     pause (1);
     end 
 % Read in a webcam snapshot.
@@ -173,14 +153,14 @@ BW(stat(index).PixelIdxList)=0;
     hold on
         minDis = 10000;
     corInd = 100;
-    maxVar = 16000;
+    maxVar = 14500;
     minVar = 12000;
         
     
     %%%%Variance Control
    % if ((V > maxVar) |(meanControlCount>3))
    if ((V > maxVar))
-        VarCont = true;
+        VarCont = true
         for i = 1:size(corners)
             %dist = sqrt(sum((M - corners(i)) .^ 2));
             dist = sqrt(sum((centroids(index) - corners(i)) .^ 2));
@@ -224,7 +204,8 @@ BW(stat(index).PixelIdxList)=0;
         case 0
             title('All Relays on')
         otherwise
-            title('Relay' Relay)
+            str=sprintf('relay %d',Relay);
+            title(str)
     end
     
     hold off
@@ -239,121 +220,50 @@ BW(stat(index).PixelIdxList)=0;
     
     if M(1,1) > currgoalX+epsilon
         if M(1,2) > currgoalY + epsilon
-        writeDigitalPin(a, RELAY1,1);
-        writeDigitalPin(a,RELAY2,0);
-        writeDigitalPin(a,RELAY3,1);
-        writeDigitalPin(a,RELAY4,1);
-        writeDigitalPin(a, RELAY5,1);
-        writeDigitalPin(a,RELAY6,1);
-        writeDigitalPin(a,RELAY7,1);
-        writeDigitalPin(a,RELAY8,1);
-      %  meanControlCount=0;
         Relay = 2;
+        relayOn(a,Relay);
         pause(delayTime);
         else if M(1,2) < currgoalY - epsilon
-        writeDigitalPin(a, RELAY1,1);
-        writeDigitalPin(a,RELAY2,1);
-        writeDigitalPin(a,RELAY3,1);
-        writeDigitalPin(a,RELAY4,1);
-        writeDigitalPin(a, RELAY5,1);
-        writeDigitalPin(a,RELAY6,1);
-        writeDigitalPin(a,RELAY7,1);
-        writeDigitalPin(a,RELAY8,0);
         Relay = 8;
-      %  meanControlCount=0;
+        relayOn(a,Relay);
         pause(delayTime);
             else
-        writeDigitalPin(a, RELAY1,0);
-        writeDigitalPin(a,RELAY2,1);
-        writeDigitalPin(a,RELAY3,1);
-        writeDigitalPin(a,RELAY4,1);
-        writeDigitalPin(a, RELAY5,1);
-        writeDigitalPin(a,RELAY6,1);
-        writeDigitalPin(a,RELAY7,1);
-        writeDigitalPin(a,RELAY8,1);
         Relay = 1;
-      %  meanControlCount=0;
+        relayOn(a,Relay);
         pause(delayTime);
             end
         end
     else if M(1,1)  < currgoalX-epsilon
           
        if M(1,2) > currgoalY + epsilon
-        writeDigitalPin(a, RELAY1,1);
-        writeDigitalPin(a,RELAY2,1);
-        writeDigitalPin(a,RELAY3,1);
-        writeDigitalPin(a,RELAY4,0);
-        writeDigitalPin(a, RELAY5,1);
-        writeDigitalPin(a,RELAY6,1);
-        writeDigitalPin(a,RELAY7,1);
-        writeDigitalPin(a,RELAY8,1);
         Relay = 4;
-        %meanControlCount=0;
+        relayOn(a,Relay);
         pause(delayTime);
         else if M(1,2) < currgoalY - epsilon
-        writeDigitalPin(a, RELAY1,1);
-        writeDigitalPin(a,RELAY2,1);
-        writeDigitalPin(a,RELAY3,1);
-        writeDigitalPin(a,RELAY4,1);
-        writeDigitalPin(a, RELAY5,1);
-        writeDigitalPin(a,RELAY6,0);
-        writeDigitalPin(a,RELAY7,1);
-        writeDigitalPin(a,RELAY8,1);
         Relay = 6;
-       % meanControlCount=0;
+       relayOn(a,Relay);
         pause(delayTime);
             else
-        writeDigitalPin(a, RELAY1,1);
-        writeDigitalPin(a,RELAY2,1);
-        writeDigitalPin(a,RELAY3,1);
-        writeDigitalPin(a,RELAY4,1);
-        writeDigitalPin(a, RELAY5,0);
-        writeDigitalPin(a,RELAY6,1);
-        writeDigitalPin(a,RELAY7,1);
-        writeDigitalPin(a,RELAY8,1);
         Relay = 5;
-       % meanControlCount=0;
+       relayOn(a,Relay);
         pause(delayTime);
             end
         end
        
         else if M(1,2) > currgoalY+epsilon
-        writeDigitalPin(a, RELAY1,1);
-        writeDigitalPin(a,RELAY2,1);
-        writeDigitalPin(a,RELAY3,0);
-        writeDigitalPin(a,RELAY4,1);
-        writeDigitalPin(a, RELAY5,1);
-        writeDigitalPin(a,RELAY6,1);
-        writeDigitalPin(a,RELAY7,1);
-        writeDigitalPin(a,RELAY8,1);
+     
         Relay = 3;
-       % meanControlCount=0;
+       relayOn(a,Relay);
         pause(delayTime);
             else if M(1,2) < currgoalY-epsilon
-        writeDigitalPin(a, RELAY1,1);
-        writeDigitalPin(a,RELAY2,1);
-        writeDigitalPin(a,RELAY3,1);
-        writeDigitalPin(a,RELAY4,1);
-        writeDigitalPin(a, RELAY5,1);
-        writeDigitalPin(a,RELAY6,1);
-        writeDigitalPin(a,RELAY7,0);
-        writeDigitalPin(a,RELAY8,1);
-        Relay = 7;
-       % meanControlCount=0;
-       pause(delayTime);
+                    Relay=7;
+                    relayOn(a,Relay);
+                    pause(delayTime);
        
                 else       
-        writeDigitalPin(a, RELAY1,0);
-        writeDigitalPin(a,RELAY2,0);
-        writeDigitalPin(a,RELAY3,0);
-        writeDigitalPin(a,RELAY4,0);
-        writeDigitalPin(a, RELAY5,0);
-        writeDigitalPin(a,RELAY6,0);
-        writeDigitalPin(a,RELAY7,0);
-        writeDigitalPin(a,RELAY8,0);
-        Relay = 0;
-       meanControl=true;
-       pause(delayTime);
+        relayOn(a,Relay);
+        meanControl=true;
+        pause(delayTime);
         again = true;
                 end
             end
@@ -361,4 +271,4 @@ BW(stat(index).PixelIdxList)=0;
     end
     end
 end
-    
+
