@@ -153,8 +153,8 @@ BW(stat(index).PixelIdxList)=0;
     hold on
         minDis = 10000;
     corInd = 100;
-    maxVar = 14500; %was 16000
-    minVar = 11000; %was 12000
+    maxVar = 13000; %was 16000
+    minVar = 10000; %was 12000
         
     
     %%%%Variance Control
