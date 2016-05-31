@@ -23,9 +23,15 @@ This is just for getting a movie of the swarm writing the "swarm" !
 <head>
 <title>Stochastic Swarm Control: Box Pushing</title>
 </head>
-<body onload="init();">
+<body onload="instructions();">
 <canvas id="canvas" width="800" height="600" style="background-color:#EEEEEE;"></canvas>
 <div id="cc"></div>
+    <button type="button" onclick="init(500)">Level 1</button> 
+    <button type="button" onclick="init(100)">Level 2</button> 
+    <button type="button" onclick="init(50)">Level 3</button> 
+    <button type="button" onclick="init(10)">Level 4</button>
+    <button type="button" onclick="init(2)">Level 5</button> 
+
 </body>
 <script type="text/javascript" src="../shared/Box2dWeb-2.1.a.3.min.js"></script> <!-- box2d -->
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script> <!-- forms & strings -->
@@ -33,6 +39,20 @@ This is just for getting a movie of the swarm writing the "swarm" !
 <script type="text/javascript">
 // in Chrome, to view the console: Use the keyboard shortcut Command - Option - J (Mac) or Control -Shift -J (Windows/Linux).
 
+//creating the instructional page
+function instructions() {
+    var winstring = "Select your level below!";
+    $("canvas").drawText(
+    {
+        strokeStyle: "Blue",
+        strokeWidth: 3,
+        x: 8 * mapScale,
+        y: 3 * mapScale,
+        fontSize: 40,
+        fontFamily: 'Verdana, sans-serif',
+        text: winstring
+    }).restoreCanvas();
+}
 
 ///////////////////////////////
 //Begin Global Variables
@@ -415,15 +435,12 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 	return points;            
 } 
 
-    //creating the level buttons
-
-
 ///////////////////////////
 //End Drawing Functions
 ///////////////////////////
 
-function init() 
-{
+function init(numrobotsB) 
+    {
     var b2Vec2 = Box2D.Common.Math.b2Vec2
 	, b2AABB = Box2D.Collision.b2AABB
 	, b2BodyDef = Box2D.Dynamics.b2BodyDef
@@ -492,7 +509,8 @@ function init()
     ////create the robots
     bodyDef.type = b2Body.b2_dynamicBody;
     var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
-    var numrobots = numrobotsOptions[numrobotsRand];
+    var numrobots = numrobotsB;
+    //var numrobots = numrobotsOptions[numrobotsRand];
     if (BFSDebugMode || Gradient_DebugMode) {
         numrobots = 0;
     }
