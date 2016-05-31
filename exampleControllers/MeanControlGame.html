@@ -41,17 +41,43 @@ This is just for getting a movie of the swarm writing the "swarm" !
 
 //creating the instructional page
 function instructions() {
-    var winstring = "Select your level below!";
+    //welcome!!!
+    var winstring = "Mean Control Game";
     $("canvas").drawText(
     {
-        strokeStyle: "Blue",
+        strokeStyle: "Red",
         strokeWidth: 3,
-        x: 8 * mapScale,
+        x: 9 * mapScale,
         y: 3 * mapScale,
-        fontSize: 40,
+        fontSize: 50,
         fontFamily: 'Verdana, sans-serif',
         text: winstring
     }).restoreCanvas();
+
+    var winstring = "Description: Users manipulate swarm robots (blue dots) to align \n     the mean target (red dot) with the goal position (light blue target). \nThe goal is to active the green blocks to spell out \"SWARM.\" \n       Observe how the number of robots change the \n      difficulty of controlling the mean center.";
+    $("canvas").drawText(
+    {
+        strokeStyle: "Blue",
+        strokeWidth: 2,
+        x: 9.5 * mapScale,
+        y: 6 * mapScale,
+        fontSize: 20,
+        fontFamily: 'Verdana, sans-serif',
+        text: winstring
+    }).restoreCanvas();
+
+    var winstring = "Select your level below and let's PLAY!";
+    $("canvas").drawText(
+    {
+        strokeStyle: "LightSkyBlue",
+        strokeWidth: 2,
+        x: 9 * mapScale,
+        y: 9 * mapScale,
+        fontSize: 25,
+        fontFamily: 'Verdana, sans-serif',
+        text: winstring
+    }).restoreCanvas();
+
 }
 
 ///////////////////////////////
@@ -453,19 +479,6 @@ function init(numrobotsB)
 	, b2MouseJointDef = Box2D.Dynamics.Joints.b2MouseJointDef
     ;
     var time_stop = true;//stops the timer when game finishes
-
-    //instructions on the screen
-    //var startstring = "Try to hit the light blue target <br> with the red dot";
-    //$("canvas").drawText(
-    //{
-    //    strokeStyle: "Blue",
-    //    strokeWidth: 3,
-    //    x: 8 * mapScale, y: goalPositionYDraw * mapScale,
-    //    fontSize: 40,
-    //    fontFamily: 'Verdana, sans-serif',
-    //    text: startstring
-    //}).restoreCanvas();
-
 
     var world = new b2World(
 		new b2Vec2(0, 00) //gravity setting to zero removes gravity
