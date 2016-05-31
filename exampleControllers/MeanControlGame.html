@@ -26,7 +26,7 @@ This is just for getting a movie of the swarm writing the "swarm" !
 <body onload="instructions();">
 <canvas id="canvas" width="800" height="600" style="background-color:#EEEEEE;"></canvas>
 <div id="cc"></div>
-    <button type="button" onclick="init(500)">Level 1</button> 
+    <button type="button" onclick="init(200)">Level 1</button> 
     <button type="button" onclick="init(100)">Level 2</button> 
     <button type="button" onclick="init(50)">Level 3</button> 
     <button type="button" onclick="init(10)">Level 4</button>
@@ -67,8 +67,6 @@ var ROBOT_INPUT = { //robot commands
 };
 
 
-var numrobotsOptions = [2, 5, 10, 50, 75, 100, 200]; //array of possible # of numRobots
-var numrobotsRand = Math.floor(Math.random() * 7);
 var Level = [7, 6, 5, 4, 3, 2, 1];
 var levelTimes = [];
 var Time_Score = 0; //time played
@@ -440,7 +438,7 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 ///////////////////////////
 
 function init(numrobotsB) 
-    {
+{
     var b2Vec2 = Box2D.Common.Math.b2Vec2
 	, b2AABB = Box2D.Collision.b2AABB
 	, b2BodyDef = Box2D.Dynamics.b2BodyDef
@@ -507,10 +505,9 @@ function init(numrobotsB)
     world.CreateBody(bodyDef).CreateFixture(fixDef);
 
     ////create the robots
+    var numrobots = numrobotsB;//saving the function parameter
     bodyDef.type = b2Body.b2_dynamicBody;
     var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
-    var numrobots = numrobotsB;
-    //var numrobots = numrobotsOptions[numrobotsRand];
     if (BFSDebugMode || Gradient_DebugMode) {
         numrobots = 0;
     }
@@ -557,7 +554,7 @@ function init(numrobotsB)
     //redraws the bouncing balls
     (function animloop() {
         requestAnimFrame(animloop);
-        update();
+        update(numrobots);
     })();
     if (timeStart == null) {
         var day = new Date();
@@ -572,10 +569,11 @@ function init(numrobotsB)
         ys = ys * ys;
         return Math.sqrt(xs + ys);
     }
-  //called each animation round
-	//y-axis is inverted in webpage
-    function update() 
+    //called each animation round
+    //y-axis is inverted in webpage
+    function update(numrobotsB) 
     {
+        var numrobots = numrobotsB; //saving function parameter
         var impulseV=new b2Vec2(0,0);
         var impulse = 1.0;
 		
@@ -788,14 +786,6 @@ function init(numrobotsB)
         var elapsedTimeSec = (day.getTime() - overall_time) / 1000;
         elapsedTimeSec = Math.round(elapsedTimeSec * 10) / 10;
 
-        
-        //if (index_goal > 3) {
-        //    string = "Time = " + Time_Score + "s<br>Level " + Level[numrobotsRand] + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
-        //} else
-        //    string = "Time = " + elapsedTimeSec + "s<br>Level " + Level[numrobotsRand] + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
-
-        //$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // CONTROLLER
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -884,91 +874,108 @@ function init(numrobotsB)
                 fontSize: 40,
                 fontFamily: 'Verdana, sans-serif',
                 text: winstring
-                }).restoreCanvas();
+            }).restoreCanvas();
         }
         if (Time_Score_Boo) {
             Time_Score_Stop = elapsedTimeSec;
             Time_Score_Boo = false;
         }
-        var stringT;
-        if (index_goal > 3) {
-            stringT = "Time = " + Time_Score_Stop + "s<br>Level " + Level[numrobotsRand] + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
-        } else
-            stringT = "Time = " + elapsedTimeSec + "s<br>Level " + Level[numrobotsRand] + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
-        $('#cc').html(stringT); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-
-        //prevents screen from moving around with arrow keys
-        window.addEventListener("keydown", function (e) {
-            if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
-                e.preventDefault();
-            }
-        }, false);
-
-
-        $("canvas")
-        .drawArc({
-            //draw the goal mean position
-            strokeStyle: "lightblue",
-            strokeWidth: 5,
-            x: (goalsX[index_goal] / 2 - offsetGoalX) * mapScale,
-            y: (goalsY[index_goal] / 2 - offsetGoalY) * mapScale,
-            radius: radius * mapScale
-        })
-        .drawArc({
-            //draw the goal mean position
-            strokeStyle: "lightblue",
-            strokeWidth: 5,
-            x: (goalsX[index_goal] / 2 - offsetGoalX) * mapScale,
-            y: (goalsY[index_goal] / 2 - offsetGoalY) * mapScale,
-            radius: (radius + 0.2) * mapScale
-        }).restoreCanvas();
-        // .restoreCanvas();
-
-        if (((mean_position_x) >= ((goalsX[index_goal] / 2 - .5) - .25)) && ((mean_position_x) <= ((goalsX[index_goal] / 2 - .5) + .25))
-            && (mean_position_y) >= ((goalsY[index_goal] / 2 - 2) - .25) && (mean_position_y) <= ((goalsY[index_goal] / 2 - 2) + .25)) {
-
-            $("canvas").drawRect({
-                fillStyle: "green",
-                x: (goalsX[index_goal] / 2 - 0.5) * mapScale, y: (goalsY[index_goal] / 2 - 2) * mapScale,
-                width: 0.5 * mapScale,
-                height: 0.5 * mapScale,
-                cornerRadius: 0
-
-            }).restoreCanvas();
-            index_goal++;
-        }
-        for (var i = 0 ; i < index_goal; i++) {
-            $("canvas").drawRect({
-                fillStyle: "green",
-                x: (goalsX[i] / 2 - 0.5) * mapScale, y: (goalsY[i] / 2 - 2) * mapScale,
-                width: 0.5 * mapScale,
-                height: 0.5 * mapScale,
-                cornerRadius: 0
-            }).restoreCanvas();
-        }
-
-
-        $("canvas").drawArc({ //draw the average position
-            strokeStyle: "red",
-            strokeWidth: 5,
-            x: mean_position_x * mapScale,
-            y: mean_position_y * mapScale,
-            radius: radius * mapScale
-        }).restoreCanvas();
-
-        var Kgain = 4;
-        var Kderivative = 1;
-        var sum_velocity_x = 0;
-        var sum_velocity_y = 0;
-        for (var i = 0; i < numrobots; ++i) {
-            sum_velocity_x += m_Robot[i].GetLinearVelocity().x;
-            sum_velocity_y += m_Robot[i].GetLinearVelocity().y;
-        }
-        var mean_velocity_x = sum_velocity_x / numrobots;
-        var mean_velocity_y = sum_velocity_y / numrobots;
-        m_ControlInputY = Kgain * (goalY - mean_position_y) + Kderivative * (0 - mean_velocity_y);
-        m_ControlInputX = Kgain * (goalX - mean_position_x) + Kderivative * (0 - mean_velocity_x);
+    var Level;
+    switch (numrobots) {
+        case 200:
+            Level = 1;
+            break;
+        case 100:
+            Level = 2;
+            break;
+        case 50:
+            Level = 3;
+            break;
+        case 10:
+            Level = 4;
+            break;
+        default:
+            Level = 5.9;
     }
+    var stringT;
+    if (index_goal > 3) {
+        stringT = "Time = " + Time_Score_Stop + "s<br>Level " + Level + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
+    } else
+        stringT = "Time = " + elapsedTimeSec + "s<br>Level " + Level + "<br>Number of Robots: " + numrobots + "<br>In this game, users can manipulate the swarm robots (blue dots) to align the mean target (red dot) with the goal position (light blue target). The goal is to active the green blocks to spell out \"SWARM.\" Observe how the number of robots change the difficulty of controlling the mean center.The red ellipse is the covariance.";
+    $('#cc').html(stringT); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
+
+    //prevents screen from moving around with arrow keys
+    window.addEventListener("keydown", function (e) {
+        if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+            e.preventDefault();
+        }
+    }, false);
+
+
+    $("canvas")
+    .drawArc({
+        //draw the goal mean position
+        strokeStyle: "lightblue",
+        strokeWidth: 5,
+        x: (goalsX[index_goal] / 2 - offsetGoalX) * mapScale,
+        y: (goalsY[index_goal] / 2 - offsetGoalY) * mapScale,
+        radius: radius * mapScale
+    })
+    .drawArc({
+        //draw the goal mean position
+        strokeStyle: "lightblue",
+        strokeWidth: 5,
+        x: (goalsX[index_goal] / 2 - offsetGoalX) * mapScale,
+        y: (goalsY[index_goal] / 2 - offsetGoalY) * mapScale,
+        radius: (radius + 0.2) * mapScale
+    }).restoreCanvas();
+    // .restoreCanvas();
+
+    if (((mean_position_x) >= ((goalsX[index_goal] / 2 - .5) - .25)) && ((mean_position_x) <= ((goalsX[index_goal] / 2 - .5) + .25))
+        && (mean_position_y) >= ((goalsY[index_goal] / 2 - 2) - .25) && (mean_position_y) <= ((goalsY[index_goal] / 2 - 2) + .25)) {
+
+        $("canvas").drawRect({
+            fillStyle: "green",
+            x: (goalsX[index_goal] / 2 - 0.5) * mapScale, y: (goalsY[index_goal] / 2 - 2) * mapScale,
+            width: 0.5 * mapScale,
+            height: 0.5 * mapScale,
+            cornerRadius: 0
+
+        }).restoreCanvas();
+        index_goal++;
+    }
+    for (var i = 0 ; i < index_goal; i++) {
+        $("canvas").drawRect({
+            fillStyle: "green",
+            x: (goalsX[i] / 2 - 0.5) * mapScale, y: (goalsY[i] / 2 - 2) * mapScale,
+            width: 0.5 * mapScale,
+            height: 0.5 * mapScale,
+            cornerRadius: 0
+        }).restoreCanvas();
+    }
+
+
+    $("canvas").drawArc({ //draw the average position
+        strokeStyle: "red",
+        strokeWidth: 5,
+        x: mean_position_x * mapScale,
+        y: mean_position_y * mapScale,
+        radius: radius * mapScale
+    }).restoreCanvas();
+
+    var Kgain = 4;
+    var Kderivative = 1;
+    var sum_velocity_x = 0;
+    var sum_velocity_y = 0;
+    for (var i = 0; i < numrobots; ++i) {
+        sum_velocity_x += m_Robot[i].GetLinearVelocity().x;
+        sum_velocity_y += m_Robot[i].GetLinearVelocity().y;
+    }
+    var mean_velocity_x = sum_velocity_x / numrobots;
+    var mean_velocity_y = sum_velocity_y / numrobots;
+    m_ControlInputY = Kgain * (goalY - mean_position_y) + Kderivative * (0 - mean_velocity_y);
+    m_ControlInputX = Kgain * (goalX - mean_position_x) + Kderivative * (0 - mean_velocity_x);
+}
     // m_controlState = ROBOT_INPUT.ROBOT_PROP;
 
     //console.log(elapsedTimeSec + " " + mean_position_y + " " + goalY + " " + mean_position_x + " " + goalX );
