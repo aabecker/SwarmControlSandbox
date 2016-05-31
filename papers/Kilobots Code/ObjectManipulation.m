@@ -153,8 +153,8 @@ BW(stat(index).PixelIdxList)=0;
     hold on
         minDis = 10000;
     corInd = 100;
-    maxVar = 14500;
-    minVar = 12000;
+    maxVar = 14500; %was 16000
+    minVar = 11000; %was 12000
         
     
     %%%%Variance Control
@@ -263,6 +263,7 @@ BW(stat(index).PixelIdxList)=0;
                 else       
         relayOn(a,Relay);
         meanControl=true;
+        meanControl %debugging meanControl
         pause(delayTime);
         again = true;
                 end
