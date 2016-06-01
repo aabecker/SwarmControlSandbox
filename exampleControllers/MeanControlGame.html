@@ -30,7 +30,8 @@ This is just for getting a movie of the swarm writing the "swarm" !
     <button type="button" onclick="init(100)">Level 2</button> 
     <button type="button" onclick="init(50)">Level 3</button> 
     <button type="button" onclick="init(10)">Level 4</button>
-    <button type="button" onclick="init(2)">Level 5</button> 
+    <button type="button" onclick="init(1)">Level 5</button> 
+    <button type="button" onclick="refresh()">Play Again!</button> 
 
 </body>
 <script type="text/javascript" src="../shared/Box2dWeb-2.1.a.3.min.js"></script> <!-- box2d -->
@@ -39,12 +40,18 @@ This is just for getting a movie of the swarm writing the "swarm" !
 <script type="text/javascript">
 // in Chrome, to view the console: Use the keyboard shortcut Command - Option - J (Mac) or Control -Shift -J (Windows/Linux).
 
+    //refreshing the page
+function refresh() {
+    location.reload();
+}
+
 //creating the instructional page
 function instructions() {
     //welcome!!!
     var winstring = "Mean Control Game";
     $("canvas").drawText(
     {
+        fillStyle:"Red",
         strokeStyle: "Red",
         strokeWidth: 3,
         x: 9 * mapScale,
