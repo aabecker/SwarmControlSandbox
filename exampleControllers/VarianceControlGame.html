@@ -62,12 +62,19 @@ var ifGradient = true;
 // Debugging Variables.
 var BFSDebugMode = false;
 var Gradient_DebugMode = false;
+
 var TimeUp = false;  //have we reached the goal?
-var timeFinished = 1000;
-var TimeMax = 10;
-var Score = 0;
-var CircleScore = 0;
-var want=0;
+var timeFinished = 1000; 	//
+var TimeMax = 30;			// When does the game time out
+var Score = 0;				// Player's total Score
+var CircleScore = 0;		// Score in their current circle
+var want=0;					// Which variences are you currently aiming for
+
+var sectiontime=0;			// How long has player been in current section
+var sectionstart=null;		// When did player start section
+var scoretime=0;			// How long has player been inside variences
+var savedtime=0;
+var savedsectiontime=0;
 
 var numberOfGoals = 60;
 
@@ -586,8 +593,6 @@ function init()
 		overall_time = day.getTime();
 	}
 	var elapsedTimeSec = (day.getTime()- overall_time )/1000;
-	string = Score +" Points<br>Algorithm II  is making robots (blue discs) push a block to the goal</strong>";
-	$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// CONTROLLER
@@ -598,7 +603,7 @@ function init()
 	var offsetY = 5;
 	var amplitudeX = 5;
 	var offsetX = 5;
-	var max_desired_var_x = 10;//numrobots * robotrad * 1/2;
+	var max_desired_var_x = 10; //numrobots * robotrad * 1/2;
 	//numrobots * robotrad * 3/2;;
 	var mincov_xy = 0;
 	var max_desired_var_y = 20;
@@ -610,8 +615,14 @@ function init()
 	var desired_var_x;
 	var cov_xy = 0;
 
+
 	var varianceGoalX = new Array(2);
 	var varianceGoalY = new Array(2);
+	
+	// Attempt at randomly placing goals
+	var choose = 0;
+	
+	//Variance Goal center positions
 	varianceGoalX[0] = 3;
 	varianceGoalY[0] = 7;
 	varianceGoalX[1] = 13;
@@ -651,7 +662,12 @@ function init()
 				min_desired_var_y = min_desired_var_y1;
 				done = true;
 			}
-
+			choose=Math.round(Math.random());
+			
+			savedtime = sectiontime + savedtime;
+			savedsectiontime=0;
+			sectiontime = null;
+			sectionstart = null;
 		}
 		if(min_desired_var_x == min_desired_var_x1)
 			{
@@ -665,11 +681,6 @@ function init()
 			}
 
 	}
-
-
-
-	//goalY = offsetY+ amplitudeY*( elapsedTimeSec%cycleInSec > cycleInSec/2  );
-	//goalX = offsetX+ amplitudeX*( elapsedTimeSec%cycleInSec > cycleInSec/2  );
 
 	for(var i = 0; i < numrobots; ++i) {
 		sum_position_x += m_Robot[i].GetPosition().x;
@@ -745,23 +756,9 @@ function init()
 				width: 3 * 30*Math.sqrt(minvar_xp1), height: 3 * 30*Math.sqrt(minvar_yp1),
 				rotate: angle_min_variance1
 			}).restoreCanvas();
-			$("canvas").drawEllipse({
-				strokeStyle: "blue",
-				strokeWidth: 5,
-				x: varianceGoalX[1] * mapScale, y:  varianceGoalY[1] * mapScale,
-				width: 3 * 30*Math.sqrt(minvar_xp2), height: 3 * 30*Math.sqrt(minvar_yp2),
-				rotate: angle_min_variance2
-			}).restoreCanvas();
 			want=0;
 		}
 		else if(min_desired_var_x == min_desired_var_x2){
-			$("canvas").drawEllipse({
-				strokeStyle: "blue",
-				strokeWidth: 5,
-				x: varianceGoalX[0] * mapScale, y:  varianceGoalY[0] * mapScale,
-				width: 3 * 30*Math.sqrt(minvar_xp1), height: 3 * 30*Math.sqrt(minvar_yp1),
-				rotate: angle_min_variance1
-			}).restoreCanvas();
 			$("canvas").drawEllipse({
 				strokeStyle: "green",
 				strokeWidth: 5,
@@ -772,35 +769,38 @@ function init()
 			want=1;
 			
 		}
-	var timestring = "Time = "+ (TimeMax-elapsedTimeSec).toFixed(2);
+	var timestring = "Time = "+ (TimeMax-elapsedTimeSec).toFixed(2)+"s";
 	var scorestring = "Score = "+ Score;
 	$("canvas").drawText(
 	{
+		fillStyle: "white",
 		strokeStyle: "white",
 		strokeWidth: 2,
 		x: 2.75*mapScale  , y:14.5*mapScale ,
 		fontSize: 30,
 		fontFamily: 'Verdana, sans-serif',
 		text: timestring,
-		//textAlign : "Left" I need to figure out how to code alignment on here...
+		align : 'left'
 	})
 	.drawText(
 	{
+		fillStyle: "white",
 		strokeStyle: "white",
 		strokeWidth: 2,
 		x: 17.5*mapScale  , y:0.5*mapScale ,
 		fontSize: 30,
 		fontFamily: 'Verdana, sans-serif',
 		text: scorestring,
+		align : 'left'
 	}).restoreCanvas();
 	}else{ // Time is Finished, Display Score to user
 
-		var winstring = "TIME'S UP!\n\nYou Scored: "+Score + " Points\n\nwith " + numrobots +" robots!";
+		var winstring = "TIME'S UP!\n\nYou were inside: "+ scoretime.toFixed(1) + "s\n\nThat's "+ ((scoretime/TimeMax)*100).toFixed(0)+"% of the time\n\nwith " + numrobots +" robots!";
 		$("canvas").drawText(
 		{
 			strokeStyle: "RebeccaPurple",
 			strokeWidth: 3,
-			x: 10*mapScale  , y: 6*mapScale ,
+			x: 10*mapScale  , y: 7*mapScale ,
 			fontSize: 40,
 			fontFamily: 'Verdana, sans-serif',
 			text: winstring
@@ -849,23 +849,56 @@ function init()
 	coordinateRobotsY[2] = (mean_position_y* mapScale)-(3 * 30*Math.sqrt(var_y)/2);
 	coordinateRobotsY[3] = (mean_position_y* mapScale)+(3 * 30*Math.sqrt(var_y)/2);
 	
-	for(var k = 0; k < 2; k++)
+	while(true)
 	{
-		var teststring = "inside";
-		if(lineDistance(coordinateRobotsX[k],coordinateRobotsY[k],(varianceGoalX[want] * mapScale),(varianceGoalY[want] * mapScale))>(3 * 30*Math.sqrt(minvar_xp2)/2))
+		if(lineDistance(coordinateRobotsX[0],coordinateRobotsY[0],(varianceGoalX[want] * mapScale),(varianceGoalY[want] * mapScale))>(3*30*Math.sqrt(minvar_xp2)/2))
 		{
-			var teststring = "outside";
+			if(sectionstart)
+			{
+				savedsectiontime=savedsectiontime +((day.getTime()- sectionstart )/1000);
+				sectionstart=null;
+			}
 			break;
 		}
-	}
-	for(k; k < 4; k++)
-	{
-		if(lineDistance(coordinateRobotsX[k],coordinateRobotsY[k],varianceGoalX[want] * mapScale,varianceGoalY[want] * mapScale)>(3 * 30*Math.sqrt(minvar_yp2)))
+		if(lineDistance(coordinateRobotsX[1],coordinateRobotsY[1],(varianceGoalX[want] * mapScale),(varianceGoalY[want] * mapScale))>(3*30*Math.sqrt(minvar_xp2)/2))
 		{
+			if(sectionstart)
+			{
+				savedsectiontime=savedsectiontime +((day.getTime()- sectionstart )/1000);
+				sectionstart=null;
+			}
 			break;
-			var teststring = "outside";
 		}
+		if(lineDistance(coordinateRobotsX[2],coordinateRobotsY[2],varianceGoalX[want] * mapScale,varianceGoalY[want] * mapScale)>(3*30*Math.sqrt(minvar_yp2)/2))
+		{
+			if(sectionstart)
+			{
+				savedsectiontime=savedsectiontime +((day.getTime()- sectionstart )/1000);
+				sectionstart=null;
+			}
+			break;
+		}
+		
+		if(lineDistance(coordinateRobotsX[3],coordinateRobotsY[3],varianceGoalX[want] * mapScale,varianceGoalY[want] * mapScale)>(3*30*Math.sqrt(minvar_yp2)/2))
+		{
+			if(sectionstart)
+			{
+				savedsectiontime=savedsectiontime +((day.getTime()- sectionstart )/1000);
+				sectionstart=null;
+			}
+			break;
+		}
+		if (sectionstart==null)
+		{
+			sectionstart=day.getTime();
+			break;
+		}
+		sectiontime=savedsectiontime +(day.getTime()- sectionstart )/1000;
+		break;
 	}
+	scoretime = savedtime + sectiontime;
+	anotherstring ="Section Time = "+ sectiontime +"s<br>Score Time = "+ scoretime +"s";
+	$('#cc').html(anotherstring);
 	
 	if(elapsedTimeSec >= TimeMax){TimeUp = true;}
 	}; //end update
