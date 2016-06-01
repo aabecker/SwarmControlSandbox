@@ -210,10 +210,10 @@ BW(stat(index).PixelIdxList)=0;
     
     hold off
     if (meanControl)
-        delayTime=21;
+        delayTime=42;
         meanControl=false;
     else 
-        delayTime=7;
+        delayTime=14;
     end
     %Mean Control activates Variance Control when the mean and goal are on
     %top of each other for more than 5 times 
