@@ -239,7 +239,7 @@ function init()
 	var boundaryWidth = 20;
 	var fixDef = new b2FixtureDef;
 	fixDef.density = 1.0;
-	fixDef.friction = 0.5;
+	fixDef.friction =10;
 	fixDef.restitution = 0.2; //bouncing value
 	var bodyDef = new b2BodyDef;
 	//create enclosing boundary rectangles
@@ -265,9 +265,6 @@ function init()
 	{
 		numrobots = 0;
 	}
-	fixDef.density = 1.0;
-	fixDef.friction = 0.5;
-	fixDef.restitution = 0.2; //bouncing value
 	fixDef.isSensor = false;
 	var m_Robot = new Array();
 	var rowLength = Math.floor(5/(2*robotrad));
@@ -551,23 +548,6 @@ function init()
 		}
 	}
 	
-	if(!TimeUp) //draw the mean position of where bots should be directed
-	{
-		$("canvas")
-		.drawArc({
-			strokeStyle: "lightblue",
-			strokeWidth: 5,
-			x: goalX * mapScale, y: goalY * mapScale,
-			radius: radius * mapScale
-		})
-		.drawArc({
-			strokeStyle: "lightblue",
-			strokeWidth: 5,
-			x: goalX * mapScale, y: goalY * mapScale,
-			radius: (radius + 0.2) * mapScale
-		})
-		.restoreCanvas();
-	}
 	var day = new Date();
 	if(overall_time == null) // set the start time
 	{
@@ -766,12 +746,6 @@ function init()
 			cornerRadius: 0
 		}).restoreCanvas();
 	}
-	$("canvas").drawArc({ //draw the average position
-		strokeStyle: "red",
-		strokeWidth: 5,
-		x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-		radius: radius * mapScale
-	}).restoreCanvas();		
 	var Kgain = 4;
 	var Kderivative = 1;
 	var sum_velocity_x = 0;
