@@ -1,8 +1,5 @@
-
 <!--
 This is just for getting a movie of the swarm controlling variance and swapping between two goal ellipses.
-
-
 ////////////////////////////////////////////////////////////description//
 // We want to control variance and mean position and find a way to the goal.
 /////////////////////////////////////////////////////////////////////////
@@ -32,8 +29,6 @@ This is just for getting a movie of the swarm controlling variance and swapping 
 <script type="text/javascript" src="../shared/jcanvas.min.js"></script>
 <script type="text/javascript">
 // in Chrome, to view the console: Use the keyboard shortcut Command - Option - J (Mac) or Control -Shift -J (Windows/Linux).
-
-
 ///////////////////////////////
 //Begin Global Variables
 ///////////////////////////////
@@ -47,12 +42,10 @@ var ROBOT_INPUT = {
 };
 var width = 600;
 var m_ControlInputY = 0;
-
 var m_controlState = ROBOT_INPUT.ROBOT_IDLE;
 var mapXSize = 20;
 var mapYSize = 20;
 var mapScale = 40;
-
 var blockCOM_x = 0;
 var blockCOM_y = 0;
 // checking variables.
@@ -62,34 +55,26 @@ var ifGradient = true;
 // Debugging Variables.
 var BFSDebugMode = false;
 var Gradient_DebugMode = false;
-
 var TimeUp = false;  //have we reached the goal?
 var timeFinished = 1000; 	//
 var TimeMax = 30;			// When does the game time out
 var Score = 0;				// Player's total Score
 var CircleScore = 0;		// Score in their current circle
 var want=0;					// Which variences are you currently aiming for
-
 var sectiontime=0;			// How long has player been in current section
 var sectionstart=null;		// When did player start section
 var scoretime=0;			// How long has player been inside variences
 var savedtime=0;
 var savedsectiontime=0;
-
 var numberOfGoals = 60;
-
 var map = new Array(mapXSize);
 var gradient_x = new Array(mapXSize);
 var gradient_y = new Array(mapXSize);
 var gradient_angle = new Array(mapXSize);
-
 var goalsX = new Array(numberOfGoals);
 var goalsY = new Array(numberOfGoals);
-
 var index_goal = 0;
 var done = false;
-
-
 for (var i = 0; i < mapXSize; i++) 
 {   // mapping data arrays
 	map[i] = new Array(mapYSize);
@@ -97,26 +82,20 @@ for (var i = 0; i < mapXSize; i++)
 	gradient_y[i] = new Array(mapYSize);
 	gradient_angle[i] = new Array(mapYSize);
 }
-
-
 	var min_desired_var_x1 = 2;
 	var min_desired_var_y1 = 10;
 	var min_desired_var_x2 = 10;
 	var min_desired_var_y2 = 2;
 	var min_desired_var_x = min_desired_var_x1;
 	var min_desired_var_y = min_desired_var_y1;
-
-var goalX = goalsX[0]/2;
-var goalY = goalsY[0]/2;
-
+	var goalX = 0;
+	var goalY = 0;
 /////////////////////////////
 //End Global Variables
 /////////////////////////////
-
 /////////////////////////////
 //Begin Algorithmic Functions
 /////////////////////////////
-
 function BFS(x, y ) 
 {  //recursively compute Breadth First Search from goal to every other grid cell
 	var dist = map[x][y];
@@ -159,7 +138,6 @@ function BFS(x, y )
 		}
 	}
 }
-
 function Gradient(x,y)
 {  // computes the x and y gradient of cell(x,y)  requires a map with distance values.
 	var dist = map[x][y];
@@ -186,7 +164,6 @@ function Gradient(x,y)
 	{
 		gradient_x[x][y] = (map[x+1][y] - map[x-1][y])/2;
 	}
-
 	if(map[x][y-1] == -1 && map[x][y+1] == -1)
 	{
 		gradient_y[x][y] = 0;
@@ -211,7 +188,6 @@ function Gradient(x,y)
 ////////////////////////////
 //End Algorithmic Functions
 ////////////////////////////
-
 ///////////////////////////
 //Begin Drawing Functions
 ///////////////////////////
@@ -222,7 +198,6 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 	pointObj = {},
 	points = [],
 	i = -1;
-
 	while( i < n )
 	{
 		var theta = alpha * i,
@@ -232,11 +207,9 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 	}              
 	return points;            
 } 
-
 ///////////////////////////
 //End Drawing Functions
 ///////////////////////////
-
 function init() 
 {
 	var b2Vec2 = Box2D.Common.Math.b2Vec2
@@ -264,13 +237,11 @@ function init()
 	var firstloop = false;
 	var boundaryHeight = 2;
 	var boundaryWidth = 20;
-
 	var fixDef = new b2FixtureDef;
 	fixDef.density = 1.0;
 	fixDef.friction = 0.5;
 	fixDef.restitution = 0.2; //bouncing value
 	var bodyDef = new b2BodyDef;
-
 	//create enclosing boundary rectangles
 	bodyDef.userData = 'obstacle';
 	bodyDef.type = b2Body.b2_staticBody;
@@ -286,8 +257,6 @@ function init()
 	world.CreateBody(bodyDef).CreateFixture(fixDef);
 	bodyDef.position.Set(21, 13); // right side
 	world.CreateBody(bodyDef).CreateFixture(fixDef);
-
-
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
@@ -313,7 +282,6 @@ function init()
 		m_Robot[i].m_angularDamping = 1; //was 1, we used 10 on SwarmControl
 		m_Robot[i].m_linearDamping = 1;
 	}
-
 	window.requestAnimFrame = (function()
 	{
 		return window.requestAnimationFrame ||
@@ -325,7 +293,6 @@ function init()
 			window.setTimeout(callback, 1000 / 60);
 		};
 	})();
-
 	///////////////////////////////////
 	// Brushfire Algorithm
 	///////////////////////////////////
@@ -333,7 +300,20 @@ function init()
 	var mazeSize = 15;
 	var mazeTopY = 13;
 	var mazeDownY = 6;
-
+	
+	var varianceGoalX = new Array(2);
+	var varianceGoalY = new Array(2);
+	
+	// Attempt at randomly placing goals
+	var choose = 0;
+	
+	//Variance Goal center positions
+	varianceGoalX[0] = 3;
+	varianceGoalY[0] = (Math.random()*10)+5;
+	varianceGoalX[1] = (Math.random()*10)+5;
+	varianceGoalY[1] = 3;
+	
+	
 	(function animloop()
 	{
 		requestAnimFrame(animloop);
@@ -350,7 +330,6 @@ function init()
 		ys = ys * ys;
 		return Math.sqrt( xs + ys );
 	}
-
 	//called each animation round
 	//y-axis is inverted in webpage
 	function update() 
@@ -376,6 +355,14 @@ function init()
                 case 40: m_controlState &= ~ROBOT_INPUT.ROBOT_DOWN; break;
             }
         })
+		
+		//prevents screen from moving around with arrow keys
+		window.addEventListener("keydown", function (e) {
+			if ([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+				e.preventDefault();
+			}
+		}, false);
+	
         //adds velocity to robots based on array key input
         if (m_controlState == ROBOT_INPUT.ROBOT_LEFT)
         {impulseV.x-=impulse;}
@@ -385,7 +372,6 @@ function init()
         {impulseV.x+=impulse;}
         if (m_controlState == ROBOT_INPUT.ROBOT_DOWN)
         { impulseV.y += impulse; }
-
         //allows for multiple key presses 
         if (m_controlState & ROBOT_INPUT.ROBOT_LEFT)
         { impulseV.x -= impulse; }
@@ -416,7 +402,6 @@ function init()
 			brownianImpulse.y = mag*Math.sin(ang) + impulseV.y ;
 			m_Robot[i].ApplyForce(brownianImpulse,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
 		}
-
 		world.Step(1 / 60, 10, 10);
 		world.DrawDebugData();
 		world.ClearForces();			
@@ -426,7 +411,6 @@ function init()
 			x: 5 * mapScale, y: 5 * mapScale,
 			rotate: angle
 		}).restoreCanvas();
-
 		if(BFSDebugMode)
 		{
 			for(var i = 0 ; i < mapXSize; i++)
@@ -471,7 +455,6 @@ function init()
 				}
 			}
 		}
-
 		if(Gradient_DebugMode)
 		{
 			for(var i = 0 ; i < mapXSize; i++){
@@ -489,7 +472,6 @@ function init()
 				}
 			}
 		}
-
 	//draw robots and obstacles
 	for (b = world.GetBodyList() ; b; b = b.GetNext())
 	{
@@ -586,14 +568,12 @@ function init()
 		})
 		.restoreCanvas();
 	}
-
 	var day = new Date();
 	if(overall_time == null) // set the start time
 	{
 		overall_time = day.getTime();
 	}
 	var elapsedTimeSec = (day.getTime()- overall_time )/1000;
-
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// CONTROLLER
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -614,50 +594,30 @@ function init()
 	var sum2_y = 0;
 	var desired_var_x;
 	var cov_xy = 0;
-
-
-	var varianceGoalX = new Array(2);
-	var varianceGoalY = new Array(2);
 	
-	// Attempt at randomly placing goals
-	var choose = 0;
-	
-	//Variance Goal center positions
-	varianceGoalX[0] = 3;
-	varianceGoalY[0] = 7;
-	varianceGoalX[1] = 13;
-	varianceGoalY[1] = 3;
 	
 	var coordinateRobotsX = new Array(4);
 	var coordinateRobotsY = new Array(4);
-
 	if(elapsedTimeSec%cycleInSec > cycleInSec/2 )
 	{
 			done = false;
-			if(min_desired_var_x == min_desired_var_x1)
-			{
-				goalX = varianceGoalX[0];
-				goalY = varianceGoalY[0];
-			}
-			else if(min_desired_var_x == min_desired_var_x2)
-			{
-				goalX = varianceGoalX[1];
-				goalY = varianceGoalY[1];
-			}
 	}
 	else
 	{
 		if(!done)
 		{
 			if(min_desired_var_x == min_desired_var_x1)
-			{
+			{	
+				goalX = varianceGoalX[0];
+				goalY = varianceGoalY[0];
 				min_desired_var_x = min_desired_var_x2;
 				min_desired_var_y = min_desired_var_y2;
-
 				done = true;
 			}
 			else if(min_desired_var_x == min_desired_var_x2)
-			{
+			{	
+				goalX = varianceGoalX[1];
+				goalY = varianceGoalY[1];
 				min_desired_var_x = min_desired_var_x1;
 				min_desired_var_y = min_desired_var_y1;
 				done = true;
@@ -679,9 +639,7 @@ function init()
 				goalX = varianceGoalX[1];
 				goalY = varianceGoalY[1];
 			}
-
 	}
-
 	for(var i = 0; i < numrobots; ++i) {
 		sum_position_x += m_Robot[i].GetPosition().x;
 		sum_position_y += m_Robot[i].GetPosition().y;
@@ -720,8 +678,6 @@ function init()
 	{
 		goalY = goalYtemp;
 	}
-
-
 	var diffeq = Math.sqrt( (var_x-var_y)*(var_x-var_y)/4 + cov_xy*cov_xy);
 	var mindiffeq1 = Math.sqrt((min_desired_var_x1 -min_desired_var_y1 )*(min_desired_var_x1-min_desired_var_y1)/4 + mincov_xy*mincov_xy);
 	var mindiffeq2 = Math.sqrt((min_desired_var_x2 -min_desired_var_y2 )*(min_desired_var_x2-min_desired_var_y2)/4 + mincov_xy*mincov_xy);
@@ -729,15 +685,11 @@ function init()
 	var var_yp = (var_x+var_y)/2 - diffeq;
 	var minvar_xp1 = (min_desired_var_x1 + min_desired_var_y1)/2 + mindiffeq1 ;
 	var minvar_yp1 = (min_desired_var_x1 + min_desired_var_y1)/2 - mindiffeq1 ;
-
 	var minvar_xp2 = (min_desired_var_x2 + min_desired_var_y2)/2 + mindiffeq2 ;
 	var minvar_yp2 = (min_desired_var_x2 + min_desired_var_y2)/2 - mindiffeq2 ;
-
 	var angle2 = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, var_x-var_y);
 	var angle_min_variance1 = 180/Math.PI*1/2*Math.atan2( 2*mincov_xy, min_desired_var_x1-min_desired_var_y1);
 	var angle_min_variance2 = 180/Math.PI*1/2*Math.atan2( 2*mincov_xy, min_desired_var_x2-min_desired_var_y2);
-
-
 	if(!TimeUp){
 		$("canvas").drawEllipse({
 			strokeStyle: "red",
@@ -747,7 +699,6 @@ function init()
 			rotate: angle2
 		})
 		.restoreCanvas();
-
 		if(min_desired_var_x == min_desired_var_x1){
 			$("canvas").drawEllipse({
 				strokeStyle: "green",
@@ -770,7 +721,7 @@ function init()
 			
 		}
 	var timestring = "Time = "+ (TimeMax-elapsedTimeSec).toFixed(2)+"s";
-	var scorestring = "Score = "+ Score;
+	var scorestring = "Score = "+ ((scoretime/TimeMax)*100).toFixed(0);
 	$("canvas").drawText(
 	{
 		fillStyle: "white",
@@ -794,7 +745,6 @@ function init()
 		align : 'left'
 	}).restoreCanvas();
 	}else{ // Time is Finished, Display Score to user
-
 		var winstring = "TIME'S UP!\n\nYou were inside: "+ scoretime.toFixed(1) + "s\n\nThat's "+ ((scoretime/TimeMax)*100).toFixed(0)+"% of the time\n\nwith " + numrobots +" robots!";
 		$("canvas").drawText(
 		{
@@ -814,7 +764,6 @@ function init()
 			width: 0.5 * mapScale,
 			height: 0.5 * mapScale,
 			cornerRadius: 0
-
 		}).restoreCanvas();
 	}
 	$("canvas").drawArc({ //draw the average position
@@ -823,7 +772,6 @@ function init()
 		x: mean_position_x* mapScale, y: mean_position_y * mapScale,
 		radius: radius * mapScale
 	}).restoreCanvas();		
-
 	var Kgain = 4;
 	var Kderivative = 1;
 	var sum_velocity_x = 0;
@@ -837,7 +785,6 @@ function init()
 	m_ControlInputY = Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
 	m_ControlInputX = Kgain*(goalX - mean_position_x) + Kderivative*(0-mean_velocity_x) ;
 	m_controlState = ROBOT_INPUT.ROBOT_PROP;
-
 	//Debugging to figure out what things do
 	
 	coordinateRobotsX[0] = (mean_position_x* mapScale)-(3 * 30*Math.sqrt(var_x)/2);
@@ -914,5 +861,3 @@ function init()
 }
 </style>
 </html>
-
-
