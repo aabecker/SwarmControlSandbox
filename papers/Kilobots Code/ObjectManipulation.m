@@ -6,7 +6,7 @@
 
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(2);
+cam = webcam(1);
 
 
 
@@ -53,7 +53,7 @@ again = true;
 %  hold on; hq=quiver(X,Y,DY,DX,0.5,'color',[0,0,0]); hold off
 % set(hq,'linewidth',2);
 % Using Arduino for our lamps, this is how we define arduino in Matlab:
-load('Map1', 'movesX', 'movesY','corners');
+load('Map2', 'movesX', 'movesY','corners');
 
 if (ispc)  
     a = arduino('Com4','uno');
@@ -120,6 +120,9 @@ centroids = cat(1, stat.Centroid);
 ObjectCentroidX = centroids(index,1);
 ObjectCentroidY = centroids(index,2);
 plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
+
+
+%plot(corners,'*','Markersize',16,'color','green','linewidth',3); 
 BW(stat(index).PixelIdxList)=0;
 
   %threshold the image to remove shadows (and only show dark parts of kilobots)
@@ -141,20 +144,21 @@ BW(stat(index).PixelIdxList)=0;
     h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
     if s < 85
-        DateString = datestr(datetime, 'mm-dd-yyyy');
-        timeString=datestr(datetime, 'HH.MM.SS');
-        name = 'fail';
-        
-        fullName = strcat(name,DateString,timeString,'.jpeg' );
-        imwrite(originalImage,fullName);
+%         DateString = datestr(datetime);
+%         %timeString=datestr(datetime, 'HH.MM.SS');
+%         name = 'fail';
+%         
+%         %fullName = strcat(name,DateString,timeString,'.jpeg' );
+%         fullName = strcat(name,DateString,'.jpeg' );
+%         imwrite(originalImage,fullName);
     end
     if s > 5 
         again = false;
     hold on
-        minDis = 10000;
-    corInd = 100;
+    minDis = 10000;
+    corInd = 0;
     maxVar = 13000; %was 16000
-    minVar = 10000; %was 12000
+    minVar = 12000; %was 12000
         
     
     %%%%Variance Control
@@ -169,14 +173,14 @@ BW(stat(index).PixelIdxList)=0;
                 corInd = i;
             end   
         end
-        currgoalX = corners(corInd,1)*scale;
-        currgoalY = corners(corInd,2)*scale;
+        currgoalX = (corners(corInd,1)+1)*scale;
+        currgoalY = (corners(corInd,2))*scale;
     else if V< minVar
             VarCont = false;
         end
     end
     if ~VarCont
-     r = 1; %was 0.1
+     r = 0.5; %was 0.1
     indX = floor(M(1,1)/scale);
     indY = floor(M(1,2)/scale);
     indOX = floor(ObjectCentroidX/scale);
@@ -184,8 +188,8 @@ BW(stat(index).PixelIdxList)=0;
     
    if M(1,1) > ObjectCentroidX- r*scale+epsilon || M(1,1) < ObjectCentroidX-r*scale-epsilon
        if M(1,2) > ObjectCentroidY-r*scale+epsilon || M(1,2) < ObjectCentroidY-r*scale-epsilon
-    currgoalX = ObjectCentroidX + r*scale * movesY(indOY,indOX);
-    currgoalY = ObjectCentroidY + r*scale * movesX(indOY,indOX);
+    currgoalX = ObjectCentroidX - r*scale * movesY(indOY,indOX);
+    currgoalY = ObjectCentroidY - r*scale * movesX(indOY,indOX);
        end
    else
        currgoalX = M(1,1)+ movesY(indY,indX)*scale;
@@ -195,6 +199,9 @@ BW(stat(index).PixelIdxList)=0;
     plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
     plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
     plot(goalX*scale , goalY*scale,'*','Markersize',16,'color','green','linewidth',3);
+%     for i = 1:size(corners)
+%         plot( corners(i,1)* scale, corners(i,2)*scale,'*','Markersize',16,'color','red','linewidth',3);
+%     end
     %Current Mean and Covariance Ellipse
     plot_gaussian_ellipsoid(M,C);
     %M(counter) = getframe();

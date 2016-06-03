@@ -2,10 +2,13 @@
 %%%%%%%%% webcam, then process it to find obstacles, gives that map to MDP
 %%%%%%%%% and gets the result and draw the gradients. 
 success = false;
-cam = webcam(2);
+webcamShot = true;
+if webcamShot
+    cam = webcam(1);
+end
 t0 = tic;
 results3= [];
-while success == false
+%while success == false
 
  originalImage = snapshot(cam);
  original = imcrop(originalImage,[345 60 1110 850]);
@@ -47,7 +50,8 @@ map(:,sizeOfMap(2)) = 1;
 found = false;
 
 for i= 1:sizeOfMap(1)-1
-    for j = 1:sizeOfMap(2)-1    
+    for j = 1:sizeOfMap(2)-1 
+        found = false;
         for k = 0:scale-1
             for l = 0:scale-1
                 if BW(i*scale+k, j*scale+l,1) > 0
@@ -72,70 +76,69 @@ for i= 1:sizeOfMap(1)-1
 end
 
 
-I2 = rgb2hsv(original);
+% I2 = rgb2hsv(original);
+% % % Define thresholds for channel 1 based on histogram settings
+% % channel1Min = 0.184;
+% % channel1Max = 0.423;
+% % 
+% % % Define thresholds for channel 2 based on histogram settings
+% % channel2Min = 0.184;
+% % channel2Max = 0.753;
+% % 
+% % % Define thresholds for channel 3 based on histogram settings
+% % channel3Min = 0.400;
+% % channel3Max = 1.000;
+% 
 % % Define thresholds for channel 1 based on histogram settings
-% channel1Min = 0.184;
-% channel1Max = 0.423;
+% channel1Min2 = 0.065;
+% channel1Max2 = 0.567;
 % 
 % % Define thresholds for channel 2 based on histogram settings
-% channel2Min = 0.184;
-% channel2Max = 0.753;
+% channel2Min2 = 0.288;
+% channel2Max2 = 1.000;
 % 
 % % Define thresholds for channel 3 based on histogram settings
-% channel3Min = 0.400;
-% channel3Max = 1.000;
-
-% Define thresholds for channel 1 based on histogram settings
-channel1Min2 = 0.065;
-channel1Max2 = 0.567;
-
-% Define thresholds for channel 2 based on histogram settings
-channel2Min2 = 0.288;
-channel2Max2 = 1.000;
-
-% Define thresholds for channel 3 based on histogram settings
-channel3Min2 = 0.400;
-channel3Max2 = 1.000;
-
-% Create mask based on chosen histogram thresholds
-BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
-    (I2(:,:,2) >= channel2Min2 ) & (I2(:,:,2) <= channel2Max2) & ...
-    (I2(:,:,3) >= channel3Min2 ) & (I2(:,:,3) <= channel3Max2);
-
-%threshold the image to remove shadows (and only show dark parts of kilobots)
-    [centers, radii] = imfindcircles(BW2,[10 19],'ObjectPolarity','bright','Sensitivity',0.92 );
-    
-    % %Mean
-    M = mean(centers);
-    %Variance
-    V = var(centers);
-    %Covariance
-    C = cov(centers);
-    imshow(original);
-     h = viscircles(centers,radii,'EdgeColor','b');
-    [s, l] = size(centers);
-    plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
-    plot_gaussian_ellipsoid(M,C);
-% Convert RGB image to chosen color space
-save('results3','results3');
-
-
-end
+% channel3Min2 = 0.400;
+% channel3Max2 = 1.000;
 % 
-% for i = 2:sizeOfMap(1)-1
-%     for j = 2:sizeOfMap(2)-1
-%         if map(i,j) ~=1 
-%             if (map(i-1,j) == 1 && map(i,j-1) ==1) || (map(i+1,j) == 1 && map(i,j+1) ==1) ...
-%                     || (map(i+1,j) == 1 && map(i,j-1) ==1) ||(map(i-1,j) == 1 && map(i,j+1) ==1)
-%                 corners = [corners; j i];           
-%             end
-%         end
-%     end
+% % Create mask based on chosen histogram thresholds
+% BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
+%     (I2(:,:,2) >= channel2Min2 ) & (I2(:,:,2) <= channel2Max2) & ...
+%     (I2(:,:,3) >= channel3Min2 ) & (I2(:,:,3) <= channel3Max2);
+% 
+% %threshold the image to remove shadows (and only show dark parts of kilobots)
+%     [centers, radii] = imfindcircles(BW2,[10 19],'ObjectPolarity','bright','Sensitivity',0.92 );
+%     
+%     % %Mean
+%     M = mean(centers);
+%     %Variance
+%     V = var(centers);
+%     %Covariance
+%     C = cov(centers);
+%     imshow(original);
+%      h = viscircles(centers,radii,'EdgeColor','b');
+%     [s, l] = size(centers);
+%     plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
+%     plot_gaussian_ellipsoid(M,C);
+% % Convert RGB image to chosen color space
+% 
+% 
 % end
+% % 
+for j = 2:sizeOfMap(2)-1
+    for i = 2:sizeOfMap(1)-1
+        if map(i,j) ~=1 
+            if (map(i-1,j) == 1 && map(i,j-1) ==1) || (map(i+1,j) == 1 && map(i,j+1) ==1) ...
+                    || (map(i+1,j) == 1 && map(i,j-1) ==1) ||(map(i-1,j) == 1 && map(i,j+1) ==1)
+                corners = [corners; j i];           
+            end
+        end
+    end
+end
 
 imwrite(img,'Obstacle.jpeg');
-%[probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
-%save('Map1', 'movesX', 'movesY','corners');
+[probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
+save('Map2', 'movesX', 'movesY','corners');
 
 % [X,Y] = meshgrid(1:size(map,2),1:size(map,1));
 %  hold on; hq=quiver(X*scale,Y*scale,movesY,movesX,0.5,'color',[0,0,0]); hold off
