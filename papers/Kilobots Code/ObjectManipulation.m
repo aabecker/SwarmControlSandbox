@@ -167,13 +167,15 @@ BW(stat(index).PixelIdxList)=0;
         VarCont = true
         for i = 1:size(corners)
             %dist = sqrt(sum((M - corners(i)) .^ 2));
-            dist = sqrt(sum((centroids(index) - corners(i)) .^ 2));
+            %dist = sqrt(sum((centroids(index) - corners(i)) .^ 2));
+            dist = sqrt((ObjectCentroidX/scale - corners(i,1)) * (ObjectCentroidX/scale - corners(i,1)) + (ObjectCentroidY/scale- corners(i,2)) * (ObjectCentroidY/scale- corners(i,2)));
+            
             if minDis > dist
                 minDis = dist;
                 corInd = i;
             end   
         end
-        currgoalX = (corners(corInd,1)+1)*scale;
+        currgoalX = (corners(corInd,1))*scale;
         currgoalY = (corners(corInd,2))*scale;
     else if V< minVar
             VarCont = false;
@@ -199,9 +201,11 @@ BW(stat(index).PixelIdxList)=0;
     plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
     plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
     plot(goalX*scale , goalY*scale,'*','Markersize',16,'color','green','linewidth',3);
-%     for i = 1:size(corners)
-%         plot( corners(i,1)* scale, corners(i,2)*scale,'*','Markersize',16,'color','red','linewidth',3);
-%     end
+    for i = 1:size(corners)
+        txt = int2str(i);
+        text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
+        %plot( corners(i,1)* scale, corners(i,2)*scale,'*','Markersize',16,'color','red','linewidth',3);
+    end
     %Current Mean and Covariance Ellipse
     plot_gaussian_ellipsoid(M,C);
     %M(counter) = getframe();
