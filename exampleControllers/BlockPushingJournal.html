@@ -71,7 +71,7 @@ var ifBFS = true;
 var MDP_DebugMode = false;
 var BFSDebugMode = false;
 var Gradient_DebugMode = false;
-var Gradient_DebugMode_MDP = true;
+var Gradient_DebugMode_MDP = false;
 var goalRecieved = false;  //have we reached the goal?
 var timeFinished = 1000;
 var wroteFinish = false;
@@ -312,7 +312,16 @@ function init()
 	, b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
 	, b2DebugDraw = Box2D.Dynamics.b2DebugDraw
 	, b2MouseJointDef = Box2D.Dynamics.Joints.b2MouseJointDef
-	;
+    ;
+
+	var varCount = 0; //counter for variance control
+	var varCountMax = 100; //maximum time spent in variance control
+	var distanceMax = 5; //default distance for robots calculated in mean
+	var initialMean = true; //calculates the initial mean
+	var mean_position_x;
+	var mean_position_y;
+	var varNumrobots = 0; //number of robots inside the distanceMax
+
 	var world = new b2World(
 		new b2Vec2(0, 00) //gravity setting to zero removes gravity
 		, true //allow sleep
@@ -379,7 +388,9 @@ function init()
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
-	var numrobots = 200;//Math.floor(20/(4*robotrad*robotrad));
+    //if you change the number of robots, change both globalNumrobots and numrobots
+	var globalNumrobots = 200; //total number of robots 
+	var numrobots = 200;//Math.floor(20/(4*robotrad*robotrad)) //variable used in multiple calculations, changes with varNumrobots 
 	if(MDP_DebugMode || Gradient_DebugMode_MDP)
 	{
 		numrobots = 0;
@@ -592,7 +603,7 @@ function init()
 		var brownianImpulse = new b2Vec2(0,0);
 		var mag = 0;
 		var ang = 0;
-		var vary= 0.5; //was 1
+		var vary= 1; //was .5
 		for(var i =0; i<m_Robot.length; i++) 
 		{
 			mag = vary * Math.random();
@@ -890,8 +901,8 @@ if(BFSDebugMode)
 	var offsetY = 5;
 	var amplitudeX = 5;
 	var offsetX = 5;
-	var max_desired_var_x = 1.91;//numrobots * robotrad * 1/2;
-	var min_desired_var_x = 0.663;//numrobots * robotrad * 3/2;;
+	var max_desired_var_x = numrobots * robotrad * .20; //was 1.91
+	var min_desired_var_x = numrobots * robotrad * .05; //was .663
 	var max_desired_var_y = max_desired_var_x;
 	var min_desired_var_y = min_desired_var_x;
 	var sum_position_x = 0;
@@ -900,16 +911,46 @@ if(BFSDebugMode)
 	var sum2_y = 0;
 	var desired_var_x;
 	var cov_xy = 0;
-	for(var i = 0; i < numrobots; ++i) {
-		sum_position_x += m_Robot[i].GetPosition().x;
-		sum_position_y += m_Robot[i].GetPosition().y;
+	var varDistance = 0;
+	varNumrobots = 0; //number of robots inside the distanceMax
+
+	if (initialMean) {
+	    for (var i = 0; i < globalNumrobots; ++i) { //iterate through all robots
+	        sum_position_x += m_Robot[i].GetPosition().x;
+	        sum_position_y += m_Robot[i].GetPosition().y;
+	    }
+	    mean_position_x = sum_position_x / numrobots;
+	    mean_position_y = sum_position_y / numrobots;
+	    initialMean = false;
+	    varNumrobots = numrobots;
 	}
-	var mean_position_x = sum_position_x / numrobots;
-	var mean_position_y = sum_position_y / numrobots;
-	for(var i = 0; i < numrobots; ++i) {
-		sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
-		sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
-		cov_xy=  cov_xy+ (m_Robot[i].GetPosition().x- mean_position_x)*(m_Robot[i].GetPosition().y - mean_position_y)/numrobots;
+	else {
+	    for (var i = 0; i < globalNumrobots; ++i) {//iterate through all robots
+	        var rx = m_Robot[i].GetPosition().x;
+	        var ry = m_Robot[i].GetPosition().y;
+	        varDistance=lineDistance(rx,ry, mean_position_x, mean_position_y);
+	        if ( varDistance < distanceMax) {
+	            sum_position_x += rx;
+	            sum_position_y += ry;
+	            varNumrobots++; //counts number of robots within DistanceMax
+	        }
+	     }
+	}
+	numrobots = varNumrobots;
+
+	mean_position_x = sum_position_x / numrobots;
+	mean_position_y = sum_position_y / numrobots;
+
+
+	for (var i = 0; i < globalNumrobots; ++i) {//iterate through all robots
+	    var rx = m_Robot[i].GetPosition().x;
+	    var ry = m_Robot[i].GetPosition().y;
+	    varDistance = lineDistance(rx, ry, mean_position_x, mean_position_y);
+	    if (varDistance < distanceMax) {
+	        sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
+	        sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
+	        cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
+	    }
 	}
 	var var_x = sum2_x / numrobots;
 	var var_y = sum2_y / numrobots;
@@ -919,10 +960,10 @@ if(BFSDebugMode)
 	var angle2 = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, var_x-var_y);
 	var angle_min_variance = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, min_desired_var_x-min_desired_var_y);
 	var angle_max_variance = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, max_desired_var_x-max_desired_var_y);
-				var index_x = Math.floor(mean_position_x);
-			var index_y = Math.floor(mean_position_y);
-			var block_x = Math.floor(blockCOM_x);
-			var block_y = Math.floor(blockCOM_y);
+	var index_x = Math.floor(mean_position_x);
+	var index_y = Math.floor(mean_position_y);
+	var block_x = Math.floor(blockCOM_x);
+	var block_y = Math.floor(blockCOM_y);
 	if(!goalRecieved){
 		$("canvas").drawEllipse({
 			strokeStyle: "red",
@@ -956,14 +997,20 @@ if(BFSDebugMode)
 		}
 		m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
 	}
-	if(!goalRecieved){
+	console.log("flagVar  " + flagVar);
+	if (!goalRecieved) {
+	    console.log("var_x   " + var_x);
+	    console.log("var_y   " + var_y);
+	    console.log("min var   " + min_desired_var_x);
 		if(var_x < min_desired_var_x && var_y < min_desired_var_y)
 		{
-			flagVar = false;
+		    flagVar = false;
+		    varCount = 0;
 		}
 		if(var_x > max_desired_var_x || var_y > max_desired_var_y)
 		{
-			flagVar = true;
+		    flagVar = true;
+		    varCount++;
 		}
 		if(flagVar)
 		{
@@ -991,6 +1038,10 @@ if(BFSDebugMode)
 			}
 			goalX = CornerValuesX[IndexMinDist];
 			goalY = CornerValuesY[IndexMinDist];
+			if (varCount > varCountMax) {
+			    distanceMax =-.2;
+			}
+			console.log("varCount     " + varCount + "/" + varCountMax);
 		}
 		if(!flagVar)
 		{
