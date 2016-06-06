@@ -14,10 +14,10 @@ Relay=0;
 
 VarCont = false;
 
-epsilon = 5;
 
-goalX = 10;
-goalY = 10;
+
+goalX = 4;
+goalY = 4;
 
 success = false;
 again = true;
@@ -26,6 +26,7 @@ again = true;
 % img = imcrop(originalImage,[345 60 1110 850]);
 % s = size(img);
  scale = 30;
+ epsilon = 1* scale;
 % sizeOfMap = floor(s/scale);
 % map = zeros(sizeOfMap(1),sizeOfMap(2));
 % map(1,:) = 1;
@@ -164,7 +165,7 @@ BW(stat(index).PixelIdxList)=0;
     %%%%Variance Control
    % if ((V > maxVar) |(meanControlCount>3))
    if ((V > maxVar))
-        VarCont = true
+        VarCont = true;
         for i = 1:size(corners)
             %dist = sqrt(sum((M - corners(i)) .^ 2));
             %dist = sqrt(sum((centroids(index) - corners(i)) .^ 2));
@@ -182,25 +183,47 @@ BW(stat(index).PixelIdxList)=0;
         end
     end
     if ~VarCont
-     r = 0.5; %was 0.1
+        checkIfOutOfVariance = true
+     r = 0; %was 0.1
+      ep = 5;
+     minDistance =  5*scale;
+     
     indX = floor(M(1,1)/scale);
     indY = floor(M(1,2)/scale);
     indOX = floor(ObjectCentroidX/scale);
     indOY = floor(ObjectCentroidY/scale);
-    
-   if M(1,1) > ObjectCentroidX- r*scale+epsilon || M(1,1) < ObjectCentroidX-r*scale-epsilon
-       if M(1,2) > ObjectCentroidY-r*scale+epsilon || M(1,2) < ObjectCentroidY-r*scale-epsilon
+     if M(1,1) > ObjectCentroidX- minDistance && M(1,1) < ObjectCentroidX+minDistance && M(1,2) < ObjectCentroidY+minDistance && M(1,2) > ObjectCentroidY-minDistance
+         r = 0.1;
+     else r = 2.5;
+     end
+%     if M(1,1) > ObjectCentroidX- minDistance || M(1,1) < ObjectCentroidX-minDistance
+%        if M(1,2) > ObjectCentroidY-minDistance || M(1,2) < ObjectCentroidY-minDistance
+%            r = 2.5
+%        end
+%     else
+%         if M(1,2) > ObjectCentroidY-minDistance || M(1,2) < ObjectCentroidY-minDistance
+%            r = 2.5;
+%         else
+%             r = 0.1
+%         end
+%     end
+
+   if M(1,1) > ObjectCentroidX- r*scale+ep || M(1,1) < ObjectCentroidX-r*scale-ep
+       if M(1,2) > ObjectCentroidY-r*scale+ep || M(1,2) < ObjectCentroidY-r*scale-ep
     currgoalX = ObjectCentroidX - r*scale * movesY(indOY,indOX);
     currgoalY = ObjectCentroidY - r*scale * movesX(indOY,indOX);
+    tada = false
        end
    else
        currgoalX = M(1,1)+ movesY(indY,indX)*scale;
        currgoalY = M(1,2) + movesX(indY,indX)*scale;
+       tada = true
    end
     end
     plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
     plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
     plot(goalX*scale , goalY*scale,'*','Markersize',16,'color','green','linewidth',3);
+    plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','cyan','linewidth',3);
     for i = 1:size(corners)
         txt = int2str(i);
         text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
