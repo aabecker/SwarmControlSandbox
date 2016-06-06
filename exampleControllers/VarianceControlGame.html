@@ -41,13 +41,10 @@ var ROBOT_INPUT = {
 	WAIT 		: 0x40
 };
 var width = 600;
-var m_ControlInputY = 0;
 var m_controlState = ROBOT_INPUT.ROBOT_IDLE;
 var mapXSize = 20;
 var mapYSize = 20;
 var mapScale = 40;
-var blockCOM_x = 0;
-var blockCOM_y = 0;
 // Debugging Variables.
 var TimeUp = false;  		//have we reached the goal?
 var TimeMax = 60;			// When does the game time out
@@ -59,6 +56,9 @@ var sectionstart = null;	// When did player start section
 var scoretime = 0;			// How long has player been inside variences
 var savedtime = 0;
 var savedsectiontime = 0;
+
+var varWantX=null;
+var varWantY=null;
 
 var map = new Array(mapXSize);
 var gradient_x = new Array(mapXSize);
@@ -315,6 +315,8 @@ function init()
 	//y-axis is inverted in webpage
 	function update() 
 	{
+		
+		
         var impulseV=new b2Vec2(0,0);
         var impulse = 1.0;
 		
@@ -412,21 +414,14 @@ function init()
 					})
 					.restoreCanvas();
 				}
-				else if (b.GetUserData() == 'obstacle' || b.GetUserData() == 'moveable' || b.GetUserData() == 'rectangle_ground')
+				else if (b.GetUserData() == 'obstacle' )
 				{
 					var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
 					var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
 					//console.log(X);
 					var pos = b.GetPosition();
 					var color = 'orange';
-					if(b.GetUserData() == 'obstacle')
-						color = 'brown';
-					if(b.GetUserData() == 'moveable')
-					{
-						color = 'black';
-						blockCOM_x = pos.x;
-						blockCOM_y = pos.y;
-					}
+					if(b.GetUserData() == 'obstacle'){color = 'brown';}
 					$("canvas")
 					.rotateCanvas({
 						x: pos.x * mapScale, y: pos.y * mapScale,
@@ -527,14 +522,24 @@ function init()
 			var mindiffeq2 = Math.sqrt((min_desired_var_x2 -min_desired_var_y2 )*(min_desired_var_x2-min_desired_var_y2)/4 + mincov_xy*mincov_xy);
 			var var_xp = (var_x+var_y)/2 + diffeq;
 			var var_yp = (var_x+var_y)/2 - diffeq;
-			var minvar_xp1 = (min_desired_var_x1 + min_desired_var_y1)/2 + mindiffeq1 ;
-			var minvar_yp1 = (min_desired_var_x1 + min_desired_var_y1)/2 - mindiffeq1 ;
+			var minvar_yp1 = (min_desired_var_x1 + min_desired_var_y1)/2 + mindiffeq1 ;
+			var minvar_xp1 = (min_desired_var_x1 + min_desired_var_y1)/2 - mindiffeq1 ;
 			var minvar_xp2 = (min_desired_var_x2 + min_desired_var_y2)/2 + mindiffeq2 ;
 			var minvar_yp2 = (min_desired_var_x2 + min_desired_var_y2)/2 - mindiffeq2 ;
 			var angle2 = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, var_x-var_y);
-			var angle_min_variance1 = 180/Math.PI*1/2*Math.atan2( 2*mincov_xy, min_desired_var_x1-min_desired_var_y1);
-			var angle_min_variance2 = 180/Math.PI*1/2*Math.atan2( 2*mincov_xy, min_desired_var_x2-min_desired_var_y2);
-		
+			
+			
+			
+		$("canvas").drawRect({
+			fillStyle: "PaleVioletRed",
+			x: 2.5 * mapScale, y: 14 * mapScale,
+			width: ((TimeMax-elapsedTimeSec)/TimeMax)*15 * mapScale,
+			height: 1 * mapScale,
+			cornerRadius: 0,
+			fromCenter: false
+		})
+		.restoreCanvas();
+			
 			$("canvas").drawEllipse({
 				strokeStyle: "red",
 				strokeWidth: 5,
@@ -549,9 +554,10 @@ function init()
 					strokeWidth: 5,
 					x: varianceGoalX[0] * mapScale, y:  varianceGoalY[0] * mapScale,
 					width: 3 * 30*Math.sqrt(minvar_xp1), height: 3 * 30*Math.sqrt(minvar_yp1),
-					rotate: angle_min_variance1
 				}).restoreCanvas();
 				want=0;
+				varWantX=minvar_xp1;
+				varWantY=minvar_yp1;
 			}
 			else if(min_desired_var_x == min_desired_var_x2){
 				$("canvas").drawEllipse({
@@ -559,23 +565,22 @@ function init()
 					strokeWidth: 5,
 					x: varianceGoalX[1] * mapScale, y:  varianceGoalY[1] * mapScale,
 					width: 3 * 30*Math.sqrt(minvar_xp2), height: 3 * 30*Math.sqrt(minvar_yp2),
-					rotate: angle_min_variance2
 				}).restoreCanvas();
 				want=1;
-				
+				varWantX=minvar_xp2;
+				varWantY=minvar_yp2;
 			}
-			var timestring = "Time = "+ (TimeMax-elapsedTimeSec).toFixed(2)+"s";
+			var timestring = "Time Remaining "+ (TimeMax-elapsedTimeSec).toFixed(2)+"s";
 			var scorestring = "Score = "+ ((scoretime/TimeMax)*100).toFixed(0);
 			$("canvas").drawText(
 			{
 				fillStyle: "white",
 				strokeStyle: "white",
 				strokeWidth: 2,
-				x: 2.75*mapScale  , y:14.5*mapScale ,
+				x: 10*mapScale  , y:14.5*mapScale ,
 				fontSize: 30,
 				fontFamily: 'Verdana, sans-serif',
-				text: timestring,
-				align : 'left'
+				text: timestring
 			})
 			.drawText(
 			{
@@ -603,7 +608,7 @@ function init()
 			
 			while(true)
 			{
-				if(lineDistance(coordinateRobotsX[0],coordinateRobotsY[0],(varianceGoalX[want] * mapScale),(varianceGoalY[want] * mapScale))>(3*30*Math.sqrt(minvar_xp2)/2))
+				if(lineDistance(coordinateRobotsX[0],coordinateRobotsY[0],(varianceGoalX[want] * mapScale),(varianceGoalY[want] * mapScale))>(3*30*Math.sqrt(varWantX)/2))
 				{
 					if(sectionstart)
 					{
@@ -612,7 +617,7 @@ function init()
 					}
 					break;
 				}
-				if(lineDistance(coordinateRobotsX[1],coordinateRobotsY[1],(varianceGoalX[want] * mapScale),(varianceGoalY[want] * mapScale))>(3*30*Math.sqrt(minvar_xp2)/2))
+				if(lineDistance(coordinateRobotsX[1],coordinateRobotsY[1],(varianceGoalX[want] * mapScale),(varianceGoalY[want] * mapScale))>(3*30*Math.sqrt(varWantX)/2))
 				{
 					if(sectionstart)
 					{
@@ -621,7 +626,7 @@ function init()
 					}
 					break;
 				}
-				if(lineDistance(coordinateRobotsX[2],coordinateRobotsY[2],varianceGoalX[want] * mapScale,varianceGoalY[want] * mapScale)>(3*30*Math.sqrt(minvar_yp2)/2))
+				if(lineDistance(coordinateRobotsX[2],coordinateRobotsY[2],varianceGoalX[want] * mapScale,varianceGoalY[want] * mapScale)>(3*30*Math.sqrt(varWantY)/2))
 				{
 					if(sectionstart)
 					{
@@ -631,7 +636,7 @@ function init()
 					break;
 				}
 				
-				if(lineDistance(coordinateRobotsX[3],coordinateRobotsY[3],varianceGoalX[want] * mapScale,varianceGoalY[want] * mapScale)>(3*30*Math.sqrt(minvar_yp2)/2))
+				if(lineDistance(coordinateRobotsX[3],coordinateRobotsY[3],varianceGoalX[want] * mapScale,varianceGoalY[want] * mapScale)>(3*30*Math.sqrt(varWantY)/2))
 				{
 					if(sectionstart)
 					{
