@@ -61,29 +61,20 @@ var varWantX=null;
 var varWantY=null;
 
 var map = new Array(mapXSize);
-var gradient_x = new Array(mapXSize);
-var gradient_y = new Array(mapXSize);
-var gradient_angle = new Array(mapXSize);
 var goalsX = 0;
 var goalsY = 0;
 
 var done = false;
 
-for (var i = 0; i < mapXSize; i++) 
-{   // mapping data arrays
-	map[i] = new Array(mapYSize);
-	gradient_x[i] = new Array(mapYSize);
-	gradient_y[i] = new Array(mapYSize);
-	gradient_angle[i] = new Array(mapYSize);
-}
-	var min_desired_var_x1 = 2;
-	var min_desired_var_y1 = 10;
-	var min_desired_var_x2 = 10;
-	var min_desired_var_y2 = 2;
-	var min_desired_var_x = min_desired_var_x1;
-	var min_desired_var_y = min_desired_var_y1;
-	var goalX = 0;
-	var goalY = 0;
+var min_desired_var_x1 = 2;
+var min_desired_var_y1 = 10;
+var min_desired_var_x2 = 10;
+var min_desired_var_y2 = 2;
+var min_desired_var_x = min_desired_var_x1;
+var min_desired_var_y = min_desired_var_y1;
+var goalX = 0;
+var goalY = 0;
+
 /////////////////////////////
 //End Global Variables
 /////////////////////////////
