@@ -66,6 +66,17 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
     (I(:,:,3) >= channel3Min ) & (I(:,:,3) <= channel3Max);
 
   %threshold the image to remove shadows (and only show dark parts of kilobots)
+  
+  [B,L] = bwboundaries(BW, 'noholes');
+
+
+stat = regionprops(L,'Centroid','Area','PixelIdxList');
+
+[maxValue,index] = max([stat.Area]);
+centroids = cat(1, stat.Centroid);
+ObjectCentroidX = centroids(index,1);
+ObjectCentroidY = centroids(index,2);
+plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
     [centers, radii] = imfindcircles(BW,[10 19],'ObjectPolarity','bright','Sensitivity',0.92 );
     
     % %Mean

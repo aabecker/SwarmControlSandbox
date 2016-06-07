@@ -16,8 +16,8 @@ VarCont = false;
 
 
 
-goalX = 4;
-goalY = 4;
+goalX = 6;
+goalY = 5;
 
 success = false;
 again = true;
@@ -78,7 +78,7 @@ while success == false
 
     if again== true
         relayOn(a,0);
-    pause (1);
+    pause (10);
     end 
 % Read in a webcam snapshot.
 rgbIm = snapshot(cam);
@@ -158,13 +158,23 @@ BW(stat(index).PixelIdxList)=0;
     hold on
     minDis = 10000;
     corInd = 0;
-    maxVar = 13000; %was 16000
-    minVar = 12000; %was 12000
+    maxVar = 12000; %was 16000
+    minVar = 11000; %was 12000
         
     
     %%%%Variance Control
    % if ((V > maxVar) |(meanControlCount>3))
-   if ((V > maxVar))
+%    for i = 1:size(corners)
+%             %dist = sqrt(sum((M - corners(i)) .^ 2));
+%             %dist = sqrt(sum((centroids(index) - corners(i)) .^ 2));
+%             dist = sqrt((ObjectCentroidX/scale - corners(i,1)) * (ObjectCentroidX/scale - corners(i,1)) + (ObjectCentroidY/scale- corners(i,2)) * (ObjectCentroidY/scale- corners(i,2)));
+%             
+%             if minDis > dist
+%                 minDis = dist;
+%                 corInd = i;
+%             end   
+%    end
+   if (V > maxVar | VarCont)
         VarCont = true;
         for i = 1:size(corners)
             %dist = sqrt(sum((M - corners(i)) .^ 2));
@@ -183,7 +193,6 @@ BW(stat(index).PixelIdxList)=0;
         end
     end
     if ~VarCont
-        checkIfOutOfVariance = true
      r = 0; %was 0.1
       ep = 5;
      minDistance =  5*scale;
@@ -194,7 +203,11 @@ BW(stat(index).PixelIdxList)=0;
     indOY = floor(ObjectCentroidY/scale);
      if M(1,1) > ObjectCentroidX- minDistance && M(1,1) < ObjectCentroidX+minDistance && M(1,2) < ObjectCentroidY+minDistance && M(1,2) > ObjectCentroidY-minDistance
          r = 0.1;
-     else r = 2.5;
+     %else if M(1,1) > ObjectCentroidX- (corners(corInd,1))*scale && M(1,1) < ObjectCentroidX+minDistance && M(1,2) < ObjectCentroidY+minDistance && M(1,2) > ObjectCentroidY-minDistance
+     %        r = 2.5;
+     else
+             r = 2.5;
+         
      end
 %     if M(1,1) > ObjectCentroidX- minDistance || M(1,1) < ObjectCentroidX-minDistance
 %        if M(1,2) > ObjectCentroidY-minDistance || M(1,2) < ObjectCentroidY-minDistance
@@ -224,6 +237,7 @@ BW(stat(index).PixelIdxList)=0;
     plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
     plot(goalX*scale , goalY*scale,'*','Markersize',16,'color','green','linewidth',3);
     plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','cyan','linewidth',3);
+    circle(goalX*scale, goalY*scale,4*scale);
     for i = 1:size(corners)
         txt = int2str(i);
         text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
@@ -295,10 +309,12 @@ BW(stat(index).PixelIdxList)=0;
                     pause(delayTime);
        
                 else       
-        relayOn(a,Relay);
+        %relayOn(a,Relay);
         meanControl=true;
         meanControl %debugging meanControl
-        pause(delayTime);
+        VarCont = true;
+        %pause(delayTime);
+        
         again = true;
                 end
             end
