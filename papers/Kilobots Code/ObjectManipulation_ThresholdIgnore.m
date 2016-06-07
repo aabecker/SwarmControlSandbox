@@ -73,7 +73,7 @@ minDis = 10000;
 corInd = 0;
 maxVar = 12000; %was 16000
 minVar = 11000; %was 12000    
-threshold = 1.5*maxVar;
+threshold = 2*sqrt(maxVar);
 
 while success == false
 
@@ -87,7 +87,7 @@ while success == false
     if (ispc)  
         originalImage = imcrop(rgbIm,[50 10 500 400]);
     else 
-        originalImage = imcrop(rgbIm,[345 60 1110 850]);
+        originalImage = imcrop(rgbIm,[345 60 1110 860]);
     end 
     % make HSV scale.
     I = rgb2hsv(originalImage);
@@ -141,7 +141,8 @@ while success == false
     [inital_s, inital_l] = size(centers);
     for test = inital_s:-1:1
         if threshold < sqrt((OldM(1) - centers(test,1)) * (OldM(1) - centers(test,1)) + (OldM(2)- centers(test,2)) * (OldM(2)- centers(test,2)))
-            centers(test,:)=[]
+            centers(test,:)=[];
+            radii(test,:) = [];
         end
     end
     
@@ -153,9 +154,9 @@ while success == false
     C = cov(centers);
 
     imshow(originalImage);
-    
-    h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
+    h = viscircles(centers,radii,'EdgeColor','b');
+    
     if s < 85
 %         DateString = datestr(datetime);
 %         %timeString=datestr(datetime, 'HH.MM.SS');
@@ -195,10 +196,12 @@ while success == false
         end
         currgoalX = (corners(corInd,1))*scale;
         currgoalY = (corners(corInd,2))*scale;
-    else if V< minVar
-            VarCont = false;
-        end
-    end
+    
+   end
+   if V< minVar
+      VarCont = false;
+   end
+    
     if ~VarCont
      r = 0; %was 0.1
       ep = 5;
@@ -245,6 +248,9 @@ while success == false
     plot(goalX*scale , goalY*scale,'*','Markersize',16,'color','green','linewidth',3);
     plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','cyan','linewidth',3);
     circle(goalX*scale, goalY*scale,4*scale);
+    circle(OldM(1,1), OldM(1,2),threshold);
+    circle(M(1,1), M(1,2),sqrt(maxVar));
+    circle(M(1,1), M(1,2),sqrt(minVar));
     for i = 1:size(corners)
         txt = int2str(i);
         text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
