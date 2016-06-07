@@ -73,6 +73,7 @@ counter = 1;
 c = 0;
 meanControl=false;
 tic;
+first=true;
 
 while success == false
 
@@ -159,17 +160,6 @@ while success == false
     minDis = 10000;
     corInd = 0;
     
-    %%%Test How Long in One Light
-    if (PreviousRelay==Relay)   % Is it the same Relay?
-        howLong=toc;            % How long it has been in seconds
-        if(howLong>(5*60))      % If longer than 5 minutes then change
-            tempVar=V;          % Changes Current Varience to be Max Varience
-        end
-    else                        % Relay has Changed
-        PreviousRelay=Relay;    % Last Relay is Current Relay
-        tic;                    % Restart Timer
-    end
-    
     %%%%Variance Control
    % if ((V > maxVar) |(meanControlCount>3))
 %    for i = 1:size(corners)
@@ -199,11 +189,21 @@ while success == false
         if (tempVar>maxVar)
             tempVar=maxVar;
         end
+        
+        %%%Test How Long in One Light
+        if(~first)
+            howLong=toc;            % How long it has been in seconds
+            if(howLong>(5*60))      % If longer than 5 minutes then change
+                tempVar=V;          % Changes Current Varience to be Max Varience
+            end
+        end
     else if V < minVar
             VarCont = false;
         end
     end
     if ~VarCont
+        PreviousRelay=Relay;    % Last Relay is Current Relay
+        tic;                    % Restart Timer
      r = 0; %was 0.1
       ep = 5;
      minDistance =  5*scale;
@@ -331,4 +331,5 @@ while success == false
         end
     end
     end
+    first=false;
 end
