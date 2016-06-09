@@ -15,6 +15,7 @@ VarCont = false;
 
 goalX = 6;
 goalY = 5;
+frameCount = 1;
 
 success = false;
 again = true;
@@ -259,6 +260,9 @@ while success == false
     %Current Mean and Covariance Ellipse
     plot_gaussian_ellipsoid(M,C);
     %M(counter) = getframe();
+    
+     M(frameCount)=getframe(gcf); 
+     frameCount = frameCount +1;
     counter = counter+1;
     
     switch Relay
@@ -335,4 +339,4 @@ while success == false
     end
     end
 end
-
+movie2avi(M,'WaveMovie.avi');
