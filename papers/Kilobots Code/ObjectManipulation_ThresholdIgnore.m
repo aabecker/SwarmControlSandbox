@@ -16,6 +16,7 @@ VarCont = false;
 goalX = 6;
 goalY = 5;
 frameCount = 1;
+frameReal = 1;
 
 success = false;
 again = true;
