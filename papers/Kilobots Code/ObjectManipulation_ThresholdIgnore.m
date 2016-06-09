@@ -65,8 +65,6 @@ end
 %meanControlCount=0;
 %delayTime = 7;
 
-
-figure
 counter = 1;
 c = 0;
 meanControl=false;
