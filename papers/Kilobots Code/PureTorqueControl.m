@@ -45,7 +45,7 @@ while success == false
     if webcam
         rgbIm = snapshot(cam);
     else
-        rgbIm = imread('TestImage.jpeg');
+        rgbIm = imread('Test2.jpeg');
     end
     %crop to have just the table view.
     if webcam
@@ -108,7 +108,7 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
     %plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
     for i = 1:2
     t = (-01:.01:1)*10;
-    line(centroids(i,1)+t*cos(orientations(i)),centroids(i,2)+t*sin(orientations(i)) , 'Color', 'black','linewidth',3);
+    line(centroids(i,1)+t*cos(orientations(i)*pi/180),centroids(i,2)+t*sin(orientations(i)*pi/180) , 'Color', 'black','linewidth',3);
     end
     %threshold the image to remove shadows (and only show dark parts of kilobots)
     if ispc
