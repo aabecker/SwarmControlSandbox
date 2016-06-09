@@ -934,6 +934,22 @@ if(BFSDebugMode)
 	            sum_position_y += ry;
 	            varNumrobots++; //counts number of robots within DistanceMax
 	        }
+			else
+			{
+				$("canvas").rotateCanvas(
+				{
+					x: rx * mapScale, y: ry * mapScale,
+					rotate: angle
+				})
+				.drawArc(
+				{
+					strokeStyle: "Gainsboro",
+					strokeWidth: 1,
+					fillStyle: "LightSteelBlue",
+					x: rx * mapScale, y: ry * mapScale,
+					radius: radius * mapScale
+				}).restoreCanvas();
+			}
 	     }
 	}
 	numrobots = varNumrobots;
@@ -1054,26 +1070,37 @@ if(BFSDebugMode)
 			goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
 			goalY = blockCOM_y + r * policy_y[block_x][block_y];
 		}
-	$("canvas").drawArc({ //draw the average position
-		strokeStyle: "red",
-		strokeWidth: 5,
-		x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-		radius: radius * mapScale
-	}).restoreCanvas();
-	$("canvas").drawEllipse({
+		$("canvas").drawArc({ //draw the average position
+			strokeStyle: "red",
+			strokeWidth: 5,
+			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+			radius: radius * mapScale
+		})
+		.drawEllipse
+		({
 			strokeStyle: "green",
 			strokeWidth: 5,
 			setLineDash: 6 , 
 			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
 			width: 3 * 30*Math.sqrt(min_desired_var_x), height: 3 * 30*Math.sqrt(min_desired_var_y),
 			rotate: angle2
-		}).restoreCanvas();
-	$("canvas").drawEllipse({
+		})
+		.drawEllipse
+		({
 			strokeStyle: "green",
 			strokeWidth: 5,
 			setLineDash: 6 , 
 			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
 			width: 3 * 30*Math.sqrt(max_desired_var_x), height: 3 * 30*Math.sqrt(max_desired_var_y),
+			rotate: angle2
+		})
+		.drawEllipse
+		({
+			strokeStyle: "Silver",
+			strokeWidth: 5,
+			setLineDash: 6 , 
+			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+			width: 2*mapScale*distanceMax, height: 2*mapScale*distanceMax,
 			rotate: angle2
 		}).restoreCanvas();
 	var Kgain = 12;
