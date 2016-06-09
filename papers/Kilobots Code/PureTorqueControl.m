@@ -98,18 +98,22 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
 
     %finding Object Orientation
     [B,L] = bwboundaries(BW2, 'noholes');
-    stat = regionprops(L,'Centroid','Orientation');
+    stat = regionprops(L,'Centroid','Orientation','MajorAxisLength');
     centroids = cat(1, stat.Centroid);
     orientations = cat(1, stat.Orientation);
+    majorLength = cat(1, stat.MajorAxisLength);
     ObjectCentroidX = centroids(1,1);
     ObjectCentroidY = centroids(1,2);
     imshow(originalImage);
     hold on
-    %plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
+    plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
     for i = 1:2
-    t = (-01:.01:1)*10;
-    line(centroids(i,1)+t*cos(orientations(i)*pi/180),centroids(i,2)+t*sin(orientations(i)*pi/180) , 'Color', 'black','linewidth',3);
+        plot(centroids(i,1) , centroids(i,2),'*','Markersize',16,'color','black','linewidth',3);
+        t = (-01:.01:1)*100;
+        line(centroids(i,1)+t*cos(orientations(i)*pi/180),centroids(i,2)+t*sin(orientations(i)*pi/180) , 'Color', 'black','linewidth',3);
+    plot(centroids(i,1) - cos(orientations(i)*pi/180)* majorLength(i) * 1/4 , centroids(i,2) + sin(orientations(i)*pi/180)* majorLength(i) * 1/4,'*','Markersize',16,'color','cyan','linewidth',3);
     end
+    
     %threshold the image to remove shadows (and only show dark parts of kilobots)
     if ispc
      [centers, radii] = imfindcircles(BW,[4 6],'ObjectPolarity','bright','Sensitivity',0.97); 
@@ -146,11 +150,13 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
       VarCont = false;
    end
    if ~VarCont
-       currgoalX = blah;
-       currgoalY = blah;
+       C = 1/4;
+       currgoalX = ObjectCentroidX - cos(orientations(1)*pi/180)* majorLength(1) * C;
+       currgoalY = ObjectCentroidY + sin(orientations(1)*pi/180)* majorLength(1)*C;
    end
    plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
     plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
+    
     plot_gaussian_ellipsoid(M,C);
     M(frameCount)=getframe(gcf); 
      frameCount = frameCount +1;
@@ -199,7 +205,7 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
                     pause(delayTime);
        
                 else       
-        VarCont = true;
+        %VarCont = true;
         again = true;
                 end
             end
