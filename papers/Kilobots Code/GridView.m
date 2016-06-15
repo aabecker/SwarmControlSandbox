@@ -11,8 +11,8 @@ results3= [];
 %while success == false
 
  originalImage = snapshot(cam);
- original = imcrop(originalImage,[345 60 1110 850]);
- img = imcrop(originalImage,[345 60 1110 850]);
+ original = imcrop(originalImage,[345 60 1110 860]);
+ img = imcrop(originalImage,[345 60 1110 860]);
 
 
 I = rgb2hsv(img);
@@ -136,9 +136,11 @@ for j = 2:sizeOfMap(2)-1
     end
 end
 
-imwrite(img,'Obstacle.jpeg');
-[probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
-save('Map2', 'movesX', 'movesY','corners');
+%imwrite(img,'Obstacle.jpeg');
+%[probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
+save('Map3', 'movesX', 'movesY','corners');
+%save('EmptyMap', 'corners');
+
 
 % [X,Y] = meshgrid(1:size(map,2),1:size(map,1));
 %  hold on; hq=quiver(X*scale,Y*scale,movesY,movesX,0.5,'color',[0,0,0]); hold off

@@ -8,19 +8,45 @@ clear all
 
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-webcam = false;
+webcam1 = false;
 relay = false;
+inDebug = true;
 success = false;
-if webcam
+first = true;
+delayTime = 10;
+load('EmptyMap', 'corners');
+
+% We have 8 Relays.
+%west
+RELAY1 = 9;
+% northwest
+RELAY2 = 8;
+%north
+RELAY3 = 5;
+% northeast
+RELAY4 = 2;
+%east
+RELAY5 = 7;
+%southeast
+RELAY6 = 3;
+%south
+RELAY7 = 6;
+%southwest
+RELAY8 = 4;
+
+if webcam1
     cam = webcam(1);
 end
 
-Relay=0;
+Relay=1;
 VarCont = false;
 frameCount = 1;
 again = true;
 scale = 30;
-epsilon = 1* scale;
+bigEpsilon = 2 ;
+smallEpsilon = 1;
+epsilon = bigEpsilon;
+obstacles = [];
 if relay
     if (ispc)  
         a = arduino('Com4','uno');
@@ -32,46 +58,81 @@ minDis = 10000;
 corInd = 0;
 maxVar = 12000; %was 16000
 minVar = 11000; %was 12000
-
+t0 = tic;
 while success == false
-    success = true;
+    if inDebug
+        success = true;
+    end
     if relay
     if again== true
         relayOn(a,0);
-    pause (10);
+        
+%         writeDigitalPin(a,RELAY3,0);
+%         writeDigitalPin(a, RELAY8,0);
+%         writeDigitalPin(a,RELAY5,0);
+%         writeDigitalPin(a,RELAY7,0);
+     pause (delayTime);
     end 
     end
     % Read in a webcam snapshot.
-    if webcam
+    if webcam1
         rgbIm = snapshot(cam);
     else
-        rgbIm = imread('Test2.jpeg');
+        rgbIm = imread('test.png');
+        figure
+        imshow(rgbIm)
     end
     %crop to have just the table view.
-    if webcam
+    if webcam1
     if (ispc)  
         originalImage = imcrop(rgbIm,[50 10 500 400]);
     else 
         originalImage = imcrop(rgbIm,[345 60 1110 860]);
+                 imwrite(originalImage,'test.png');
     end 
     else
         originalImage = rgbIm;
     end
     
     I2 = rgb2hsv(originalImage);
-
+    
 % Define thresholds for channel 1 based on histogram settings
-channel1Min2 = 0.847;
-channel1Max2 = 0.946;
+channel1Min2 = 0.902;
+channel1Max2 = 0.938;
 
 % Define thresholds for channel 2 based on histogram settings
-channel2Min2 = 0.174;
+channel2Min2 = 0.205;
 channel2Max2 = 1.000;
 
 % Define thresholds for channel 3 based on histogram settings
-channel3Min2 = 0.657;
+channel3Min2 = 0.795;
 channel3Max2 = 1.000;
 
+% % Define thresholds for channel 1 based on histogram settings
+% channel1Min2 = 0.907;
+% channel1Max2 = 0.933;
+% 
+% % Define thresholds for channel 2 based on histogram settings
+% channel2Min2 = 0.488;
+% channel2Max2 = 1.000;
+% 
+% % Define thresholds for channel 3 based on histogram settings
+% channel3Min2 = 0.888;
+% channel3Max2 = 1.000;
+
+
+
+% % Define thresholds for channel 1 based on histogram settings
+% channel1Min2 = 0.899;
+% channel1Max2 = 0.932;
+% 
+% % Define thresholds for channel 2 based on histogram settings
+% channel2Min2 = 0.616;
+% channel2Max2 = 1.000;
+% 
+% % Define thresholds for channel 3 based on histogram settings
+% channel3Min2 = 0.779;
+% channel3Max2 = 1.000;
 % Create mask based on chosen histogram thresholds
 BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
     (I2(:,:,2) >= channel2Min2 ) & (I2(:,:,2) <= channel2Max2) & ...
@@ -98,20 +159,58 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
 
     %finding Object Orientation
     [B,L] = bwboundaries(BW2, 'noholes');
-    stat = regionprops(L,'Centroid','Orientation','MajorAxisLength');
+    stat = regionprops(L,'Centroid','Orientation','MajorAxisLength', 'Area');
+    [maxValue,index] = max([stat.Area]);
+    area = cat(1,stat.Area)
     centroids = cat(1, stat.Centroid);
     orientations = cat(1, stat.Orientation);
     majorLength = cat(1, stat.MajorAxisLength);
-    ObjectCentroidX = centroids(1,1);
-    ObjectCentroidY = centroids(1,2);
+    ObjectCentroidX = centroids(index,1);
+    ObjectCentroidY = centroids(index,2);
+    ObjectOrientation = orientations(index);
+    ObjectLength = majorLength(index);
     imshow(originalImage);
     hold on
-    plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
-    for i = 1:2
-        plot(centroids(i,1) , centroids(i,2),'*','Markersize',16,'color','black','linewidth',3);
-        t = (-01:.01:1)*100;
-        line(centroids(i,1)+t*cos(orientations(i)*pi/180),centroids(i,2)+t*sin(orientations(i)*pi/180) , 'Color', 'black','linewidth',3);
-    plot(centroids(i,1) - cos(orientations(i)*pi/180)* majorLength(i) * 1/4 , centroids(i,2) + sin(orientations(i)*pi/180)* majorLength(i) * 1/4,'*','Markersize',16,'color','cyan','linewidth',3);
+    for i = 1:size(corners)
+        txt = int2str(i);
+        text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
+        %plot( corners(i,1)* scale, corners(i,2)*scale,'*','Markersize',16,'color','red','linewidth',3);
+    end
+    if first
+        drawTime = [ObjectOrientation,toc(t0)];
+        first = false;
+    end
+    if inDebug
+   for i = 1: size(area)
+       if area(i) > 50
+           obstacles = [obstacles, i];
+       end
+   end
+   for i = 1: size(obstacles)
+       plot(centroids(obstacles(i),1) , centroids(obstacles(i),2),'*','Markersize',16,'color','black','linewidth',3);
+       t = (-01:.01:1)*100;
+       line(centroids(obstacles(i),1)+t*sin(orientations(obstacles(i))*pi/180+pi/2),centroids(obstacles(i),2)+t*cos(orientations(obstacles(i))*pi/180+pi/2) , 'Color', 'black','linewidth',3);
+       plot(centroids(obstacles(i),1) + cos(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.5,centroids(obstacles(i),2) - sin(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.5 ,'*','Markersize',16,'color','white','linewidth',3);
+   end
+%     for i = 1:size(centroids)
+%        % plot(centroids(i,1) , centroids(i,2),'*','Markersize',16,'color','black','linewidth',3);
+%         t = (-01:.01:1)*100;
+%         %line(centroids(i,1)+t*sin(orientations(i)*pi/180+pi/2),centroids(i,2)+t*cos(orientations(i)*pi/180+pi/2) , 'Color', 'black','linewidth',3);
+%         %line(centroids(i,1)+ majorLength(i)*sin(orientations(i)*pi/180+pi/2) , centroids(i,2)+majorLength(i)*cos(orientations(i)*pi/180+pi/2));
+%     %plot(centroids(i,1) + cos(orientations(i)*pi/180)* majorLength(i) * 1/4 , centroids(i,2) - sin(orientations(i)*pi/180)* majorLength(i) * 1/4,'*','Markersize',16,'color','cyan','linewidth',3);
+%     
+%     %plot(centroids(i,1) + cos(orientations(i)*pi/180)* majorLength(i),centroids(i,2) - sin(orientations(i)*pi/180)* majorLength(i) * 1/4,'*','Markersize',16,'color','white','linewidth',3);
+%     end
+    %plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','blue','linewidth',3);
+     %  t = (-01:.01:1)*100;
+     %   line(ObjectCentroidX+t*sin(ObjectOrientation*pi/180+pi/2),ObjectCentroidY+t*cos(ObjectOrientation*pi/180+pi/2) , 'Color', 'black','linewidth',3);
+
+        %plot(ObjectCentroidX + cos(ObjectOrientation*pi/180)* ObjectLength,ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength ,'*','Markersize',16,'color','white','linewidth',3);
+    %currgoalX1 = ObjectCentroidX + cos(ObjectOrientation*pi/180)*ObjectLength/2.3 ;
+    %   currgoalY1 = ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength/2.3;
+       %plot(currgoalX1 , currgoalY1,'*','Markersize',16,'color','cyan','linewidth',3);
+    
+       
     end
     
     %threshold the image to remove shadows (and only show dark parts of kilobots)
@@ -135,13 +234,15 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
         
         if (V > maxVar)
             VarCont = true;
-            for i = 1:size(corners)
-                dist = sqrt((Mean(1,1)/scale - corners(i,1)) * (Mean(1,1)/scale - corners(i,1)) + (Mean(1,2)/scale- corners(i,2)) * (Mean(1,2)/scale- corners(i,2)));
-                if minDis > dist
-                    minDis = dist;
-                    corInd = i;
-                end   
-            end
+            epsilon = bigEpsilon;
+%             for i = 1:size(corners)
+%                 dist = sqrt((M(1,1)/scale - corners(i,1)) * (M(1,1)/scale - corners(i,1)) + (M(1,2)/scale- corners(i,2)) * (M(1,2)/scale- corners(i,2)));
+%                 if minDis > dist
+%                     minDis = dist;
+%                     corInd = i;
+%                 end   
+%             end
+            corInd = 1;
             currgoalX = (corners(corInd,1))*scale;
             currgoalY = (corners(corInd,2))*scale;
     
@@ -150,15 +251,17 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
       VarCont = false;
    end
    if ~VarCont
-       C = 1/4;
-       currgoalX = ObjectCentroidX - cos(orientations(1)*pi/180)* majorLength(1) * C;
-       currgoalY = ObjectCentroidY + sin(orientations(1)*pi/180)* majorLength(1)*C;
+       CL =-1/4;
+       currgoalX = ObjectCentroidX + cos(ObjectOrientation*pi/180)*ObjectLength * CL;
+       currgoalY = ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength*CL;
    end
    plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
     plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
     
     plot_gaussian_ellipsoid(M,C);
-    M(frameCount)=getframe(gcf); 
+    newDot = [ObjectOrientation, toc(t0)];
+    drawTime = [drawTime;newDot];
+    %M(frameCount)=getframe(gcf); 
      frameCount = frameCount +1;
       hold off
      if relay 
@@ -207,10 +310,58 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
                 else       
         %VarCont = true;
         again = true;
+        epsilon = smallEpsilon;
                 end
             end
         end
       end
+
+        
+%         if M(1,2) > currgoalY+epsilon
+%         writeDigitalPin(a,RELAY3,0);
+%         writeDigitalPin(a, RELAY8,1);
+%         writeDigitalPin(a,RELAY5,1);
+%         writeDigitalPin(a,RELAY7,1);
+%         pause(delayTime);
+%        
+%     else if M(1,2) < currgoalY-epsilon
+%             writeDigitalPin(a,RELAY3,1);
+%         writeDigitalPin(a, RELAY8,1);
+%         writeDigitalPin(a,RELAY5,1);
+%         writeDigitalPin(a,RELAY7,0);
+%         pause(delayTime);
+%         else if M(1,1) > currgoalX+epsilon
+%         writeDigitalPin(a,RELAY3,1);
+%         writeDigitalPin(a, RELAY8,0);
+%         writeDigitalPin(a,RELAY5,1);
+%         writeDigitalPin(a,RELAY7,1);
+%         pause(1);
+%        
+%     else if M(1,1) < currgoalX-epsilon
+%             writeDigitalPin(a,RELAY3,1);
+%         writeDigitalPin(a, RELAY8,1);
+%         writeDigitalPin(a,RELAY5,0);
+%         writeDigitalPin(a,RELAY7,1);
+%         pause(delayTime);
+%         else 
+%             epsilon = smallEpsilon;
+%             writeDigitalPin(a,RELAY3,0);
+%             writeDigitalPin(a, RELAY8,0);
+%             writeDigitalPin(a,RELAY5,0);
+%             writeDigitalPin(a,RELAY7,0);
+%             pause(delayTime);
+%             again = true;
+%         end
+%             end
+%         end
+%         end
+    save('TorqueResultC03rd', 'drawTime');
+    if (toc(t0) > 300 && relay)
+        success = true;
+        
+        figure
+        plot(drawTime(:,2),drawTime(:,1));
     end
+     end
     end
 end
