@@ -22,12 +22,16 @@ This is just for getting a movie of the swarm controlling variance and swapping 
 </head>
 <body onload="init();">
 <canvas id="canvas" width="800" height="600" style="background-color:#EEEEEE;"></canvas>
-<div id="cc"></div>
+<div id="cc">
+<button onclick="location.href='https://docs.google.com/forms/d/1Z63qP0j9iZOmWxGDSt67Fju0AUhTpRktXXHWfMarzcY/viewform?embedded=true'">Send Feedback</button>
+</div>
+
 </body>
 <script type="text/javascript" src="../shared/Box2dWeb-2.1.a.3.min.js"></script> <!-- box2d -->
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js"></script> <!-- forms & strings -->
 <script type="text/javascript" src="../shared/jcanvas.min.js"></script>
 <script type="text/javascript">
+
 // in Chrome, to view the console: Use the keyboard shortcut Command - Option - J (Mac) or Control -Shift -J (Windows/Linux).
 ///////////////////////////////
 //Begin Global Variables
@@ -47,6 +51,7 @@ var mapYSize = 20;
 var mapScale = 40;
 // Debugging Variables.
 var TimeUp = false;  		//have we reached the goal?
+var LOSE = false;  			
 var TimeMax = 60;			// When does the game time out
 var Score = 0;				// Player's total Score
 var CircleScore = 0;		// Score in their current circle
@@ -56,6 +61,8 @@ var sectionstart = null;	// When did player start section
 var scoretime = 0;			// How long has player been inside variences
 var savedtime = 0;
 var savedsectiontime = 0;
+
+var savedtest = null;
 
 var varWantX=null;
 var varWantY=null;
@@ -78,6 +85,7 @@ var goalY = 0;
 /////////////////////////////
 //End Global Variables
 /////////////////////////////
+
 
 function init() 
 {
@@ -130,6 +138,9 @@ function init()
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
 	var numrobots = 200;//Math.floor(20/(4*robotrad*robotrad));
+	
+	
+	var timetest = null;
 	
 	fixDef.isSensor = false;
 	var m_Robot = new Array();
@@ -194,13 +205,19 @@ function init()
         var impulse = 1.0;
 		
         //allows users to control the robots with arrow keys
-        document.addEventListener("keydown",function(e){
+        
+		document.addEventListener("keydown",function(e){
             switch(e.keyCode){ // |= sets
                 case 37: m_controlState |= ROBOT_INPUT.ROBOT_LEFT; break; 
                 case 38: m_controlState |= ROBOT_INPUT.ROBOT_UP; break;
                 case 39: m_controlState |= ROBOT_INPUT.ROBOT_RIGHT; break;
                 case 40: m_controlState |= ROBOT_INPUT.ROBOT_DOWN; break;
             }
+			timetest=day.getTime();
+			if(!overall_time) // set the start time
+			{
+				overall_time = day.getTime();
+			}
         })
 		
         document.addEventListener("keyup",function(e){
@@ -210,8 +227,9 @@ function init()
                 case 39: m_controlState &= ~ROBOT_INPUT.ROBOT_RIGHT; break;
                 case 40: m_controlState &= ~ROBOT_INPUT.ROBOT_DOWN; break;
             }
+			timetest=day.getTime();
         })
-        
+		
         //allows for multiple key presses 
         if (m_controlState & ROBOT_INPUT.ROBOT_LEFT)
         { impulseV.x -= impulse; }
@@ -241,13 +259,15 @@ function init()
 		var mag = 0;
 		var ang = 0;
 		var vary= 1; //was 1
-		for(var i =0; i<m_Robot.length; i++) 
-		{
-			mag = vary * Math.random();
-			ang = 2*Math.PI*Math.random();
-			brownianImpulse.x = mag*Math.cos(ang) + impulseV.x ;
-			brownianImpulse.y = mag*Math.sin(ang) + impulseV.y ;
-			m_Robot[i].ApplyForce(brownianImpulse,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
+		if(overall_time){
+			for(var i =0; i<m_Robot.length; i++) 
+			{
+				mag = vary * Math.random();
+				ang = 2*Math.PI*Math.random();
+				brownianImpulse.x = mag*Math.cos(ang) + impulseV.x ;
+				brownianImpulse.y = mag*Math.sin(ang) + impulseV.y ;
+				m_Robot[i].ApplyForce(brownianImpulse,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
+			}
 		}
 		world.Step(1 / 60, 10, 10);
 		world.DrawDebugData();
@@ -314,11 +334,7 @@ function init()
 	
 		if(!TimeUp){
 			var day = new Date();
-			if(overall_time == null) // set the start time
-			{
-				overall_time = day.getTime();
-			}
-			var elapsedTimeSec = (day.getTime()- overall_time )/1000;
+			elapsedTimeSec = (day.getTime() - overall_time )/1000;
 			/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// CONTROLLER
 			///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -339,9 +355,9 @@ function init()
 			
 			var coordinateRobotsX = new Array(4);
 			var coordinateRobotsY = new Array(4);
-			if(elapsedTimeSec%cycleInSec > cycleInSec/2 )
+			if(elapsedTimeSec%cycleInSec > cycleInSec/2 && overall_time)
 			{
-					done = false;
+				done = false;
 			}
 			else
 			{
@@ -400,18 +416,6 @@ function init()
 			var minvar_yp2 = (min_desired_var_x2 + min_desired_var_y2)/2 - mindiffeq2 ;
 			var angle2 = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, var_x-var_y);
 			
-			
-			
-		$("canvas").drawRect({
-			fillStyle: "PaleVioletRed",
-			x: 2.5 * mapScale, y: 14 * mapScale,
-			width: ((TimeMax-elapsedTimeSec)/TimeMax)*15 * mapScale,
-			height: 1 * mapScale,
-			cornerRadius: 0,
-			fromCenter: false
-		})
-		.restoreCanvas();
-			
 			$("canvas").drawEllipse({
 				strokeStyle: "red",
 				strokeWidth: 5,
@@ -442,19 +446,9 @@ function init()
 				varWantX=minvar_xp2;
 				varWantY=minvar_yp2;
 			}
-			var timestring = "Time Remaining "+ (TimeMax-elapsedTimeSec).toFixed(2)+"s";
+			
 			var scorestring = "Score = "+ ((scoretime/TimeMax)*100).toFixed(0);
 			$("canvas").drawText(
-			{
-				fillStyle: "white",
-				strokeStyle: "white",
-				strokeWidth: 2,
-				x: 10*mapScale  , y:14.5*mapScale ,
-				fontSize: 30,
-				fontFamily: 'Verdana, sans-serif',
-				text: timestring
-			})
-			.drawText(
 			{
 				fillStyle: "white",
 				strokeStyle: "white",
@@ -466,6 +460,55 @@ function init()
 				align : 'left'
 			}).restoreCanvas();
 			
+			if(overall_time){
+				var timestring = "Time Remaining "+ (TimeMax-elapsedTimeSec).toFixed(2)+"s";
+				$("canvas").drawRect({
+					fillStyle: "DarkSalmon",
+					x: 2.5 * mapScale, y: 14 * mapScale,
+					width: 15 * mapScale,
+					height: 1 * mapScale,
+					cornerRadius: 0,
+					fromCenter: false
+				})
+				.drawRect({
+					fillStyle: "HotPink",
+					x: 2.5 * mapScale, y: 14 * mapScale,
+					width: ((TimeMax-elapsedTimeSec)/TimeMax)*15 * mapScale,
+					height: 1 * mapScale,
+					cornerRadius: 0,
+					fromCenter: false
+				})
+				.drawText({
+					fillStyle: "white",
+					strokeStyle: "white",
+					strokeWidth: 2,
+					x: 10*mapScale  , y:14.5*mapScale ,
+					fontSize: 30,
+					fontFamily: 'Verdana, sans-serif',
+					text: timestring
+				}).restoreCanvas();
+			}	
+			else 
+			{
+				$("canvas").drawText(
+				{
+					strokeStyle: "SpringGreen",
+					strokeWidth: 3,
+					x: 10*mapScale  , y: 7*mapScale ,
+					fontSize: 40,
+					fontFamily: 'Verdana, sans-serif',
+					text: "Try to Keep the Robots\nin the Green Goal"
+				})
+				.drawText({
+					fillStyle: "white",
+					strokeStyle: "white",
+					strokeWidth: 2,
+					x: 10*mapScale  , y:14.5*mapScale ,
+					fontSize: 30,
+					fontFamily: 'Verdana, sans-serif',
+					text: 'Press a Direction Key to Start'
+				}).restoreCanvas();
+			}
 		
 			//Debugging to figure out what things do
 			
@@ -526,22 +569,57 @@ function init()
 				break;
 			}
 			scoretime = savedtime + sectiontime;
-			//anotherstring ="Section Time = "+ lastInteraction +"s";
-			//$('#cc').html(anotherstring);
 			
-			if(elapsedTimeSec >= TimeMax){TimeUp = true;}
+			if (((day.getTime()- timetest)/1000)>6 && overall_time)
+			{
+				$("canvas").drawText(
+				{
+					strokeStyle: "RebeccaPurple",
+					strokeWidth: 3,
+					x: 10*mapScale  , y: 7*mapScale ,
+					fontSize: 40,
+					fontFamily: 'Verdana, sans-serif',
+					text: "Are you still there?"
+				}).restoreCanvas();
+				if (((day.getTime()- timetest)/1000)>10)
+				{
+					TimeUp = true;
+					LOSE = true;
+				}
+				
+			}
+			anotherstring="overall time:"+ overall_time;
+			$('#cc').html(anotherstring);
+			
+			if(elapsedTimeSec >= TimeMax && overall_time){TimeUp = true;}
 		}
 		else{ // Time is Finished, Display Score to user
-			var winstring = "TIME'S UP!\n\nYou were inside: "+ scoretime.toFixed(1) + "s\n\nThat's "+ ((scoretime/TimeMax)*100).toFixed(0)+"% of the time\n\nwith " + numrobots +" robots!";
-			$("canvas").drawText(
+			if(LOSE)
 			{
-				strokeStyle: "RebeccaPurple",
-				strokeWidth: 3,
-				x: 10*mapScale  , y: 7*mapScale ,
-				fontSize: 40,
-				fontFamily: 'Verdana, sans-serif',
-				text: winstring
-			}).restoreCanvas();
+				$("canvas").drawText(
+				{
+					strokeStyle: "RebeccaPurple",
+					strokeWidth: 3,
+					x: 10*mapScale  , y: 7*mapScale ,
+					fontSize: 40,
+					fontFamily: 'Verdana, sans-serif',
+					text: "GAME OVER"
+				}).restoreCanvas();
+			}
+			else
+			{
+				var winstring = "TIME'S UP!\n\nYou were inside: "+ scoretime.toFixed(1) + "s\n\nThat's "+ ((scoretime/TimeMax)*100).toFixed(0)+"% of the time\n\nwith " + numrobots +" robots!";
+				$("canvas").drawText(
+				{
+					strokeStyle: "RebeccaPurple",
+					strokeWidth: 3,
+					x: 10*mapScale  , y: 7*mapScale ,
+					fontSize: 40,
+					fontFamily: 'Verdana, sans-serif',
+					text: winstring
+				}).restoreCanvas();
+			}
+			
 			overall_time = null;
 		}
 
@@ -557,5 +635,6 @@ function init()
 	margin: 0;
 	overflow: auto;
 }
+
 </style>
 </html>
