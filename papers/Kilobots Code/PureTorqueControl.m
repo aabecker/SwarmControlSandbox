@@ -183,14 +183,16 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
     if inDebug
    for i = 1: size(area)
        if area(i) > 50
-           obstacles = [obstacles, i];
+           obstacles = [obstacles; i];
        end
    end
+   size(obstacles)
    for i = 1: size(obstacles)
+       hold on
        plot(centroids(obstacles(i),1) , centroids(obstacles(i),2),'*','Markersize',16,'color','black','linewidth',3);
        t = (-01:.01:1)*100;
        line(centroids(obstacles(i),1)+t*sin(orientations(obstacles(i))*pi/180+pi/2),centroids(obstacles(i),2)+t*cos(orientations(obstacles(i))*pi/180+pi/2) , 'Color', 'black','linewidth',3);
-       plot(centroids(obstacles(i),1) + cos(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.5,centroids(obstacles(i),2) - sin(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.5 ,'*','Markersize',16,'color','white','linewidth',3);
+       plot(centroids(obstacles(i),1) + cos(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3,centroids(obstacles(i),2) - sin(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3 ,'*','Markersize',16,'color','white','linewidth',3);
    end
 %     for i = 1:size(centroids)
 %        % plot(centroids(i,1) , centroids(i,2),'*','Markersize',16,'color','black','linewidth',3);
