@@ -1,6 +1,6 @@
 %%%%%%%%% By Shiva Shahrokhi June 2016: This code takes a snapshot of the
 %%%%%%%%% webcam, then process it to find obstacles, gives that map to MDP
-%%%%%%%%% and gets the result and draw the gradients and regions.
+%%%%%%%%% and gets the result and draw the gradients and regions. 
 success = false;
 webcamShot = false;
 obstacles = [];
