@@ -2,7 +2,7 @@
 %%%%%%%%% webcam, then process it to find obstacles, gives that map to MDP
 %%%%%%%%% and gets the result and draw the gradients and regions. 
 success = false;
-webcamShot = true;
+webcamShot = false;
 obstacles = [];
 if webcamShot
     cam = webcam(1);
@@ -15,41 +15,35 @@ if webcamShot
  originalImage = snapshot(cam);
  original = imcrop(originalImage,[345 60 1110 860]);
  img = imcrop(originalImage,[345 60 1110 860]);
- imwrite(img,'Obstacle.jpeg');
  %rgbIm = imcrop(originalImage,[345 60 1110 860]);
 else 
-    rgbIm = imread('test.png');
+    rgbIm = imread('Obstacle.jpeg');
 end
 
 
-
-% I = rgb2hsv(img);
-% 
+    I = rgb2hsv(rgbIm);
+    
 % % Define thresholds for channel 1 based on histogram settings
-% channel1Min = 0.847;
-% channel1Max = 0.946;
+% channel1Min = 0.902;
+% channel1Max = 0.938;
 % 
 % % Define thresholds for channel 2 based on histogram settings
-% channel2Min = 0.174;
+% channel2Min = 0.205;
 % channel2Max = 1.000;
 % 
 % % Define thresholds for channel 3 based on histogram settings
-% channel3Min = 0.657;
+% channel3Min = 0.795;
 % channel3Max = 1.000;
-
-    %I = rgb2hsv(originalImage);
-    I = rgb2hsv(rgbIm);
-    
 % Define thresholds for channel 1 based on histogram settings
-channel1Min = 0.902;
-channel1Max = 0.938;
+channel1Min = 0.866;
+channel1Max = 0.950;
 
 % Define thresholds for channel 2 based on histogram settings
-channel2Min = 0.205;
+channel2Min = 0.353;
 channel2Max = 1.000;
 
 % Define thresholds for channel 3 based on histogram settings
-channel3Min = 0.795;
+channel3Min = 0.802;
 channel3Max = 1.000;
 
 % Create mask based on chosen histogram thresholds
@@ -66,7 +60,7 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
     imshow(rgbIm);
     hold on
     for i = 1: size(area)
-       if area(i) > 50
+       if area(i) > 780
            obstacles = [obstacles; i];
        end
     end
@@ -75,16 +69,25 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
     ylim = get(gca,'YLim');
     slope=zeros(size(obstacles));
     offset=zeros(size(obstacles));
+    Tangent_offset=zeros(size(obstacles));
     
    for i = 1: size(obstacles)
        hold on
        plot(centroids(obstacles(i),1) , centroids(obstacles(i),2),'*','Markersize',16,'color','black','linewidth',3);
        t = (-01:.01:1)*100;
        %line(centroids(obstacles(i),1)+t*sin(orientations(obstacles(i))*pi/180+pi/2),centroids(obstacles(i),2)+t*cos(orientations(obstacles(i))*pi/180+pi/2) , 'Color', 'black','linewidth',3);
-       plot(centroids(obstacles(i),1) + cos(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3,centroids(obstacles(i),2) - sin(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3 ,'*','Markersize',16,'color','white','linewidth',3);
-       slope(i)=(centroids(obstacles(i),2)-(centroids(obstacles(i),2) - sin(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3))/(centroids(obstacles(i),1)-(centroids(obstacles(i),1) + cos(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3));
+       tipx(i)=centroids(obstacles(i),1) + cos(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3;
+       tipy(i)=centroids(obstacles(i),2) - sin(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3;
+       if abs(tipy(i)-ylim(1))<50||abs(tipy(i)-ylim(2))<50||abs(tipx(i)-xlim(2))<50||abs(tipx(i)-xlim(1))<50
+          tipx(i)=centroids(obstacles(i),1)-cos(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3;
+          tipy(i)=centroids(obstacles(i),2)+sin(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3;
+       end
+       plot(tipx(i), tipy(i),'*','Markersize',16,'color','white','linewidth',3);
+       slope(i)=(centroids(obstacles(i),2)-tipy(i))/(centroids(obstacles(i),1)-tipx(i));
        offset(i)=-slope(i)*centroids(obstacles(i),1)+centroids(obstacles(i),2);
+       Tangent_offset(i)=tipy(i)+tipx(i)*(1/slope(i));
        line([xlim(1) xlim(2)],[slope(i)*xlim(1)+offset(i) slope(i)*xlim(2)+offset(i)])
+       line([xlim(1) xlim(2)],[(-1/slope(i))*xlim(1)+Tangent_offset(i) (-1/slope(i))*xlim(2)+Tangent_offset(i)])
    end
    intersect = [];
    for i=1:size(slope,1)
@@ -104,7 +107,8 @@ s = size(BW);
 scale = 30;
 sizeOfMap = floor(s/scale);
 map = zeros(sizeOfMap(1),sizeOfMap(2));
-BigThresholdMap = zeros(sizeOfMap(1),sizeOfMap(2),(size(intersect,1)+1+size(obstacles,1)));
+BigThresholdMap = zeros(sizeOfMap(1),sizeOfMap(2),(1+size(obstacles,1)));
+SmallThresholdMap = zeros(sizeOfMap(1),sizeOfMap(2),(size(obstacles,1)));
 
 corners =[];
 map(1,:) = 1;
@@ -115,7 +119,7 @@ found = false;
 hold on
 %%% Plot Grid
 for i= 1:sizeOfMap(1)
-    plot(xlim,[i*scale i*scale],'color',[0.6 0.6 0.6])
+    plot(xlim,[i*scale i*scale],'color','red')
 end
 
 for j = 1:sizeOfMap(2)
@@ -123,16 +127,63 @@ for j = 1:sizeOfMap(2)
 end
 hold off
 
-for i=1:sizeOfMap(1)-1
-    for j=1:sizeOfMap(2)-1
-        for pixelx = 0:scale
-            pixelIntersects = slope*(pixelx+j*30)+offset;
-            for pixely = 0:scale
-               if ismember(pixely+i*30,pixelIntersects)
-                   BigThresholdMap(i,j)=1;
-               end
+ReigonCount=1;
+
+for i=0:sizeOfMap(1)          %Horizontal Grid (y-values)
+    for j=0:sizeOfMap(2)      %Vertical Grid (x-values)
+        for equation=1:size(slope,1)
+            if (15+j*30)>((15+i*30)-offset(equation))/slope(equation)
+                ReigonCount=ReigonCount+1;
             end
         end
+        BigThresholdMap((i+1),(j+1),ReigonCount)=1;
+        ReigonCount=1;
+    end
+end
+
+for i=1:size(slope,1)
+    lowx=xlim(1);
+    highx=xlim(2);
+    if abs(ylim(1)-tipy(i))<abs(ylim(2)-tipy(i)) % top is closer
+        for j=1:size(slope,1)
+            if i==j
+                continue;
+            end
+            if (((tipy(i)/2)-offset(j))/slope(j))-tipx(i)<0 % on left side
+               if abs(((tipy(i)/2)-offset(j))/slope(j)-tipx(i))<abs(lowx-tipx(i))
+                   lowx=((tipy(i)/2)-offset(j))/slope(j);
+               end
+           else % on right side
+               if abs(((tipy(i)/2)-offset(j))/slope(j)-tipx(i))<abs(highx-tipx(i))
+                   highx=((tipy(i)/2)-offset(j))/slope(j);
+               end
+           end
+        end
+        for n=ceil(ylim(1)/scale):ceil(tipy(i)/scale)
+            for m=ceil(lowx/scale):ceil(highx/scale)
+                SmallThresholdMap(n,m,i)=1;
+            end
+        end
+    else % bottom is closer
+        for j=1:size(slope,1)
+            if i==j
+                continue;
+            end
+            if (((((ylim(2)+tipy(i))/2)-offset(j))/slope(j))-tipx(i))<0 % on left side
+                if abs(((((ylim(2)+ tipy(i))/2)-offset(j))/slope(j))-tipx(i))<abs(lowx-tipx(i))
+                    lowx=((((ylim(2)+ tipy(i))/2)-offset(j))/slope(j));
+                end
+            else % on right side
+                if abs(((((ylim(2)+ tipy(i))/2)-offset(j))/slope(j))-tipx(i))<abs(highx-tipx(i))
+                    highx=((((ylim(2)+ tipy(i))/2)-offset(j))/slope(j));
+                end
+            end
+        end
+        for n=ceil(tipy(i)/scale):ceil(ylim(2)/scale)
+            for m=ceil(lowx/scale):ceil(highx/scale)
+                 SmallThresholdMap(n,m,i)=1;
+            end
+        end % on left side
     end
 end
 

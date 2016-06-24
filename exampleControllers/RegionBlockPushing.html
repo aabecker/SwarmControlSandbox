@@ -293,13 +293,51 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 	return points;            
 } 
 
-
+var mainRegionMap = [];
+var transferRegionMap = [];
 ///////////////////////////
 //End Drawing Functions
 ///////////////////////////
+var mainRegion1 = new Array();
+var mainRegion2 = new Array();
+var mainRegion3 = new Array();
+for (i = 1; i <= 20; i++) {
+    mainRegion1[i] = new Array();
+    mainRegion2[i] = new Array();
+    mainRegion3[i] = new Array();
+}
 
 function init() 
 {
+    //making main regions
+    
+    //making background 0
+    for (x = 1; x <= 20; x++) {
+        for (y = 1; y <= 20; y++) {
+            mainRegion1[x][y] = 0;
+            mainRegion2[x][y] = 0;
+            mainRegion3[x][y] = 0;
+        }
+    }
+    //region1
+    for (x = 2; x <= 19; x++) {
+        for (y=15;y<=19;y++){
+            mainRegion1[x][y]=1;
+        }
+    }
+    //region2
+    for (x = 2; x <= 19; x++) {
+        for (y = 8; y <= 14; y++) {
+            mainRegion2[x][y] = 1;
+        }
+    }
+    //region3
+    for (x = 2; x <= 19; x++) {
+        for (y = 2; y <= 7; y++) {
+            mainRegion3[x][y] = 1;
+        }
+    }
+
 	var b2Vec2 = Box2D.Common.Math.b2Vec2
 	, b2AABB = Box2D.Collision.b2AABB
 	, b2BodyDef = Box2D.Dynamics.b2BodyDef
@@ -360,6 +398,7 @@ function init()
     bodyDef.position.Set(5, width*2/3 / mapScale + 0.2); //BOTTOM
     world.CreateBody(bodyDef).CreateFixture(fixDef);
 
+    
 
     //create an object to move
 	if(!MDP_DebugMode && !Gradient_DebugMode){
@@ -611,26 +650,41 @@ function init()
 			rotate: angle
 		}).drawArc(
 		{
-			fillStyle: "orange",
+			fillStyle: "green",
 			x: 5 * mapScale, y: 5 * mapScale,
 			radius: radius * mapScale
 		}).drawArc(
 		{
-			strokeStyle: 'red',
+		    strokeStyle: 'green',
 			strokeWidth: 16, //fillStyle: "green",
 			x: goalPositionXDraw * mapScale, y: goalPositionYDraw * mapScale,
 			radius: 2.0 * mapScale
 		}).drawText(
 		{
-			strokeStyle: "orange",
+		    strokeStyle: "green",
 			strokeWidth: 2,
 			x: goalPositionXDraw*mapScale  , y: goalPositionYDraw *mapScale ,
 			fontSize: 20,
 			fontFamily: 'Verdana, sans-serif',
 			text: "Goal"
-		}).restoreCanvas();
+		}).restoreCanvas(goalPositionXDraw);
 
+        console.log()
 
+		//for (x = 2; x <= 19; x++) {
+		//    for (y = 2; y <= 19; y++) {
+		//        if (mainRegion1[x][y] = 1) {
+		//            $("canvas").drawRect({
+		//                fillStyle: "white",
+		//                x: x * mapScale,
+		//                y: y * mapScale,
+		//                width: 0.5 * mapScale,
+		//                height: 0.5 * mapScale,
+		//                cornerRadius: 0
+		//            }).restoreCanvas();
+		//        }
+		//    }
+		//}
 
 
 		if(MDP_DebugMode)
