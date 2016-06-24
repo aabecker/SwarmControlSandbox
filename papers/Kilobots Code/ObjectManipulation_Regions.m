@@ -130,7 +130,7 @@ ObjectCentroidY = centroids(index,2);
 plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
 
 %switching regions
-if (Region)%check if it's in mainRegion state
+if (regionID)%check if it's in mainRegion state
     if (currentMap(ObjectCentroidX,ObjectCentroidY)==0)
         for i = 1:size(transferRegion)%find which region centroid is in
             tempMap=transferRegion(i);
@@ -143,7 +143,7 @@ if (Region)%check if it's in mainRegion state
         end
     end
 end
-if (~Region) %if it is in transferRegion state
+if (~regionID) %if it is in transferRegion state
     if (currentMap(ObjectCentroidX,ObjectCentroidY)==0)
         for i = 1:size(mainRegion)%find which region centroid is in
             tempMap=mainRegion(i);
