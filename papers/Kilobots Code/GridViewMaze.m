@@ -69,12 +69,32 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
            obstacles = [obstacles; i];
        end
     end
+    
+    xlim = get(gca,'XLim');
+    ylim = get(gca,'YLim');
+    slope=zeros(size(obstacles));
+    offset=zeros(size(obstacles));
+    
    for i = 1: size(obstacles)
        hold on
        plot(centroids(obstacles(i),1) , centroids(obstacles(i),2),'*','Markersize',16,'color','black','linewidth',3);
        t = (-01:.01:1)*100;
-       line(centroids(obstacles(i),1)+t*sin(orientations(obstacles(i))*pi/180+pi/2),centroids(obstacles(i),2)+t*cos(orientations(obstacles(i))*pi/180+pi/2) , 'Color', 'black','linewidth',3);
+       %line(centroids(obstacles(i),1)+t*sin(orientations(obstacles(i))*pi/180+pi/2),centroids(obstacles(i),2)+t*cos(orientations(obstacles(i))*pi/180+pi/2) , 'Color', 'black','linewidth',3);
        plot(centroids(obstacles(i),1) + cos(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3,centroids(obstacles(i),2) - sin(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3 ,'*','Markersize',16,'color','white','linewidth',3);
+       slope(i)=(centroids(obstacles(i),2)-(centroids(obstacles(i),2) - sin(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3))/(centroids(obstacles(i),1)-(centroids(obstacles(i),1) + cos(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3));
+       offset(i)=-slope(i)*centroids(obstacles(i),1)+centroids(obstacles(i),2);
+       line([xlim(1) xlim(2)],[slope(i)*xlim(1)+offset(i) slope(i)*xlim(2)+offset(i)])
+   end
+   intersect = [];
+   for i=1:size(slope,1)
+      for j=i+1:size(slope,1)
+          if ((offset(j)-offset(i))/(slope(i)-slope(j))>xlim(1) && (offset(j)-offset(i))/(slope(i)-slope(j))<xlim(2))
+              if (offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)>ylim(1) && (offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)<ylim(2)
+                  intersect = [[intersect]; [(offset(j)-offset(i))/(slope(i)-slope(j)),(offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)]];
+                  plot((offset(j)-offset(i))/(slope(i)-slope(j)),(offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i),'*','color','red');
+              end
+          end
+      end
    end
 hold off
 goalX = 4;
@@ -83,6 +103,7 @@ s = size(BW);
 scale = 30;
 sizeOfMap = floor(s/scale);
 map = zeros(sizeOfMap(1),sizeOfMap(2));
+BigThresholdMap = zeros(sizeOfMap(1),sizeOfMap(2),(size(intersect,1)+1+size(obstacles,1)));
 
 corners =[];
 map(1,:) = 1;
@@ -90,6 +111,29 @@ map(:,1) = 1;
 map(sizeOfMap(1),:) = 1;
 map(:,sizeOfMap(2)) = 1;
 found = false;
+hold on
+%%% Plot Grid
+for i= 1:sizeOfMap(1)
+    plot(xlim,[i*scale i*scale],'color',[0.6 0.6 0.6])
+end
+
+for j = 1:sizeOfMap(2)
+    plot([j*scale j*scale],ylim,'color',[0.6 0.6 0.6])
+end
+hold off
+
+for i=1:sizeOfMap(1)-1
+    for j=1:sizeOfMap(2)-1
+        for pixelx = 0:scale
+            pixelIntersects = slope*(pixelx+j*30)+offset;
+            for pixely = 0:scale
+               if ismember(pixely+i*30,pixelIntersects)
+                   BigThresholdMap(i,j)=1;
+               end
+            end
+        end
+    end
+end
 
 for i= 1:sizeOfMap(1)-1
     for j = 1:sizeOfMap(2)-1 
@@ -105,7 +149,7 @@ for i= 1:sizeOfMap(1)-1
 %                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 0;
                     
                     else
-                    map(i,j) = 1; %%% points the obstacles.
+                        map(i,j) = 1; %%% points the obstacles.
 %                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,1) = 0;  % Change the red value for the first pixel
 %                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
 %                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 255;    % Change the blue value for the first pixel
