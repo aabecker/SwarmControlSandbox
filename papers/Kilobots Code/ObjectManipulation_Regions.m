@@ -3,7 +3,7 @@
 %%% kilobots for compeleting a block pushing experiment.
 %%% By Shiva Shahrokhi Dec 2015, Jan 2016
 
-
+clear all
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
 cam = webcam(1);
@@ -55,7 +55,10 @@ again = true;
 % set(hq,'linewidth',2);
 % Using Arduino for our lamps, this is how we define arduino in Matlab:
 load('Map2', 'movesX', 'movesY','corners');
-
+load('ThresholdMaps','transferRegion','mainRegion');
+% imshow(SmallThresholdMap(:,:,1));
+% figure(2),imshow(SmallThresholdMap(:,:,2));
+% figure(3),imshow(BigThresholdMap);
 if (ispc)  
     a = arduino('Com4','uno');
 else 
@@ -67,7 +70,7 @@ end
 %delayTime = 7;
 
 
-figure
+% figure
 counter = 1;
 c = 0;
 meanControl=false;
@@ -76,10 +79,7 @@ meanControl=false;
 regionID=1;
 regionNum=1;
 %load regions
-[mainRegion,transferRegion]=load('Lillian');
-mainRegion=mainRegion/scale; %unscaling
-transferRegion=transferRegion/scale;
-currentMap=mainRegion(regionNum); %init map
+currentRegionMap=mainRegion(:,:,regionNum); %init map
 
 while success == false
    
@@ -129,28 +129,32 @@ ObjectCentroidX = centroids(index,1);
 ObjectCentroidY = centroids(index,2);
 plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
 
+regionID
+regionNum
+position = currentRegionMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale));
+position
 %switching regions
 if (regionID)%check if it's in mainRegion state
-    if (currentMap(ObjectCentroidX,ObjectCentroidY)==0)
+    if (currentRegionMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale))==0)
         for i = 1:size(transferRegion)%find which region centroid is in
-            tempMap=transferRegion(i);
-            if(tempMap(ObjectCentroidX,ObjectCentroidY)==1)
+            tempMap=transferRegion(:,:,i);
+            if(tempMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale))==1)
                 regionNum=i; %set to new region
                 regionID=0; %changes to transferRegion state
-                currentMap=transferRegion(i);
+                currentRegionMap=transferRegion(:,:,i);
             end
             break;
         end
     end
 end
 if (~regionID) %if it is in transferRegion state
-    if (currentMap(ObjectCentroidX,ObjectCentroidY)==0)
+    if (currentRegionMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale))==0)
         for i = 1:size(mainRegion)%find which region centroid is in
-            tempMap=mainRegion(i);
-            if(tempMap(ObjectCentroidX,ObjectCentroidY)==1)
+            tempMap=mainRegion(:,:,i);
+            if(tempMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale))==1)
                 regionNum=i; %set to new region
                 regionID=1; %changes to mainRegion state
-                currentMap=mainRegion(i);
+                currentRegionMap=mainRegion(:,:,i);
             end
             break;
         end
@@ -166,28 +170,29 @@ BW(stat(index).PixelIdxList)=0;
   else
     [centers, radii] = imfindcircles(BW,[10 19],'ObjectPolarity','bright','Sensitivity',0.92 );
   end
-  %finding robots in cell
-  sumX=0;
-  sumY=0;
-  countMean; %number of robots in cell
-  [m,n]=size(centers);
-  for i=1:m
-      if(currentMap(centers(i))) %if robot is in region
-        sumX= sumX+center(i,1);
-        sumY= sumY+center(i,2);
-        count=count+1;
-      end
-  end
+%   %finding robots in cell
+%   sumX=0;
+%   sumY=0;
+%   countMean=0; %number of robots in cell
+%   [m,n]=size(centers);
+%   for i=1:m
+%       if(currentMap(centers(i))) %if robot is in region
+%         sumX= sumX+center(i,1);
+%         sumY= sumY+center(i,2);
+%         count=count+1;
+%       end
+%   end
   
     % %Mean
-    M(1,1)= sumX/countMean;
-    M(1,2)= sumY/countMean;
+%     M(1,1)= sumX/countMean;
+%     M(1,2)= sumY/countMean;
+ M = mean(centers);
     %Variance
     V = var(centers);
     %Covariance
     C = cov(centers);
 
-    imshow(originalImage);
+%     imshow(originalImage);
     
     h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
@@ -272,12 +277,12 @@ BW(stat(index).PixelIdxList)=0;
        if M(1,2) > ObjectCentroidY-r*scale+ep || M(1,2) < ObjectCentroidY-r*scale-ep
     currgoalX = ObjectCentroidX - r*scale * movesY(indOY,indOX);
     currgoalY = ObjectCentroidY - r*scale * movesX(indOY,indOX);
-    tada = false
+    tada = false;
        end
    else
        currgoalX = M(1,1)+ movesY(indY,indX)*scale;
        currgoalY = M(1,2) + movesX(indY,indX)*scale;
-       tada = true
+       tada = true;
    end
     end
     plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);

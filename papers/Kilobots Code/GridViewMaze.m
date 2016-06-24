@@ -107,8 +107,8 @@ s = size(BW);
 scale = 30;
 sizeOfMap = floor(s/scale);
 map = zeros(sizeOfMap(1),sizeOfMap(2));
-BigThresholdMap = zeros(sizeOfMap(1),sizeOfMap(2),(1+size(obstacles,1)));
-SmallThresholdMap = zeros(sizeOfMap(1),sizeOfMap(2),(size(obstacles,1)));
+mainRegion = zeros(sizeOfMap(1),sizeOfMap(2),(1+size(obstacles,1)));
+transferRegion = zeros(sizeOfMap(1),sizeOfMap(2),(size(obstacles,1)));
 
 corners =[];
 map(1,:) = 1;
@@ -136,11 +136,10 @@ for i=0:sizeOfMap(1)          %Horizontal Grid (y-values)
                 ReigonCount=ReigonCount+1;
             end
         end
-        BigThresholdMap((i+1),(j+1),ReigonCount)=1;
+        mainRegion((i+1),(j+1),ReigonCount)=1;
         ReigonCount=1;
     end
 end
-
 for i=1:size(slope,1)
     lowx=xlim(1);
     highx=xlim(2);
@@ -161,7 +160,7 @@ for i=1:size(slope,1)
         end
         for n=ceil(ylim(1)/scale):ceil(tipy(i)/scale)
             for m=ceil(lowx/scale):ceil(highx/scale)
-                SmallThresholdMap(n,m,i)=1;
+                transferRegion(n,m,i)=1;
             end
         end
     else % bottom is closer
@@ -181,12 +180,11 @@ for i=1:size(slope,1)
         end
         for n=ceil(tipy(i)/scale):ceil(ylim(2)/scale)
             for m=ceil(lowx/scale):ceil(highx/scale)
-                 SmallThresholdMap(n,m,i)=1;
+                 transferRegion(n,m,i)=1;
             end
         end % on left side
     end
 end
-
 for i= 1:sizeOfMap(1)-1
     for j = 1:sizeOfMap(2)-1 
         found = false;
@@ -273,7 +271,7 @@ for j = 2:sizeOfMap(2)-1
         end
     end
 end
-
+save('ThresholdMaps','transferRegion','mainRegion');
 %imwrite(img,'Obstacle.jpeg');
 %[probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
 %save('Map3', 'movesX', 'movesY','corners');
