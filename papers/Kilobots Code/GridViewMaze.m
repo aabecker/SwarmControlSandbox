@@ -2,7 +2,7 @@
 %%%%%%%%% webcam, then process it to find obstacles, gives that map to MDP
 %%%%%%%%% and gets the result and draw the gradients and regions. 
 success = false;
-webcamShot = false;
+webcamShot = true;
 obstacles = [];
 if webcamShot
     cam = webcam(2);
@@ -150,51 +150,47 @@ for i=1:size(slope,1)
     lowx=xlim(1);
     highx=xlim(2);
     if abs(ylim(1)-tipy(i))<abs(ylim(2)-tipy(i)) % top is closer
-        for ygrid=1:ceil(tipy(i)/scale)
-            for j=1:size(slope,1)
-                if i==j
-                    continue;
-                end
-                if (((((ygrid*scale)-15)/2)-offset(j))/slope(j))-tipx(i)<0 % on left side
-                   if abs(((((ygrid*scale)-15)/2)-offset(j))/slope(j)-tipx(i))<abs(lowx-tipx(i))
-                       lowx=((((ygrid*scale)-15)/2)-offset(j))/slope(j);
-                   end
-               else % on right side
-                   if abs(((((ygrid*scale)-15)/2)-offset(j))/slope(j)-tipx(i))<abs(highx-tipx(i))
-                       highx=((((ygrid*scale)-15)/2)-offset(j))/slope(j);
-                   end
-               end
+        for j=1:size(slope,1)
+            if i==j
+                continue;
             end
+            if (((tipy(i)/2)-offset(j))/slope(j))-tipx(i)<0 % on left side
+               if abs(((tipy(i)/2)-offset(j))/slope(j)-tipx(i))<abs(lowx-tipx(i))
+                   lowx=((tipy(i)/2)-offset(j))/slope(j);
+               end
+           else % on right side
+               if abs(((tipy(i)/2)-offset(j))/slope(j)-tipx(i))<abs(highx-tipx(i))
+                   highx=((tipy(i)/2)-offset(j))/slope(j);
+               end
+           end
+        end
+        for n=ceil(ylim(1)/scale):ceil(tipy(i)/scale)
             for m=ceil(lowx/scale):ceil(highx/scale)
-                transferRegion(ygrid,m,i)=1;
+                transferRegion(n,m,i)=1;
             end
         end
     else % bottom is closer
-        for ygrid=ceil(tipy(i)/scale):ceil(ylim(2)/scale)
-            for j=1:size(slope,1)
-                if i==j
-                    continue;
+        for j=1:size(slope,1)
+            if i==j
+                continue;
+            end
+            if (((((ylim(2)+tipy(i))/2)-offset(j))/slope(j))-tipx(i))<0 % on left side
+                if abs(((((ylim(2)+ tipy(i))/2)-offset(j))/slope(j))-tipx(i))<abs(lowx-tipx(i))
+                    lowx=((((ylim(2)+ tipy(i))/2)-offset(j))/slope(j));
                 end
-                if (((((ylim(2)+((ygrid*scale)-15))/2)-offset(j))/slope(j))-tipx(i))<0 % on left side
-                    if abs(((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j))-tipx(i))<abs(lowx-tipx(i))
-                        lowx=((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j));
-                    end
-                else % on right side
-                    if abs(((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j))-tipx(i))<abs(highx-tipx(i))
-                        highx=((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j));
-                    end
+            else % on right side
+                if abs(((((ylim(2)+ tipy(i))/2)-offset(j))/slope(j))-tipx(i))<abs(highx-tipx(i))
+                    highx=((((ylim(2)+ tipy(i))/2)-offset(j))/slope(j));
                 end
             end
-            for m=ceil(lowx/scale):ceil(highx/scale)
-                 transferRegion(ygrid,m,i)=1;
-            end % on left side
         end
+        for n=ceil(tipy(i)/scale):ceil(ylim(2)/scale)
+            for m=ceil(lowx/scale):ceil(highx/scale)
+                 transferRegion(n,m,i)=1;
+            end
+        end % on left side
     end
 end
-
-figure(2), imshow(transferRegion(:,:,1));
-figure(3), imshow(transferRegion(:,:,2));
-
 for i= 1:sizeOfMap(1)-1
     for j = 1:sizeOfMap(2)-1 
         found = false;
