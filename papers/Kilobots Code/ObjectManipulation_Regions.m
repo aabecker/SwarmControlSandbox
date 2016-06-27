@@ -100,7 +100,6 @@ for i= 1:sizeOfMap(1)-1
 end
 %figure(2),
 imshow(originalImage);
-hold on
 %figure
 % make HSV scale.
 I = rgb2hsv(originalImage);
@@ -134,15 +133,15 @@ stat = regionprops(L,'Centroid','Area','PixelIdxList');
 centroids = cat(1, stat.Centroid);
 ObjectCentroidX = centroids(index,1);
 ObjectCentroidY = centroids(index,2);
-plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
+
 
 regionID
 regionNum
 
 
-comXInd = floor (ObjectCentroidX/scale);
-comYInd = floor(ObjectCentroidY/scale);
-position = currentRegionMap(comXInd,comYInd);
+comXInd = floor (ObjectCentroidX/scale)
+comYInd = floor(ObjectCentroidY/scale)
+position = currentRegionMap(comXInd,comYInd)
 %switching regions
 if (regionID)%check if it's in mainRegion state
     if (currentRegionMap(comXInd,comYInd)==0)
