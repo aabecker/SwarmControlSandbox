@@ -6,7 +6,7 @@
 clear all
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(2);
+cam = webcam(1);
 
 
 
@@ -89,7 +89,7 @@ for i= 1:sizeOfMap(1)-1
     for j = 1:sizeOfMap(2)-1
         for k = 0:scale-1
             for l = 0:scale-1
-                if (mainRegion(i,j,3)==1)
+                if (mainRegion(i,j,1)==1)
                     originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,1) = 0;  % Change the red value for the first pixel
                     originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
                     originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 255;    % Change the blue value for the first pixel
@@ -98,9 +98,10 @@ for i= 1:sizeOfMap(1)-1
         end
     end
 end
-figure(2),imshow(originalImage);
-hold off
-figure
+%figure(2),
+imshow(originalImage);
+hold on
+%figure
 % make HSV scale.
 I = rgb2hsv(originalImage);
 % Define thresholds for channel 1 based on histogram settings
@@ -137,15 +138,18 @@ plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','line
 
 regionID
 regionNum
-position = currentRegionMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale));
-position
+
+
+comXInd = floor (ObjectCentroidX/scale);
+comYInd = floor(ObjectCentroidY/scale);
+position = currentRegionMap(comXInd,comYInd);
 %switching regions
 if (regionID)%check if it's in mainRegion state
-    if (currentRegionMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale))==0)
+    if (currentRegionMap(comXInd,comYInd)==0)
         regionID=0 %changes to transferRegion state
         for i = 1:size(transferRegion)%find which region centroid is in
             tempMap=transferRegion(:,:,i);
-            if(tempMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale))==1)
+            if(tempMap(comXInd,comYInd)==1)
                 regionNum=i; %set to new region
                 currentRegionMap=transferRegion(:,:,i);
             end
@@ -153,11 +157,11 @@ if (regionID)%check if it's in mainRegion state
         end
     end
 end
-if (~regionID) %if it is in transferRegion state
-    if (currentRegionMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale))==0)
+if (regionID==0) %if it is in transferRegion state
+    if (currentRegionMap(comXInd,comYInd)==0)
         for i = 1:size(mainRegion)%find which region centroid is in
             tempMap=mainRegion(:,:,i);
-            if(tempMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale))==1)
+            if(tempMap(comXInd,comYInd)==1)
                 regionNum=i; %set to new region
                 regionID=1; %changes to mainRegion state
                 currentRegionMap=mainRegion(:,:,i);
