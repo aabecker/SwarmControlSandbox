@@ -179,7 +179,7 @@ for i=1:size(slope,1)
                     if abs(((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j))-tipx(i))<abs(lowx-tipx(i))
                         lowx=((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j));
                     end
-                else % on right side
+                else
                     if abs(((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j))-tipx(i))<abs(highx-tipx(i))
                         highx=((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j));
                     end
@@ -187,13 +187,25 @@ for i=1:size(slope,1)
             end
             for m=ceil(lowx/scale):ceil(highx/scale)
                  transferRegion(ygrid,m,i)=1;
-            end % on left side
+            end
         end
+    end
+end
+
+for obs=1:size(obstacles,1)
+    for along = ceil((centroids(obstacles(obs),2) + sin(orientations(obstacles(obs))*pi/180)* majorLength(obstacles(obs))/2.3)/scale) :ceil((centroids(obstacles(obs),2) - sin(orientations(obstacles(obs))*pi/180)* majorLength(obstacles(obs))/2.3)/scale) 
+        if along<ylim(1)||along>ylim(2)
+            continue;
+        end
+        x=ceil(((along-offset(obs))/slope(obs))/scale)
+        transferRegion(along,x,:)=2;
+        mainRegion(along,x,:)=2;
     end
 end
 
 figure(2), imshow(transferRegion(:,:,1));
 figure(3), imshow(transferRegion(:,:,2));
+figure(4), imshow(mainRegion);
 
 for i= 1:sizeOfMap(1)-1
     for j = 1:sizeOfMap(2)-1 
