@@ -2,10 +2,10 @@
 %%%%%%%%% webcam, then process it to find obstacles, gives that map to MDP
 %%%%%%%%% and gets the result and draw the gradients and regions. 
 success = false;
-webcamShot = false;
+webcamShot = true;
 obstacles = [];
 if webcamShot
-    cam = webcam(1);
+    cam = webcam(2);
 
 end
 t0 = tic;
@@ -13,9 +13,15 @@ results3= [];
 %while success == false
 if webcamShot
  originalImage = snapshot(cam);
- original = imcrop(originalImage,[345 60 1110 860]);
- img = imcrop(originalImage,[345 60 1110 860]);
- %rgbIm = imcrop(originalImage,[345 60 1110 860]);
+     if (ispc)  
+         original = imcrop(originalImage,[50 10 500 400]);
+         img = imcrop(originalImage,[50 10 500 400]);
+         rgbIm = imcrop(originalImage,[50 10 500 400]);
+    else 
+        original = imcrop(originalImage,[345 60 1110 860]);
+         img = imcrop(originalImage,[345 60 1110 860]);
+         rgbIm = imcrop(originalImage,[345 60 1110 860]);
+     end 
 else 
     rgbIm = imread('Obstacle.jpeg');
 end
