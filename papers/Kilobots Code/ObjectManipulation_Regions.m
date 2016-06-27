@@ -6,7 +6,7 @@
 clear all
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(1);
+cam = webcam(2);
 
 
 
@@ -24,29 +24,7 @@ again = true;
 % %%% First finding value iteration and creating the map:
 % originalImage = snapshot(cam);
 % img = imcrop(originalImage,[345 60 1110 850]);
-% s = size(img);
- scale = 30;
- epsilon = 1* scale;
-% sizeOfMap = floor(s/scale);
-% map = zeros(sizeOfMap(1),sizeOfMap(2));
-% map(1,:) = 1;
-% map(:,1) = 1;
-% map(sizeOfMap(1),:) = 1;
-% map(:,sizeOfMap(2)) = 1;
-% for i= 1:sizeOfMap(1)-1
-%     for j = 1:sizeOfMap(2)-1
-%         for k = 0:scale-1
-%             for l = 0:scale-1
-%                 if img(i*scale+k, j*scale+l,1) > 180 && map(i,j) ~= 1 && img(i*scale+k, j*scale+l,2) < 80 && img(i*scale+k, j*scale+l,3)>100
-%                     map(i,j) = 1;
-%                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,1) = 0;  % Change the red value for the first pixel
-%                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
-%                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 255;    % Change the blue value for the first pixel
-%                 end
-%             end
-%         end
-%     end
-% end
+
 % imwrite(img,'new.jpeg');
 % imshow(img);
 % [probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
@@ -56,9 +34,9 @@ again = true;
 % Using Arduino for our lamps, this is how we define arduino in Matlab:
 load('Map2', 'movesX', 'movesY','corners');
 load('ThresholdMaps','transferRegion','mainRegion');
-% imshow(SmallThresholdMap(:,:,1));
-% figure(2),imshow(SmallThresholdMap(:,:,2));
-% figure(3),imshow(BigThresholdMap);
+% figure(1),imshow(transferRegion(:,:,1));
+% figure(2),imshow(transferRegion(:,:,2));
+% figure(3),imshow(mainRegion);
 if (ispc)  
     a = arduino('Com4','uno');
 else 
@@ -77,9 +55,10 @@ meanControl=false;
  
 %1 is main regions, 0 is transfer regions
 regionID=1;
-regionNum=1;
+regionNum=3;
 %load regions
 currentRegionMap=mainRegion(:,:,regionNum); %init map
+imshow(mainRegion)
 
 while success == false
    
@@ -95,6 +74,33 @@ if (ispc)
 else 
     originalImage = imcrop(rgbIm,[345 60 1110 850]);
 end 
+ s = size(originalImage);
+ scale = 30;
+ epsilon = 1* scale;
+ sizeOfMap = floor(s/scale);
+% map = zeros(sizeOfMap(1),sizeOfMap(2));
+% map(1,:) = 1;
+% map(:,1) = 1;
+% map(sizeOfMap(1),:) = 1;
+% map(:,sizeOfMap(2)) = 1;
+imshow(originalImage);
+hold on
+for i= 1:sizeOfMap(1)-1
+    for j = 1:sizeOfMap(2)-1
+        for k = 0:scale-1
+            for l = 0:scale-1
+                if (mainRegion(i,j,3)==1)
+                    originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,1) = 0;  % Change the red value for the first pixel
+                    originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
+                    originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 255;    % Change the blue value for the first pixel
+                end
+            end
+        end
+    end
+end
+figure(2),imshow(originalImage);
+hold off
+figure
 % make HSV scale.
 I = rgb2hsv(originalImage);
 % Define thresholds for channel 1 based on histogram settings
@@ -136,11 +142,11 @@ position
 %switching regions
 if (regionID)%check if it's in mainRegion state
     if (currentRegionMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale))==0)
+        regionID=0 %changes to transferRegion state
         for i = 1:size(transferRegion)%find which region centroid is in
             tempMap=transferRegion(:,:,i);
             if(tempMap(round(ObjectCentroidX/scale),round(ObjectCentroidY/scale))==1)
                 regionNum=i; %set to new region
-                regionID=0; %changes to transferRegion state
                 currentRegionMap=transferRegion(:,:,i);
             end
             break;
@@ -192,7 +198,7 @@ BW(stat(index).PixelIdxList)=0;
     %Covariance
     C = cov(centers);
 
-%     imshow(originalImage);
+%      imshow(originalImage);
     
     h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
@@ -310,10 +316,10 @@ BW(stat(index).PixelIdxList)=0;
     
     hold off
     if (meanControl)
-        delayTime=42;
+        delayTime=10; %was 42
         meanControl=false;
     else 
-        delayTime=14;
+        delayTime=10; %was 14
     end
     %Mean Control activates Variance Control when the mean and goal are on
     %top of each other for more than 5 times 
