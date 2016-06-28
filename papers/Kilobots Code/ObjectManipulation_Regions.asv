@@ -50,7 +50,7 @@ meanControl=false;
  
 %1 is main regions, 0 is transfer regions
 regionID=1;
-regionNum=1;
+regionNum=3;
 %load regions
 currentRegionMap=mainRegion(:,:,regionNum); %init map
 
@@ -68,7 +68,7 @@ if (ispc)
 else 
     originalImage = imcrop(rgbIm,[345 60 1110 850]);
 end 
- s = size(originalImage)
+ s = size(originalImage);
  scale = 30;
  epsilon = 1* scale;
  sizeOfMap = floor(s/scale);
@@ -79,8 +79,9 @@ end
 % map(:,sizeOfMap(2)) = 1;
 imshow(originalImage);
 hold on
-sizeMain = size(mainRegion)
-sizeTransfer = size(transferRegion)
+sizeofMap(1)
+sizeofMap(2)
+
 for i= 1:sizeOfMap(1)-1
     for j = 1:sizeOfMap(2)-1
         for k = 0:scale-1
@@ -128,9 +129,9 @@ ObjectCentroidX = centroids(index,1);
 ObjectCentroidY = centroids(index,2);
 plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
 
-% originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,1) = 0;  % Change the red value for the first pixel
-% originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
-% originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 255;
+originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,1) = 0;  % Change the red value for the first pixel
+originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
+originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 255;
 
 hold off
 regionID
