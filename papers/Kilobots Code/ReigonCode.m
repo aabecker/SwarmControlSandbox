@@ -2,7 +2,7 @@
 %%%%%%%%% webcam, then process it to find obstacles, gives that map to MDP
 %%%%%%%%% and gets the result and draw the gradients and regions. 
 success = false;
-webcamShot = false;
+webcamShot = true;
 obstacles = [];
 if webcamShot
     cam = webcam(2);
@@ -109,7 +109,7 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
 hold off
 goalX = 4;
 goalY = 4;
-s = size(BW);
+s = size(original);
 scale = 30;
 sizeOfMap = floor(s/scale);
 map = zeros(sizeOfMap(1),sizeOfMap(2));
@@ -135,8 +135,8 @@ hold off
 
 ReigonCount=1;
 
-for i=0:sizeOfMap(1)          %Horizontal Grid (y-values)
-    for j=0:sizeOfMap(2)      %Vertical Grid (x-values)
+for i=0:sizeOfMap(1)-1          %Horizontal Grid (y-values)
+    for j=0:sizeOfMap(2)-1      %Vertical Grid (x-values)
         for equation=1:size(slope,1)
             if (15+j*30)>((15+i*30)-offset(equation))/slope(equation)
                 ReigonCount=ReigonCount+1;
@@ -165,12 +165,12 @@ for i=1:size(slope,1)
                    end
                end
             end
-            for m=ceil(lowx/scale):ceil(highx/scale)
+            for m=ceil(lowx/scale):floor(highx/scale)
                 transferRegion(ygrid,m,i)=1;
             end
         end
     else % bottom is closer
-        for ygrid=ceil(tipy(i)/scale):ceil(ylim(2)/scale)
+        for ygrid=floor(tipy(i)/scale):floor(ylim(2)/scale)
             for j=1:size(slope,1)
                 if i==j
                     continue;
@@ -185,7 +185,7 @@ for i=1:size(slope,1)
                     end
                 end
             end
-            for m=ceil(lowx/scale):ceil(highx/scale)
+            for m=ceil(lowx/scale):floor(highx/scale)
                  transferRegion(ygrid,m,i)=1;
             end
         end
@@ -197,7 +197,7 @@ for obs=1:size(obstacles,1)
         if along<ylim(1)||along>ylim(2)
             continue;
         end
-        x=ceil(((along-offset(obs))/slope(obs))/scale)
+        x=ceil(((along-offset(obs))/slope(obs))/scale);
         transferRegion(along,x,:)=2;
         mainRegion(along,x,:)=2;
     end

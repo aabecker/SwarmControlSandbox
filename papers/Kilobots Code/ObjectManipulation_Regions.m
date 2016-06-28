@@ -50,17 +50,19 @@ meanControl=false;
  
 %1 is main regions, 0 is transfer regions
 regionID=1;
-regionNum=1;
+regionNum=3;
 %load regions
 currentRegionMap=mainRegion(:,:,regionNum); %init map
 
 while success == false
    
-if again== true
-    relayOn(a,0);
-pause (10);
-end 
+% if again== true
+%     relayOn(a,0);
+% pause (10);
+% end 
 % Read in a webcam snapshot.
+% rgbIm = snapshot(cam);
+% pause(3);
 rgbIm = snapshot(cam);
 %crop to have just the table view.
 if (ispc)  
@@ -68,32 +70,30 @@ if (ispc)
 else 
     originalImage = imcrop(rgbIm,[345 60 1110 850]);
 end 
- s = size(originalImage)
+ s = size(originalImage);
  scale = 30;
  epsilon = 1* scale;
  sizeOfMap = floor(s/scale);
+ imshow(originalImage);
 % map = zeros(sizeOfMap(1),sizeOfMap(2));
 % map(1,:) = 1;
 % map(:,1) = 1;
 % map(sizeOfMap(1),:) = 1;
 % map(:,sizeOfMap(2)) = 1;
-imshow(originalImage);
-hold on
-sizeMain = size(mainRegion)
-sizeTransfer = size(transferRegion)
-for i= 1:sizeOfMap(1)-1
-    for j = 1:sizeOfMap(2)-1
-        for k = 0:scale-1
-            for l = 0:scale-1
-                if (mainRegion(i,j,3)==1)
-                    originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,1) = 0;  % Change the red value for the first pixel
-                    originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
-                    originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 255;    % Change the blue value for the first pixel
-                end
-            end
-        end
-    end
-end
+% for i= 0:sizeOfMap(1)-1
+%     for j = 0:sizeOfMap(2)-1
+%         if (mainRegion(i+1,j+1,3)==1)
+%             for k = 1:scale
+%                 for l = 1:scale
+%                     originalImage(i*scale+k,j*scale+l,1) = 0;  % Change the red value for the first pixel
+%                     originalImage(i*scale+k,j*scale+l,2) = 0;    % Change the green value for the first pixel
+%                     originalImage(i*scale+k,j*scale+l,3) = 255;    % Change the blue value for the first pixel
+%                 end
+%             end
+%         end
+%     end
+% end
+% imshow(originalImage);
 % make HSV scale.
 I = rgb2hsv(originalImage);
 % Define thresholds for channel 1 based on histogram settings
@@ -126,43 +126,46 @@ stat = regionprops(L,'Centroid','Area','PixelIdxList');
 centroids = cat(1, stat.Centroid);
 ObjectCentroidX = centroids(index,1);
 ObjectCentroidY = centroids(index,2);
+hold on
 plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
-
+hold off
 % originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,1) = 0;  % Change the red value for the first pixel
 % originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
 % originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 255;
 
-hold off
 regionID
 regionNum
-ObjCentX=floor(ObjectCentroidX/scale)
-ObjCentY=floor(ObjectCentroidY/scale)
-position = currentRegionMap(ObjCentX,ObjCentY);
-pos=position
+ObjCentX=floor(ObjectCentroidX/scale);
+ObjCentY=floor(ObjectCentroidY/scale);
+if (ObjCentX==0)
+    ObjCentX=1;
+end
+if (ObjCentY==0)
+    ObjCentY=1;
+end
+
+position = currentRegionMap(ObjCentY,ObjCentX)
 %switching regions
-if (regionID)%check if it's in mainRegion state
-    if (currentRegionMap(ObjCentX,ObjCentY)==0)
+% tempMap=transferRegion(:,:,2);
+% tempPos=tempMap(ObjCentY,ObjCentX);
+if(position==0)
+    if (regionID==1)%check if it's in mainRegion state
         regionID=0; %changes to transferRegion state
-        for i = 1:ndims(transferRegion)%find which region centroid is in
+        for i = 1:size(transferRegion,3)%find which trasnferRegion centroid is in
             tempMap=transferRegion(:,:,i);
-            if(tempMap(ObjCentX,ObjCentY)==1)
+            if(tempMap(ObjCentY,ObjCentX)==1)
                 regionNum=i; %set to new region
                 currentRegionMap=transferRegion(:,:,i);
             end
-            break;
         end
-    end
-end
-if (~regionID) %if it is in transferRegion state
-    if (currentRegionMap(ObjCentX,ObjCentY)==0)
+    elseif (regionID==0) %if it is in transferRegion state
         regionID=1; %changes to mainRegion state
-        for i = 1:ndims(mainRegion)%find which region centroid is in
+        for i = 1:size(mainRegion,3)%find which region centroid is in
             tempMap=mainRegion(:,:,i);
-            if(tempMap(ObjCentX,ObjCentY)==1)
+            if(tempMap(ObjCentY,ObjCentX)==1)
                 regionNum=i; %set to new region
                 currentRegionMap=mainRegion(:,:,i);
             end
-            break;
         end
     end
 end
