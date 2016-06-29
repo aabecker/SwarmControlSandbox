@@ -6,7 +6,7 @@
 clear all
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(2);
+cam = webcam(1);
 Relay=0;
 
 VarCont = false;
@@ -32,12 +32,12 @@ load('ThresholdMaps','transferRegion','mainRegion');
 % figure(1),imshow(transferRegion(:,:,1));
 % figure(2),imshow(transferRegion(:,:,2));
 % figure(3),imshow(mainRegion);
-if (ispc)  
+if (ispc==1)  
     a = arduino('Com4','uno');
 else 
     a = arduino('/dev/tty.usbmodem1421','uno');
 end 
-
+%a = arduino('/dev/tty.usbmodem1421','uno');
 %initialize mean controller 
 %meanControlCount=0;
 %delayTime = 7;
@@ -56,16 +56,16 @@ currentRegionMap=mainRegion(:,:,regionNum); %init map
 
 while success == false
    
-% if again== true
-%     relayOn(a,0);
-% pause (10);
-% end 
+if (again == true)
+    relayOn(a,0);
+    pause (10);
+end 
 % Read in a webcam snapshot.
 % rgbIm = snapshot(cam);
 % pause(3);
 rgbIm = snapshot(cam);
 %crop to have just the table view.
-if (ispc)  
+if (ispc== 1)  
     originalImage = imcrop(rgbIm,[50 10 500 400]);
 else 
     originalImage = imcrop(rgbIm,[345 60 1110 850]);
@@ -375,13 +375,13 @@ BW(stat(index).PixelIdxList)=0;
                     relayOn(a,Relay);
                     pause(delayTime);
        
-                else       
-        %relayOn(a,Relay);
-        meanControl=true;
-        VarCont = true;
-        %pause(delayTime);
-        
-        again = true;
+%                 else       
+%         %relayOn(a,Relay);
+%         meanControl=true;
+%         %VarCont = true;
+%         %pause(delayTime);
+%         
+%         again = true;
                 end
             end
         end
