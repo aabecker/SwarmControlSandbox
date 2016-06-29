@@ -146,8 +146,6 @@ end
 
 position = currentRegionMap(ObjCentY,ObjCentX)
 %switching regions
-% tempMap=transferRegion(:,:,2);
-% tempPos=tempMap(ObjCentY,ObjCentX);
 if(position==0)
     if (regionID==1)%check if it's in mainRegion state
         regionID=0; %changes to transferRegion state
@@ -180,26 +178,35 @@ BW(stat(index).PixelIdxList)=0;
     [centers, radii] = imfindcircles(BW,[10 19],'ObjectPolarity','bright','Sensitivity',0.92 );
   end
 %   %finding robots in cell
-%   sumX=0;
-%   sumY=0;
-%   countMean=0; %number of robots in cell
-%   [m,n]=size(centers);
-%   for i=1:m
-%       if(currentMap(centers(i))) %if robot is in region
-%         sumX= sumX+center(i,1);
-%         sumY= sumY+center(i,2);
-%         count=count+1;
-%       end
-%   end
-  
+  sumX=0;
+  sumY=0;
+  countMean=0; %number of robots in cell
+  [m,n]=size(centers);
+  cenArray=[]; %dynamic array for selecting only robots within region
+  for i=1:m
+      cenX=floor(centers(i,1)/scale);
+      cenY=floor(centers(i,2)/scale);
+      if (cenX==0) cenX=1;
+      end 
+      if (cenY==0) cenY=1;
+      end  
+      if(currentRegionMap(cenY,cenX)==1) %if robot is in region
+        sumX= sumX+centers(i,1);
+        sumY= sumY+centers(i,2);
+        countMean=countMean+1;
+        cenArray(countMean,1)= centers(i,1); %adding selected robots to array
+        cenArray(countMean,2)= centers(i,2);
+      end
+  end
+    cou=countMean %debug
     % %Mean
-%     M(1,1)= sumX/countMean;
-%     M(1,2)= sumY/countMean;
- M = mean(centers);
+    M(1,1)= sumX/countMean;
+    M(1,2)= sumY/countMean;
+%  M = mean(centers);
     %Variance
-    V = var(centers);
+    V = var(cenArray)
     %Covariance
-    C = cov(centers);
+    C = cov(cenArray)
 
     
     h = viscircles(centers,radii,'EdgeColor','b');
