@@ -111,8 +111,11 @@ moves[6] = [0, -1];
 moves[7] = [1, -1];
 moves[8] = [0, 0];
 
-var eta = 8;
-var rhoNot = 4;
+var zeta = 2;
+var eta = 5;
+var rhoNot = 500;
+var rho = 0;
+var alphaWant = 0;
 
 var k = [0, 2, 4, 6, 1, 3, 5, 7, 8];
 
@@ -899,10 +902,10 @@ if(BFSDebugMode)
 	// CONTROLLER
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//goal positions
-	var attX = 0;
-	var attY = 0;
-	var repX = 0;
-	var repY = 0;
+	var FattX = 0;
+	var FattY = 0;
+	var FrepX = 0;
+	var FrepY = 0;
 	
 	var cycleInSec = 20;
 	var amplitudeY = 5;
@@ -999,7 +1002,7 @@ if(BFSDebugMode)
 		})
 		.restoreCanvas();
 	}else{
-		 var winstring = "Success,\n "+ numrobots +" robots in " +Math.floor(timeFinished) + "s";
+		 var winstring = "Success,\n "+ globalNumrobots +" robots in " +Math.floor(timeFinished) + "s";
 		 $("canvas").drawText(
 		 {
 		 	strokeStyle: "blue",
@@ -1075,17 +1078,43 @@ if(BFSDebugMode)
 			{	r = 1.5
 			}
 			
-			
-			
+			//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
+			//goalY = blockCOM_y + r * policy_y[block_x][block_y];
+			alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
 			//var r = Math.max(0.0, Math.min(1.5, 0.5*COMdist2swarm));	
-			attX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-			attY = blockCOM_y + r * policy_y[block_x][block_y];
+			rho=lineDistance(mean_position_x, mean_position_y,blockCOM_x - r * Math.cos(alphaWant+Math.PI),blockCOM_y - r * Math.sin(alphaWant+Math.PI));
 			
-			repX = -eta*(1/COMdist2swarm-1/rhoNot)*(1/COMdist2swarm)*(1/COMdist2swarm)*policy_x[block_x][block_y];//change these lines
-			repY = -eta*(1/COMdist2swarm-1/rhoNot)*(1/COMdist2swarm)*(1/COMdist2swarm)*policy_y[block_x][block_y];
+			/*if (rho<rhoNot)
+			{
+				FattX = zeta*((blockCOM_x - r * Math.cos(alphaWant+Math.PI)) - mean_position_x);//change these lines
+				FattY = zeta*((blockCOM_y - r * Math.sin(alphaWant+Math.PI)) - mean_position_y);
+			}
+			else
+			{*/
+				FattX = /*zeta*rhoNot*/((blockCOM_x - r * Math.cos(alphaWant+Math.PI)) - mean_position_x)/rho;//change these lines
+				FattY = /*zeta*rhoNot*/((blockCOM_y - r * Math.sin(alphaWant+Math.PI)) - mean_position_y)/rho;
+			//}
 			
-			goalX = (attX + repX);//change these lines
-			goalY = (attY + repY);
+			rho=lineDistance(mean_position_x, mean_position_y,blockCOM_x - r * Math.cos(alphaWant),blockCOM_y - r * Math.sin(alphaWant))
+			
+			theta = Math.atan2(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant)),mean_position_x - (blockCOM_x - r * Math.cos(alphaWant)));
+			angdiff = alphaWant-theta;
+			if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
+			if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
+			
+			if(rho<rhoNot&&Math.abs(angdiff)<(3/4*Math.PI))
+			{
+				FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(mean_position_x - (blockCOM_x - r * Math.cos(alphaWant)));//change these lines
+				FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant)));
+			}
+			else
+			{
+				FrepX=0;
+				FrepY=0;
+			}
+			
+			goalX = blockCOM_x + (FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
+			goalY = blockCOM_y + (FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
 		}
 		$("canvas").drawArc({ //draw the average position
 			strokeStyle: "red",
