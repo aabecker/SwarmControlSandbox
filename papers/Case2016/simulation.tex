@@ -7,23 +7,24 @@ u_y &= K_{p}(goal_y  - \bar{y}) + K_{d}(0-\bar{v}_y)  \label{eq:PDcontrolPositio
 \end{align}
 here $K_{p}$ is the proportional gain, and $K_{d}$ is the derivative gain.  
 The swarm's average position is $[\bar{x},\bar{y}]^T$ and mean velocity is $[\bar{v}_x,\bar{v}_y]^T$.  
-Each task uses a different algorithm to select the swarm's goal position $[goal_x,goal_y]^T$.
+Each task uses a different algorithm to select the swarm's goal position $[goal_x,goal_y]^T$. The goal is to stay at the goal position, so the desired velocity at goal position is 0.
 
 \paragraph{Pure torque control} \label{sec:simulationPureTorque}
 An object with a pivot point can rotate, but not translate. A door is a common example of an object with a pivot. A door can have an angular velocity but cannot translate. 
  If there was only one robot touching the object, the robot should push at the point which maximizes the moment arm, at the extreme end of the object furthest from the pivot point.
 The optimal pushing location provides the maximum force, because it maximizes  $r$ in \eqref{eq:torque}.
 However, given a swarm of robots, maximizing $r$ is no longer the optimal solution.  
-If the swarm hits the object with its mean position at the extreme edge, half of the robots will miss the object and  the swarm will be torn apart.
+If the mean of the swarm hits the object at the extreme edge, half of the robots will miss the object and  the swarm will be split.
 Because few robots remain,  the force is significantly decreased and torque is not maximized.
- In our simulation, the swarm applies torque until the swarm's mean position is beyond the object.  At this point, the swarm will be regathered in a corner before returning to torque control, a time-consuming task. 
- The key parameter of interest for a hinged door of length $L$ is $C$, the position along the door where the mean of the swarm will push.  The swarm is directed toward 
+ In our simulation, the swarm applies torque until the swarm's mean position is beyond the object.  The swarm will regather in a corner at this point before returning to torque control, a time-consuming task. 
+ The key parameter of interest for a hinged door of length $L$ is $C$, the position along the door where the mean of the swarm will push.  The swarm is directed toward these goal calculations:
  
 \begin{align}\nonumber
 goal_x &= O_x + C \sin(O_{\theta}) \\
 goal_y &= O_y + C \cos(O_{\theta})  \label{eq:TorqueControl}
 \end{align}
 
+Where $O_{\theta}$ is the object's orientation.
  Fig. \ref{fig:LFig} illustrates how different values of $C$ result in different rates of turning. These simulations tested $C = \{1/2, 3/4, 5/8, 1\}L$  The fastest turning rates occurred with  $C =  5/8L$. Code is available at \cite{Shahrokhi16torque}.
 
 
@@ -64,7 +65,7 @@ Here $K_{orient}$ is a positive gain on the control input.
 \end{center}
 \vspace{-1em}
 \caption{\label{fig:OrientCont}
-Plot demonstrating  orientation control of a rectangular object. The green line is the goal orientation.   When the plot traces are constant the swarm is no longer pushing the object and instead is being regathered in a corner of the workspace until the variance is below a desired threshold. 
+Plot demonstrating  orientation control of a rectangular object. The green line is the goal orientation. Other lines show different random starting position of the swarm. When the plot traces are constant the swarm is no longer pushing the object and instead is being regathered in a corner of the workspace until the variance is below a desired threshold. 
 }
 \vspace{-1em}
 \end{figure}
@@ -76,7 +77,7 @@ Fig. \ref{fig:OrientCont} illustrates this controller with different starting po
 When the total force is applied perpendicular to the object and in line with the center of mass, according to Eq. \eqref{eq:torque} there will be no torque. 
 The following goal position for the mean position of the swarm regulates the object's orientation using $\Delta \theta$ for proportional feedback  to determine where to apply force.
 $\Delta_\theta = goal_\theta - O_\theta$ is the difference between the goal angle and the current object angle.
- $K_\tau$ is a constant and $(O_x,O_y)$ is the position of the object's COM.
+ $K_\tau$ is a constant and is tuned manually to $10$. $(O_x,O_y)$ is the position of the object's COM.
 \begin{align}
 goal_x &= O_x \nonumber \\
 goal_y &= K_\tau \Delta\theta + O_y  \label{eq:TranslationAndOrientation}
