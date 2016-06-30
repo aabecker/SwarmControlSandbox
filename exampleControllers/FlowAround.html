@@ -72,6 +72,7 @@ var MDP_DebugMode = false;
 var BFSDebugMode = false;
 var Gradient_DebugMode = false;
 var Gradient_DebugMode_MDP = false;
+var ForceCheck_DebugMode = false;
 var goalRecieved = false;  //have we reached the goal?
 var timeFinished = 1000;
 var wroteFinish = false;
@@ -116,6 +117,8 @@ var eta = 5;
 var rhoNot = 500;
 var rho = 0;
 var alphaWant = 0;
+var choose = true;
+var which = 1;
 
 var k = [0, 2, 4, 6, 1, 3, 5, 7, 8];
 
@@ -235,7 +238,7 @@ function Gradient(x,y)
 		gradient_y[x][y] = (map[x][y+1] - map[x][y-1])/2;
 	}
 
-		gradient_angle[x][y] = Math.atan2(gradient_y[x][y],gradient_x[x][y] ) * 180 / Math.PI + 270;
+	gradient_angle[x][y] = Math.atan2(gradient_y[x][y],gradient_x[x][y] ) * 180 / Math.PI + 270;
 }
 
 //to determine the gradien for Markov Decision Process
@@ -331,7 +334,7 @@ function init()
 	var world = new b2World(
 		new b2Vec2(0, 00) //gravity setting to zero removes gravity
 		, true //allow sleep
-		);
+	);
 	var canvas = $('#canvas');
 	var context = canvas.get(0).getContext('2d');
 	var timeStart = null;
@@ -381,16 +384,16 @@ function init()
 		bodyDef.type = b2Body.b2_dynamicBody;
 		fixDef.density = 10.0;
 		fixDef.friction = 0.5;
-    fixDef.restitution = 0.2;  //bouncing value
-    bodyDef.position.Set(7,17.5);
-    bodyDef.userData = 'moveable';
-    fixDef.shape = new b2PolygonShape;
-    fixDef.shape.SetAsBox(1.0,1.0);
-    var obst = world.CreateBody(bodyDef);
-    obst.CreateFixture(fixDef);
-    obst.m_angularDamping = 0.1;
-    obst.m_linearDamping = 0.1;
-}
+	    fixDef.restitution = 0.2;  //bouncing value
+	    bodyDef.position.Set(7,17.5);
+	    bodyDef.userData = 'moveable';
+	    fixDef.shape = new b2PolygonShape;
+	    fixDef.shape.SetAsBox(1.0,1.0);
+	    var obst = world.CreateBody(bodyDef);
+	    obst.CreateFixture(fixDef);
+	    obst.m_angularDamping = 0.1;
+	    obst.m_linearDamping = 0.1;
+	}
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
@@ -547,7 +550,7 @@ function init()
 					}
 				}
 			}
-		iteration++;
+			iteration++;
 
 		//console.log(iteration);
 		}
@@ -561,8 +564,6 @@ function init()
 	}
 
 	if(ifGradient)
-
-
 	{	//for each cell, calculate the gradient
 		for(var i = 0 ; i < mapXSize; i ++){
 			for(var j = 0 ; j <mapYSize; j++)
@@ -578,11 +579,13 @@ function init()
 		requestAnimFrame(animloop);
 		update();
 	})();
+
 	if ( timeStart == null)
 	{
 		var day = new Date();
 		timeStart= day.getTime();
 	}
+
 	function lineDistance( x1,y1,x2,y2)
 	{
 		var xs = 0;
@@ -605,22 +608,25 @@ function init()
 			impulseV.x = m_ControlInputX;
 			impulseV.y = m_ControlInputY;
 		}
-		//apply Brownian noise:
-		var brownianImpulse = new b2Vec2(0,0);
-		var mag = 0;
-		var ang = 0;
-		var vary= .5; //was .5
-		for(var i =0; i<m_Robot.length; i++) 
-		{
-			mag = vary * Math.random();
-			ang = 2*Math.PI*Math.random();
-			brownianImpulse.x = mag*Math.cos(ang) + impulseV.x ;
-			brownianImpulse.y = mag*Math.sin(ang) + impulseV.y ;
-			m_Robot[i].ApplyForce(brownianImpulse,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
+		if(!ForceCheck_DebugMode){
+			//apply Brownian noise:
+			var brownianImpulse = new b2Vec2(0,0);
+			var mag = 0;
+			var ang = 0;
+			var vary= .5; //was .5
+			for(var i =0; i<m_Robot.length; i++) 
+			{
+				mag = vary * Math.random();
+				ang = 2*Math.PI*Math.random();
+				brownianImpulse.x = mag*Math.cos(ang) + impulseV.x ;
+				brownianImpulse.y = mag*Math.sin(ang) + impulseV.y ;
+				m_Robot[i].ApplyForce(brownianImpulse,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
+			}
+			world.Step(1 / 60, 10, 10);
+			world.DrawDebugData();
+			world.ClearForces();	
 		}
-		world.Step(1 / 60, 10, 10);
-		world.DrawDebugData();
-		world.ClearForces();			
+				
 		$("canvas").clearCanvas();
 		$("canvas").rotateCanvas(
 		{
@@ -682,37 +688,26 @@ function init()
 				}
 			}
 
-
-
-if(Gradient_DebugMode_MDP)
-{
-	for(var i = 0 ; i < mapXSize; i++){
-		for (var j = 0 ; j < mapYSize; j++){	
-			$('canvas').drawVector({
-				strokeStyle: '#000',
-				strokeWidth: 2,
-				rounded: true,
-				endArrow: true,
-				arrowRadius: 10,
-				arrowAngle: 30,		  
-				x: mapScale* (i+ 0.5  + 0.5*Math.cos((90+policy_angle[i][j])*Math.PI/180.0))	 , y: mapScale * (j + 0.5 + 0.5*Math.sin((90+policy_angle[i][j])*Math.PI/180.0)),
-				a1: policy_angle[i][j], l1: mapScale
-			});
-		}
-	}
-}
-
-
-
-
-
-
-
-
-
-
-if(BFSDebugMode)
+		if(Gradient_DebugMode_MDP)
 		{
+			for(var i = 0 ; i < mapXSize; i++){
+				for (var j = 0 ; j < mapYSize; j++){	
+					$('canvas').drawVector({
+						strokeStyle: '#000',
+						strokeWidth: 2,
+						rounded: true,
+						endArrow: true,
+						arrowRadius: 10,
+						arrowAngle: 30,		  
+						x: mapScale* (i+ 0.5  + 0.5*Math.cos((90+policy_angle[i][j])*Math.PI/180.0))	 , y: mapScale * (j + 0.5 + 0.5*Math.sin((90+policy_angle[i][j])*Math.PI/180.0)),
+						a1: policy_angle[i][j], l1: mapScale
+					});
+				}
+			}
+		}
+
+		if(BFSDebugMode)
+				{
 			for(var i = 0 ; i < mapXSize; i++)
 				for (var j = 0 ; j < mapYSize; j++)
 				{
@@ -753,415 +748,450 @@ if(BFSDebugMode)
 					}
 				}
 			}
-			if(Gradient_DebugMode)
+		if(Gradient_DebugMode)
+		{
+			for(var i = 0 ; i < mapXSize; i++){
+				for (var j = 0 ; j < mapYSize; j++){	
+					$('canvas').drawVector({
+						strokeStyle: '#000',
+						strokeWidth: 2,
+						rounded: true,
+						endArrow: true,
+						arrowRadius: 10,
+						arrowAngle: 30,		  
+						x: mapScale* (i+ 0.5  + 0.5*Math.cos((90+gradient_angle[i][j])*Math.PI/180.0))	 , y: mapScale * (j + 0.5 + 0.5*Math.sin((90+gradient_angle[i][j])*Math.PI/180.0)),
+						a1: gradient_angle[i][j], l1: mapScale
+					});
+				}
+			}
+		}
+
+		//draw robots and obstacles
+		for (b = world.GetBodyList() ; b; b = b.GetNext())
+		{
+			var angle = b.GetAngle()*(180/Math.PI);
+			for(f = b.GetFixtureList(); f; f = f.GetNext()) 
 			{
-				for(var i = 0 ; i < mapXSize; i++){
-					for (var j = 0 ; j < mapYSize; j++){	
+				if (b.GetUserData() == 'robot')
+				{
+					
+					var radius = f.GetShape().GetRadius();
+					var pos = b.GetPosition();
+					$("canvas")
+					.rotateCanvas(
+					{
+						x: pos.x * mapScale, y: pos.y * mapScale,
+						rotate: angle
+					})
+					.drawArc(
+					{
+						strokeStyle: "lightblue",
+						strokeWidth: 1,
+						fillStyle: "blue",
+						x: pos.x * mapScale, y: pos.y * mapScale,
+						radius: radius * mapScale
+					})
+					.restoreCanvas();
+				}
+				else if (b.GetUserData() == 'obstacle' || b.GetUserData() == 'moveable' || b.GetUserData() == 'rectangle_ground')
+				{
+					var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
+					var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
+					//console.log(X);
+					var pos = b.GetPosition();
+					var color = 'orange';
+					if(b.GetUserData() == 'obstacle')
+						color = 'brown';
+					if(b.GetUserData() == 'moveable')
+					{
+						color = 'black';
+						blockCOM_x = pos.x;
+						blockCOM_y = pos.y;
+					}
+					$("canvas")
+					.rotateCanvas({
+						x: pos.x * mapScale, y: pos.y * mapScale,
+						rotate: angle
+					})
+					.drawRect({
+						fillStyle: color,
+						x: pos.x * mapScale, y: pos.y * mapScale,
+						width: X * mapScale,
+						height: Y * mapScale,
+						cornerRadius: 0
+					})
+					.restoreCanvas();
+					if(MDP_DebugMode || Gradient_DebugMode_MDP){
+						for(var i = 0 ; i < 20; i++)
+						{
+							$("canvas")
+							.drawLine(
+							{
+								strokeStyle: 'gray',
+								strokeWidth: 1,
+								x1: i*mapScale, y1: 0,
+								x2: i*mapScale, y2: 20*mapScale
+							})
+							.drawLine({
+								strokeStyle: 'gray',
+								strokeWidth: 1,
+								x1: 0, y1: i*mapScale,
+								x2: 20*mapScale, y2: i*mapScale
+							})
+						}
+						$("canvas").restoreCanvas();
+					}
+				}
+			}
+		}
+
+		if(!goalRecieved){
+			$("canvas").drawArc({
+				//draw the goal mean position
+				strokeStyle: "lightblue",
+				strokeWidth: 5,
+				x: goalX * mapScale, y: goalY * mapScale,
+				radius: radius * mapScale
+			})
+			.drawArc({
+				//draw the goal mean position
+				strokeStyle: "lightblue",
+				strokeWidth: 5,
+				x: goalX * mapScale, y: goalY * mapScale,
+				radius: (radius + 0.2) * mapScale
+			})
+			.restoreCanvas();
+		}
+		$("canvas")
+		.drawArc({
+			//COM of the block
+			strokeStyle: "orange",
+			strokeWidth: 5,
+			x: blockCOM_x * mapScale, y: blockCOM_y * mapScale,
+			radius: radius * mapScale
+		})
+		.restoreCanvas();
+	
+		var day = new Date();
+		if( timeFinish == null && false)
+			{ timeFinish = day.getTime();}
+		if(overall_time == null) // set the start time
+		{
+			overall_time = day.getTime();
+		}
+		var elapsedTimeSec = (day.getTime()- overall_time )/1000;
+		string = "Time = "+ elapsedTimeSec +"s<br>Algorithm II  is making robots (blue discs) push a block to the goal</strong>";
+		$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// CONTROLLER
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//goal positions
+		var FattX = 0;
+		var FattY = 0;
+		var FrepX = 0;
+		var FrepY = 0;
+	
+		var cycleInSec = 20;
+		var amplitudeY = 5;
+		var offsetY = 5;
+		var amplitudeX = 5;
+		var offsetX = 5;
+		var max_desired_var_x = numrobots * robotrad * .20; //was 1.91
+		var min_desired_var_x = numrobots * robotrad * .05; //was .663
+		var max_desired_var_y = max_desired_var_x;
+		var min_desired_var_y = min_desired_var_x;
+		var sum_position_x = 0;
+		var sum_position_y = 0;
+		var sum2_x = 0;
+		var sum2_y = 0;
+		var desired_var_x;
+		var cov_xy = 0;
+		var varDistance = 0;
+		varNumrobots = 0; //number of robots inside the distanceMax
+
+		if (initialMean) {
+		    for (var i = 0; i < globalNumrobots; ++i) { //iterate through all robots
+		        sum_position_x += m_Robot[i].GetPosition().x;
+		        sum_position_y += m_Robot[i].GetPosition().y;
+		    }
+		    mean_position_x = sum_position_x / numrobots;
+		    mean_position_y = sum_position_y / numrobots;
+		    initialMean = false;
+		    varNumrobots = numrobots;
+		}
+		else {
+		    for (var i = 0; i < globalNumrobots; ++i) {//iterate through all robots
+		        var rx = m_Robot[i].GetPosition().x;
+		        var ry = m_Robot[i].GetPosition().y;
+		        varDistance=lineDistance(rx,ry, mean_position_x, mean_position_y);
+		        if ( varDistance < distanceMax) {
+		            sum_position_x += rx;
+		            sum_position_y += ry;
+		            varNumrobots++; //counts number of robots within DistanceMax
+		        }
+				else
+				{
+					$("canvas").rotateCanvas(
+					{
+						x: rx * mapScale, y: ry * mapScale,
+						rotate: angle
+					})
+					.drawArc(
+					{
+						strokeStyle: "Gainsboro",
+						strokeWidth: 1,
+						fillStyle: "LightSteelBlue",
+						x: rx * mapScale, y: ry * mapScale,
+						radius: radius * mapScale
+					}).restoreCanvas();
+				}
+		     }
+		}
+		numrobots = varNumrobots;
+
+		mean_position_x = sum_position_x / numrobots;
+		mean_position_y = sum_position_y / numrobots;
+
+
+		for (var i = 0; i < globalNumrobots; ++i) {//iterate through all robots
+		    var rx = m_Robot[i].GetPosition().x;
+		    var ry = m_Robot[i].GetPosition().y;
+		    varDistance = lineDistance(rx, ry, mean_position_x, mean_position_y);
+		    if (varDistance < distanceMax) {
+		        sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
+		        sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
+		        cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
+		    }
+		}
+		var var_x = sum2_x / numrobots;
+		var var_y = sum2_y / numrobots;
+		var diffeq = Math.sqrt( (var_x-var_y)*(var_x-var_y)/4 + cov_xy*cov_xy);
+		var var_xp = (var_x+var_y)/2 + diffeq;
+		var var_yp = (var_x+var_y)/2 - diffeq;
+		var angle2 = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, var_x-var_y);
+		var angle_min_variance = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, min_desired_var_x-min_desired_var_y);
+		var angle_max_variance = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, max_desired_var_x-max_desired_var_y);
+		var index_x = Math.floor(mean_position_x);
+		var index_y = Math.floor(mean_position_y);
+		var block_x = Math.floor(blockCOM_x);
+		var block_y = Math.floor(blockCOM_y);
+		if(!goalRecieved){
+			$("canvas").drawEllipse({
+				strokeStyle: "red",
+				strokeWidth: 5,
+				setLineDash: 6 , 
+				x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+				width: 3 * 30*Math.sqrt(var_xp), height: 3 * 30*Math.sqrt(var_yp),
+				rotate: angle2
+			})
+			.restoreCanvas();
+		}else{
+			 var winstring = "Success,\n "+ globalNumrobots +" robots in " +Math.floor(timeFinished) + "s";
+			 $("canvas").drawText(
+			 {
+			 	strokeStyle: "blue",
+			 	strokeWidth: 4,
+			 	x: 9*mapScale  , y: 10 *mapScale ,
+				fontSize: 40,
+			 	fontFamily: 'Verdana, sans-serif',
+			 	text: winstring
+			 }).restoreCanvas();
+		}
+		if(Math.abs(blockCOM_x - goalPositionX) < 2 && Math.abs(blockCOM_y - goalPositionY) <2)
+		{
+			goalRecieved = true;
+			
+			if(wroteFinish == false){
+				timeFinished = elapsedTimeSec;
+				console.log(elapsedTimeSec + " " + numrobots);
+				wroteFinish = true;
+			}
+			m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
+		}
+		if (!goalRecieved) {
+			if(var_x < min_desired_var_x && var_y < min_desired_var_y)
+			{
+			    flagVar = false;
+			    varCount = 0;
+			}
+			if(var_x > max_desired_var_x || var_y > max_desired_var_y)
+			{
+			    flagVar = true;
+			    varCount++;
+			}
+			if(flagVar)
+			{
+				var CornerValuesX = [1,		19,	19,	1,	1,	100];
+				var CornerValuesY = [19,	19,	7,	13,	1,	100];
+				var CornerValuesD = [51,	41, 30,	24, 17, 100];
+				var dist2corner = new Array(CornerValuesX.length);
+				var COMdist2corner = new Array(CornerValuesX.length);
+				var minDistCorner = 10000;
+				var IndexMinDist = 0;
+				for (var i = 0 ; i < CornerValuesX.length ; i++)
+				{	//computes distance from all corners to COM  and swarm mean.  Also records closest corner to  mean of swarm
+					dist2corner[i] = lineDistance(mean_position_x, mean_position_y, CornerValuesX[i], CornerValuesY[i]);
+					COMdist2corner[i] = lineDistance(blockCOM_x, blockCOM_y, CornerValuesX[i], CornerValuesY[i]);
+					if(minDistCorner > dist2corner[i])
+					{
+						minDistCorner = dist2corner[i];
+						IndexMinDist = i;
+					}
+				}
+				if(   CornerValuesD[IndexMinDist] <  map[block_x][block_y]  && IndexMinDist>0 )
+				{
+					//console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
+					IndexMinDist = IndexMinDist-1;
+				}
+				goalX = CornerValuesX[IndexMinDist];
+				goalY = CornerValuesY[IndexMinDist];
+				if (varCount > varCountMax) {
+				    distanceMax =-.2;
+				}
+			}
+			if(!flagVar)
+			{
+				var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+				var r = 0.1;
+				if( COMdist2swarm > 2.5)
+				{	r = 1.5
+				}
+				
+				//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
+				//goalY = blockCOM_y + r * policy_y[block_x][block_y];
+				alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
+				rho=lineDistance(mean_position_x, mean_position_y,blockCOM_x - r * Math.cos(alphaWant+Math.PI),blockCOM_y - r * Math.sin(alphaWant+Math.PI));
+				FattX = zeta*(mean_position_x - (blockCOM_x - r * Math.cos(alphaWant+Math.PI)))/rho;//change these lines
+				FattY = zeta*(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant+Math.PI)))/rho;
+
+				rho=lineDistance(mean_position_x, mean_position_y,blockCOM_x - r * Math.cos(alphaWant),blockCOM_y - r * Math.sin(alphaWant))
+			
+				theta = Math.atan2(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant)),mean_position_x - (blockCOM_x - r * Math.cos(alphaWant)));
+				angdiff = alphaWant-theta;
+				if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
+				if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
+				
+				if(rho<rhoNot&&Math.abs(angdiff)>(1/4*Math.PI))
+				{
+					FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_x - r * Math.cos(alphaWant)) - mean_position_x);//change these lines
+					FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_y - r * Math.sin(alphaWant)) - mean_position_y);
+				}else
+				{
+					FrepX=0;
+					FrepY=0;
+				}
+				
+				goalX = blockCOM_x + (FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
+				goalY = blockCOM_y + (FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
+			}
+			$("canvas").drawArc({ //draw the average position
+				strokeStyle: "red",
+				strokeWidth: 5,
+				x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+				radius: radius * mapScale
+			})
+			.drawEllipse
+			({
+				strokeStyle: "green",
+				strokeWidth: 5,
+				setLineDash: 6 , 
+				x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+				width: 3 * 30*Math.sqrt(min_desired_var_x), height: 3 * 30*Math.sqrt(min_desired_var_y),
+				rotate: angle2
+			})
+			.drawEllipse
+			({
+				strokeStyle: "green",
+				strokeWidth: 5,
+				setLineDash: 6 , 
+				x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+				width: 3 * 30*Math.sqrt(max_desired_var_x), height: 3 * 30*Math.sqrt(max_desired_var_y),
+				rotate: angle2
+			})
+			.drawEllipse
+			({
+				strokeStyle: "Silver",
+				strokeWidth: 5,
+				setLineDash: 6 , 
+				x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+				width: 2*mapScale*distanceMax, height: 2*mapScale*distanceMax,
+				rotate: angle2
+			}).restoreCanvas();
+		var Kgain = 12;
+		var Kderivative = 1;
+		var sum_velocity_x = 0;
+		var sum_velocity_y = 0;
+		for(var i = 0; i < numrobots; ++i) {
+			sum_velocity_x += m_Robot[i].GetLinearVelocity().x;
+			sum_velocity_y += m_Robot[i].GetLinearVelocity().y;
+		}
+		var mean_velocity_x = sum_velocity_x / numrobots;
+		var mean_velocity_y = sum_velocity_y / numrobots;
+		if (!ForceCheck_DebugMode){
+			m_ControlInputY = Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
+			m_ControlInputX = Kgain*(goalX - mean_position_x) + Kderivative*(0-mean_velocity_x) ;
+			m_controlState = ROBOT_INPUT.ROBOT_PROP;
+		}else{
+			if(choose){
+				which = confirm("Press Confirm to show the Attractive Forces\nPress Cancel to show Repulsive Forces");
+				if (which == true) {
+				    x = "Showing Attractive Forces";
+				} else {
+				    x = "Showing Repulsive Forces!";
+				}
+				choose=false;
+			}
+			for(var i = 0 ; i < mapXSize; i++){
+				for (var j = 0 ; j < mapYSize; j++){	
+					alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
+					if(which){
+						rho=lineDistance((i+0.5), (j+0.5),blockCOM_x - r * Math.cos(alphaWant+Math.PI),blockCOM_y - r * Math.sin(alphaWant+Math.PI));
+						FattX = zeta*((i+0.5) - (blockCOM_x - r * Math.cos(alphaWant+Math.PI)))/rho;//change these lines
+						FattY = zeta*((j+0.5) - (blockCOM_y - r * Math.sin(alphaWant+Math.PI)))/rho;
 						$('canvas').drawVector({
 							strokeStyle: '#000',
 							strokeWidth: 2,
 							rounded: true,
 							endArrow: true,
 							arrowRadius: 10,
-							arrowAngle: 30,		  
-							x: mapScale* (i+ 0.5  + 0.5*Math.cos((90+gradient_angle[i][j])*Math.PI/180.0))	 , y: mapScale * (j + 0.5 + 0.5*Math.sin((90+gradient_angle[i][j])*Math.PI/180.0)),
-							a1: gradient_angle[i][j], l1: mapScale
+							arrowAngle: 30,
+							x: mapScale* (i+ 0.5  + 0.5*Math.cos(Math.atan2(FattY,FattX)))	, y: mapScale * (j + 0.5 + 0.5*Math.sin(Math.atan2(FattY,FattX))),
+							a1: (Math.atan2(FattY,FattX)*180/Math.PI)+270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
 						});
-					}
-				}
-			}
-
-
-
-
-
-
-
-
-
-
-		//draw robots and obstacles
-	for (b = world.GetBodyList() ; b; b = b.GetNext())
-	{
-		var angle = b.GetAngle()*(180/Math.PI);
-		for(f = b.GetFixtureList(); f; f = f.GetNext()) 
-		{
-			if (b.GetUserData() == 'robot')
-			{
-				
-				var radius = f.GetShape().GetRadius();
-				var pos = b.GetPosition();
-				$("canvas")
-				.rotateCanvas(
-				{
-					x: pos.x * mapScale, y: pos.y * mapScale,
-					rotate: angle
-				})
-				.drawArc(
-				{
-					strokeStyle: "lightblue",
-					strokeWidth: 1,
-					fillStyle: "blue",
-					x: pos.x * mapScale, y: pos.y * mapScale,
-					radius: radius * mapScale
-				})
-				.restoreCanvas();
-			}
-			else if (b.GetUserData() == 'obstacle' || b.GetUserData() == 'moveable' || b.GetUserData() == 'rectangle_ground')
-			{
-				var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
-				var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
-				//console.log(X);
-				var pos = b.GetPosition();
-				var color = 'orange';
-				if(b.GetUserData() == 'obstacle')
-					color = 'brown';
-				if(b.GetUserData() == 'moveable')
-				{
-					color = 'black';
-					blockCOM_x = pos.x;
-					blockCOM_y = pos.y;
-				}
-				$("canvas")
-				.rotateCanvas({
-					x: pos.x * mapScale, y: pos.y * mapScale,
-					rotate: angle
-				})
-				.drawRect({
-					fillStyle: color,
-					x: pos.x * mapScale, y: pos.y * mapScale,
-					width: X * mapScale,
-					height: Y * mapScale,
-					cornerRadius: 0
-				})
-				.restoreCanvas();
-				if(MDP_DebugMode || Gradient_DebugMode_MDP){
-					for(var i = 0 ; i < 20; i++)
-					{
-						$("canvas")
-						.drawLine(
+					}else{
+						rho=lineDistance((i+0.5), (j+0.5),blockCOM_x - r * Math.cos(alphaWant),blockCOM_y - r * Math.sin(alphaWant))
+					
+						theta = Math.atan2((j+0.5) - (blockCOM_y - r * Math.sin(alphaWant)),(i+0.5) - (blockCOM_x - r * Math.cos(alphaWant)));
+						angdiff = alphaWant-theta;
+						if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
+						if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
+						
+						if(rho<rhoNot&&Math.abs(angdiff)>(1/4*Math.PI))
 						{
-							strokeStyle: 'gray',
-							strokeWidth: 1,
-							x1: i*mapScale, y1: 0,
-							x2: i*mapScale, y2: 20*mapScale
-						})
-						.drawLine({
-							strokeStyle: 'gray',
-							strokeWidth: 1,
-							x1: 0, y1: i*mapScale,
-							x2: 20*mapScale, y2: i*mapScale
-						})
+							FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_x - r * Math.cos(alphaWant)) - (i+0.5));//change these lines
+							FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_y - r * Math.sin(alphaWant)) - (j+0.5));
+							$('canvas').drawVector({
+								strokeStyle: '#000',
+								strokeWidth: 2,
+								rounded: true,
+								endArrow: true,
+								arrowRadius: 10,
+								arrowAngle: 30,
+								x: mapScale* (i+ 0.5  + 0.5*Math.cos(Math.atan2(FrepY,FrepX)))	, y: mapScale * (j + 0.5 + 0.5*Math.sin(Math.atan2(FrepY,FrepX))),
+								a1: (Math.atan2(FrepY,FrepX)*180/Math.PI)+270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
+							});
+						}
+						else
+						{
+							FrepX=0;
+							FrepY=0;
+						}
+						
 					}
-					$("canvas").restoreCanvas();
 				}
 			}
 		}
-	}
-
-	if(!goalRecieved){
-		$("canvas")
-		.drawArc({
-		//draw the goal mean position
-		strokeStyle: "lightblue",
-		strokeWidth: 5,
-		x: goalX * mapScale, y: goalY * mapScale,
-		radius: radius * mapScale
-	})
-		.drawArc({
-		//draw the goal mean position
-		strokeStyle: "lightblue",
-		strokeWidth: 5,
-		x: goalX * mapScale, y: goalY * mapScale,
-		radius: (radius + 0.2) * mapScale
-	})
-		.restoreCanvas();
-	}
-	$("canvas")
-	.drawArc({
-		//COM of the block
-		strokeStyle: "orange",
-		strokeWidth: 5,
-		x: blockCOM_x * mapScale, y: blockCOM_y * mapScale,
-		radius: radius * mapScale
-	})
-	.restoreCanvas();
-	
-	var day = new Date();
-	if( timeFinish == null && false)
-		{ timeFinish = day.getTime();}
-	if(overall_time == null) // set the start time
-	{
-		overall_time = day.getTime();
-	}
-	var elapsedTimeSec = (day.getTime()- overall_time )/1000;
-	string = "Time = "+ elapsedTimeSec +"s<br>Algorithm II  is making robots (blue discs) push a block to the goal</strong>";
-	$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// CONTROLLER
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//goal positions
-	var FattX = 0;
-	var FattY = 0;
-	var FrepX = 0;
-	var FrepY = 0;
-	
-	var cycleInSec = 20;
-	var amplitudeY = 5;
-	var offsetY = 5;
-	var amplitudeX = 5;
-	var offsetX = 5;
-	var max_desired_var_x = numrobots * robotrad * .20; //was 1.91
-	var min_desired_var_x = numrobots * robotrad * .05; //was .663
-	var max_desired_var_y = max_desired_var_x;
-	var min_desired_var_y = min_desired_var_x;
-	var sum_position_x = 0;
-	var sum_position_y = 0;
-	var sum2_x = 0;
-	var sum2_y = 0;
-	var desired_var_x;
-	var cov_xy = 0;
-	var varDistance = 0;
-	varNumrobots = 0; //number of robots inside the distanceMax
-
-	if (initialMean) {
-	    for (var i = 0; i < globalNumrobots; ++i) { //iterate through all robots
-	        sum_position_x += m_Robot[i].GetPosition().x;
-	        sum_position_y += m_Robot[i].GetPosition().y;
-	    }
-	    mean_position_x = sum_position_x / numrobots;
-	    mean_position_y = sum_position_y / numrobots;
-	    initialMean = false;
-	    varNumrobots = numrobots;
-	}
-	else {
-	    for (var i = 0; i < globalNumrobots; ++i) {//iterate through all robots
-	        var rx = m_Robot[i].GetPosition().x;
-	        var ry = m_Robot[i].GetPosition().y;
-	        varDistance=lineDistance(rx,ry, mean_position_x, mean_position_y);
-	        if ( varDistance < distanceMax) {
-	            sum_position_x += rx;
-	            sum_position_y += ry;
-	            varNumrobots++; //counts number of robots within DistanceMax
-	        }
-			else
-			{
-				$("canvas").rotateCanvas(
-				{
-					x: rx * mapScale, y: ry * mapScale,
-					rotate: angle
-				})
-				.drawArc(
-				{
-					strokeStyle: "Gainsboro",
-					strokeWidth: 1,
-					fillStyle: "LightSteelBlue",
-					x: rx * mapScale, y: ry * mapScale,
-					radius: radius * mapScale
-				}).restoreCanvas();
-			}
-	     }
-	}
-	numrobots = varNumrobots;
-
-	mean_position_x = sum_position_x / numrobots;
-	mean_position_y = sum_position_y / numrobots;
-
-
-	for (var i = 0; i < globalNumrobots; ++i) {//iterate through all robots
-	    var rx = m_Robot[i].GetPosition().x;
-	    var ry = m_Robot[i].GetPosition().y;
-	    varDistance = lineDistance(rx, ry, mean_position_x, mean_position_y);
-	    if (varDistance < distanceMax) {
-	        sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
-	        sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
-	        cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
-	    }
-	}
-	var var_x = sum2_x / numrobots;
-	var var_y = sum2_y / numrobots;
-	var diffeq = Math.sqrt( (var_x-var_y)*(var_x-var_y)/4 + cov_xy*cov_xy);
-	var var_xp = (var_x+var_y)/2 + diffeq;
-	var var_yp = (var_x+var_y)/2 - diffeq;
-	var angle2 = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, var_x-var_y);
-	var angle_min_variance = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, min_desired_var_x-min_desired_var_y);
-	var angle_max_variance = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, max_desired_var_x-max_desired_var_y);
-	var index_x = Math.floor(mean_position_x);
-	var index_y = Math.floor(mean_position_y);
-	var block_x = Math.floor(blockCOM_x);
-	var block_y = Math.floor(blockCOM_y);
-	if(!goalRecieved){
-		$("canvas").drawEllipse({
-			strokeStyle: "red",
-			strokeWidth: 5,
-			setLineDash: 6 , 
-			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-			width: 3 * 30*Math.sqrt(var_xp), height: 3 * 30*Math.sqrt(var_yp),
-			rotate: angle2
-		})
-		.restoreCanvas();
-	}else{
-		 var winstring = "Success,\n "+ globalNumrobots +" robots in " +Math.floor(timeFinished) + "s";
-		 $("canvas").drawText(
-		 {
-		 	strokeStyle: "blue",
-		 	strokeWidth: 4,
-		 	x: 9*mapScale  , y: 10 *mapScale ,
-			fontSize: 40,
-		 	fontFamily: 'Verdana, sans-serif',
-		 	text: winstring
-		 }).restoreCanvas();
-	}
-	if(Math.abs(blockCOM_x - goalPositionX) < 2 && Math.abs(blockCOM_y - goalPositionY) <2)
-	{
-		goalRecieved = true;
-		
-		if(wroteFinish == false){
-			timeFinished = elapsedTimeSec;
-			console.log(elapsedTimeSec + " " + numrobots);
-			wroteFinish = true;
-		}
-		m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
-	}
-	console.log("flagVar  " + flagVar);
-	if (!goalRecieved) {
-	    console.log("var_x   " + var_x);
-	    console.log("var_y   " + var_y);
-	    console.log("min var   " + min_desired_var_x);
-		if(var_x < min_desired_var_x && var_y < min_desired_var_y)
-		{
-		    flagVar = false;
-		    varCount = 0;
-		}
-		if(var_x > max_desired_var_x || var_y > max_desired_var_y)
-		{
-		    flagVar = true;
-		    varCount++;
-		}
-		if(flagVar)
-		{
-			var CornerValuesX = [1,		19,	19,	1,	1,	100];
-			var CornerValuesY = [19,	19,	7,	13,	1,	100];
-			var CornerValuesD = [51,	41, 30,	24, 17, 100];
-			var dist2corner = new Array(CornerValuesX.length);
-			var COMdist2corner = new Array(CornerValuesX.length);
-			var minDistCorner = 10000;
-			var IndexMinDist = 0;
-			for (var i = 0 ; i < CornerValuesX.length ; i++)
-			{	//computes distance from all corners to COM  and swarm mean.  Also records closest corner to  mean of swarm
-				dist2corner[i] = lineDistance(mean_position_x, mean_position_y, CornerValuesX[i], CornerValuesY[i]);
-				COMdist2corner[i] = lineDistance(blockCOM_x, blockCOM_y, CornerValuesX[i], CornerValuesY[i]);
-				if(minDistCorner > dist2corner[i])
-				{
-					minDistCorner = dist2corner[i];
-					IndexMinDist = i;
-				}
-			}
-			if(   CornerValuesD[IndexMinDist] <  map[block_x][block_y]  && IndexMinDist>0 )
-			{
-				//console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
-				IndexMinDist = IndexMinDist-1;
-			}
-			goalX = CornerValuesX[IndexMinDist];
-			goalY = CornerValuesY[IndexMinDist];
-			if (varCount > varCountMax) {
-			    distanceMax =-.2;
-			}
-			console.log("varCount     " + varCount + "/" + varCountMax);
-		}
-		if(!flagVar)
-		{
-			var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-			var r = 0.1;
-			if( COMdist2swarm > 2.5)
-			{	r = 1.5
-			}
-			
-			//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-			//goalY = blockCOM_y + r * policy_y[block_x][block_y];
-			alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
-			//var r = Math.max(0.0, Math.min(1.5, 0.5*COMdist2swarm));	
-			rho=lineDistance(mean_position_x, mean_position_y,blockCOM_x - r * Math.cos(alphaWant+Math.PI),blockCOM_y - r * Math.sin(alphaWant+Math.PI));
-			
-			/*if (rho<rhoNot)
-			{
-				FattX = zeta*((blockCOM_x - r * Math.cos(alphaWant+Math.PI)) - mean_position_x);//change these lines
-				FattY = zeta*((blockCOM_y - r * Math.sin(alphaWant+Math.PI)) - mean_position_y);
-			}
-			else
-			{*/
-				FattX = /*zeta*rhoNot*/((blockCOM_x - r * Math.cos(alphaWant+Math.PI)) - mean_position_x)/rho;//change these lines
-				FattY = /*zeta*rhoNot*/((blockCOM_y - r * Math.sin(alphaWant+Math.PI)) - mean_position_y)/rho;
-			//}
-			
-			rho=lineDistance(mean_position_x, mean_position_y,blockCOM_x - r * Math.cos(alphaWant),blockCOM_y - r * Math.sin(alphaWant))
-			
-			theta = Math.atan2(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant)),mean_position_x - (blockCOM_x - r * Math.cos(alphaWant)));
-			angdiff = alphaWant-theta;
-			if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
-			if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
-			
-			if(rho<rhoNot&&Math.abs(angdiff)<(3/4*Math.PI))
-			{
-				FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(mean_position_x - (blockCOM_x - r * Math.cos(alphaWant)));//change these lines
-				FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant)));
-			}
-			else
-			{
-				FrepX=0;
-				FrepY=0;
-			}
-			
-			goalX = blockCOM_x + (FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
-			goalY = blockCOM_y + (FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
-		}
-		$("canvas").drawArc({ //draw the average position
-			strokeStyle: "red",
-			strokeWidth: 5,
-			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-			radius: radius * mapScale
-		})
-		.drawEllipse
-		({
-			strokeStyle: "green",
-			strokeWidth: 5,
-			setLineDash: 6 , 
-			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-			width: 3 * 30*Math.sqrt(min_desired_var_x), height: 3 * 30*Math.sqrt(min_desired_var_y),
-			rotate: angle2
-		})
-		.drawEllipse
-		({
-			strokeStyle: "green",
-			strokeWidth: 5,
-			setLineDash: 6 , 
-			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-			width: 3 * 30*Math.sqrt(max_desired_var_x), height: 3 * 30*Math.sqrt(max_desired_var_y),
-			rotate: angle2
-		})
-		.drawEllipse
-		({
-			strokeStyle: "Silver",
-			strokeWidth: 5,
-			setLineDash: 6 , 
-			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-			width: 2*mapScale*distanceMax, height: 2*mapScale*distanceMax,
-			rotate: angle2
-		}).restoreCanvas();
-	var Kgain = 12;
-	var Kderivative = 1;
-	var sum_velocity_x = 0;
-	var sum_velocity_y = 0;
-	for(var i = 0; i < numrobots; ++i) {
-		sum_velocity_x += m_Robot[i].GetLinearVelocity().x;
-		sum_velocity_y += m_Robot[i].GetLinearVelocity().y;
-	}
-	var mean_velocity_x = sum_velocity_x / numrobots;
-	var mean_velocity_y = sum_velocity_y / numrobots;
-	m_ControlInputY = Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
-	m_ControlInputX = Kgain*(goalX - mean_position_x) + Kderivative*(0-mean_velocity_x) ;
-	m_controlState = ROBOT_INPUT.ROBOT_PROP;
 }
 	//console.log(elapsedTimeSec + " " + mean_position_y + " " + goalY + " " + mean_position_x + " " + goalX );
 	//console.log(elapsedTimeSec + " " + var_x );
