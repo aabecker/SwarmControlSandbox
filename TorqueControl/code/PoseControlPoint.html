@@ -3,14 +3,14 @@
 
 
 <head>
-	<title>Demonstration of pure transition</title>
+	<title>Demonstration of Pose Control</title>
 </head>
 
 
 <body onload="init();">
 	<!--aspect ratio for HD is 16:9 -->
 
-	<canvas id="canvas" width="1120" height="630" style="background-color:#EEEEEE;" ></canvas>
+	<canvas id="canvas" width="2240" height="1260" style="background-color:#EEEEEE;" ></canvas>
 </body>
 <script type="text/javascript" src="../shared/Box2dWeb-2.1.a.3.min.js"></script> <!-- box2d -->
 <script type="text/javascript" src="../shared/jquery.min.js"></script> <!-- forms & strings, @ https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js -->
@@ -34,22 +34,26 @@
 
       var m_controlState = ROBOT_INPUT.ROBOT_IDLE;
       var mapScale = 30;
-      var canvasWidth = 1120 ;
-      var canvasHeight = 630 ;
+      var canvasWidth = 1120 *2;
+      var canvasHeight = 630 *2;
       var blockCOM_x = 0;
 	  var blockCOM_y = 0;
 	  var rAngle;
 	  var varCont = false;
 	  var goalAngle;
-	  var goalAngleNegative = -30;
-	  var goalAnglePositive = 30;
-	  var objectWidth = 8;
-	  var objectHeight = 0.8;
-	  var finalGoalX = 20;
+	  var goalAngleNegative = -30;//in Degrees
+	  var goalAnglePositive = 30;//in Degrees, the orientation of the goal rectangle.
+	  var objectWidth = 10;
+	  var objectHeight = 1;
+	  var finalGoalX = 41;
 	  var finalGoalY;
 	  var StartingBlockCOMX;
 	  var StartingBlockCOMY;
 	  var initial = true;
+	  var counter = 0;
+	  var p_x;
+	  var p_y;
+	  var varBigger = false;
 
 
 
@@ -66,8 +70,8 @@
       	var lessVariance = true;
       	var GoalRecieved = false;
       	var goButtom = false;
-      	var maxVar = 3.5;
-		var minVar = 2.5;
+      	var maxVar = 5;
+		var minVar = 3;
 
       	var   b2Vec2 = Box2D.Common.Math.b2Vec2
       	,  b2AABB = Box2D.Collision.b2AABB
@@ -124,7 +128,7 @@
 		fixDef.density = 100.0;
 		fixDef.friction = 0.0;
     fixDef.restitution = 0.2;  //bouncing value
-    bodyDef.position.Set(10,10);
+    bodyDef.position.Set(10,20);
     bodyDef.userData = 'moveable';
     bodyDef.angle= 0 * Math.PI / 180;
     fixDef.shape = new b2PolygonShape;
@@ -168,7 +172,7 @@
 
               ///  put the robots in a loose rectangle
               bodyDef.position.x = 0+(i%rowLength)*2*robotrad;
-              bodyDef.position.y = 7-Math.floor(i/rowLength)*2*robotrad; // for up it was 8. for straight it is 9, for down 10.
+              bodyDef.position.y = 20-Math.floor(i/rowLength)*2*robotrad; // for up it was 8. for straight it is 9, for down 10.
 
              ///  put the robots in a tight rectangle
          //   bodyDef.position.x = 0.5+(i%rowLength)*2*robotrad;
@@ -361,7 +365,7 @@
 
 				}
 			}
-			var cycleInSec = 70;
+			var cycleInSec = 40;
 			var day = new Date();
 
 
@@ -393,7 +397,9 @@
 
 			if(elapsedTimeSec%cycleInSec > cycleInSec/2 )
 			{
-				done = false;
+				//done = false;
+				done = true;
+
 
 			}
 			else
@@ -415,20 +421,10 @@
 				}
 
 			}
-			var e = 0.5;
-			var angle = rAngle * 180/Math.PI;
-			if( Math.abs(goalAngle - angle) < e )
-			{
-				GoalRecieved = true;
-			}
-			else
-			{
-				GoalRecieved = false;
-			}
-
 			if(!GoalRecieved){
 
 				var Ko = 10;
+				var Kp = 0.3;
 				rGoalAngle = goalAngle * Math.PI/180;
 				// if (rGoalAngle<0)
 
@@ -436,8 +432,7 @@
 
 			// else
 			// 	deltaTheta =  -rGoalAngle + rAngle;
-				//console.log("deltaTheta " + " "+ deltaTheta*180/Math.PI + " " + "rGoalAngle "+ " "+rGoalAngle *180/Math.PI+ " " + "rAngle " + rAngle*180/Math.PI);
-				
+			//	console.log("deltaTheta " + " "+ deltaTheta*180/Math.PI + " " + "rGoalAngle "+ " "+rGoalAngle *180/Math.PI+ " " + "rAngle " + rAngle*180/Math.PI);
 				C = 1;
 			if (var_x > maxVar|| var_y > maxVar)
 			{
@@ -447,20 +442,78 @@
 			{
 				varCont = false;
 			}
+
          	if(!varCont){
-         		var Ko= 10;
+         		var e = 2.5;
+         		var a = Math.cos(goalAnglePositive*Math.PI/180+ Math.PI/2);// link to wikipedia : https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+         		var b = Math.sin(goalAnglePositive*Math.PI/180+ Math.PI/2);
+				var c = - a*finalGoalX - b* finalGoalY;
+				p_x = (b*(b*blockCOM_x- a * blockCOM_y)- a*c)/(a*a + b*b);
+
+				p_y = (a*(-b* blockCOM_x+ a * blockCOM_y)-b*c)/(a*a + b*b);
+				$("canvas").drawArc({ 
+		strokeStyle: "black",
+		strokeWidth: 5,
+		x: p_x* mapScale, y: p_y * mapScale,
+		radius: radius * mapScale*4
+	}).restoreCanvas();	
+				//Draw line from goal COM to find p.
+				$('canvas').drawLine({
+  strokeStyle: 'black',
+					  	strokeWidth: 3,
+  x1: p_x* mapScale, y1: p_y* mapScale,
+  x2: blockCOM_x* mapScale, y2: blockCOM_y* mapScale
+});
+				
+				//console.log("P = "+ p_x + " " + p_y);
+
       			var sign = deltaTheta/ Math.abs(deltaTheta);
-  				if (Ko * Math.abs(deltaTheta) < objectWidth*2/3)
-         		//if(Math.abs(Ko * deltaTheta) < objectWidth*2/3 )
-         		{
-         			goalX = blockCOM_x + Ko * deltaTheta * Math.sin(rAngle) ;
-					goalY = blockCOM_y - Ko * deltaTheta * Math.cos(rAngle);
-         		}
-         		else
-         		{			
-     				goalX = blockCOM_x + sign* objectWidth*2/3 * Math.sin(rAngle) ;
-					goalY = blockCOM_y - sign*objectWidth*2/3* Math.cos(rAngle);
+    //   			if(blockCOM_x> StartingBlockCOMX+ (finalGoalX - StartingBlockCOMX)/2)
+				// {
+				// 	goalAngle = goalAnglePositive;
+				// }
+
+				if(blockCOM_x < p_x + e && blockCOM_x> p_x - e && blockCOM_y < p_y + e && blockCOM_y> p_y - e)
+				{
+					goalAngle = goalAnglePositive;
+					
+					// if (Ko * Math.abs(deltaTheta) < objectWidth*2/3)
+	    //      		//if(Math.abs(Ko * deltaTheta) < objectWidth*2/3 )
+	    //      		{
+	    //      			goalX = blockCOM_x + Ko * deltaTheta * Math.sin(rAngle) ;
+					// 	goalY = blockCOM_y - Ko * deltaTheta * Math.cos(rAngle);
+					// 	console.log("FIRST!");
+	    //      		}
+
+	    //      		else
+	    //      		{			
+	    //  				goalX = blockCOM_x + sign* objectWidth*2/3 * Math.sin(rAngle) ;
+					// 	goalY = blockCOM_y - sign*objectWidth*2/3* Math.cos(rAngle);
+					// 	console.log("SECOND!");
+					// }
 				}
+				if(elapsedTimeSec > 150)
+				{
+					maxVar = 9;
+				}
+				if(Kp * (blockCOM_x- p_x) + Ko * sign* Math.abs(deltaTheta) < objectWidth*2/3)
+				{
+					
+					goalX = blockCOM_x+ Kp * (blockCOM_x- p_x) * Math.sin(rAngle)+ Ko * sign* deltaTheta* Math.sin(rAngle);
+					goalY = blockCOM_y-sign*( Kp * (blockCOM_y- p_y)* Math.cos(rAngle) +Ko * sign* deltaTheta* Math.cos(rAngle));
+
+
+					//console.log("THIRD!");
+					//console.log("P_x : " + p_x + " P_y : " + p_y + " finalgoalX = " + finalGoalX + " finalGoalY : "+ finalGoalY);
+
+				}
+  				else 
+  				{
+  					//console.log("FORTH!");
+  					goalX = blockCOM_x + sign* objectWidth*2/3 * Math.sin(rAngle) ;
+					goalY = blockCOM_y - sign*objectWidth*2/3* Math.cos(rAngle);
+  				}
+				
 			}
 			else
 			{
@@ -470,47 +523,66 @@
 				}
 				else{
 					goalX = 0;
-					goalY = 21;
+					goalY = 42;
 				}
-			}	
-			
-			
+			}
+			var ep = 0.3;
 
-				
-			
-		}
-		else
-		{
-			if(goalAngle >0){
-					goalX = 2 ;
-				 goalY = 2;
-				}
-				else{
-				 goalX = 2;
-				 goalY = 19;
+			if(blockCOM_x < finalGoalX +ep && blockCOM_x> finalGoalX -ep && blockCOM_y < finalGoalY +ep && blockCOM_y> finalGoalY -ep )
+			{
+				impulseV.y = 0;
+				impulseV.x = 0;
+			}
+			else
+			{
+				if(mean_position_x < goalX +ep && mean_position_x>  goalX-ep && mean_position_y < goalY +ep && mean_position_y> goalY -ep )
+				{
+
+					counter = counter +1;
 				}
 
+				impulseV.y =  Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
+				impulseV.x = Kgain*(goalX - mean_position_x) + Kderivative * (0-mean_velocity_x);
+			}			
 		}
-		console.log(elapsedTimeSec+ " " + rAngle*180/Math.PI + " " + goalAngle  )
-		impulseV.y =  Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
-			impulseV.x = Kgain*(goalX - mean_position_x) + Kderivative * (0-mean_velocity_x);
+
+		
 		for(var i =0; i<m_Robot.length; i++) {
 			m_Robot[i].SetLinearVelocity( new b2Vec2(0,0) );
 			m_Robot[i].ApplyForce(impulseV,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
 		}
-		//console.log(elapsedTimeSec + " " + cov_xy + " " + cov_desired + " " +var_x+ " "+  min_desired_var_x + " " + var_y+" "+ min_desired_var_y);
+		console.log(elapsedTimeSec + " " + p_x + " " + blockCOM_x + " " +p_y+ " "+  blockCOM_y + " " + goalAnglePositive+" "+ rAngle*180/Math.PI);
 		var goalH= objectHeight*2.1;
 			var goalW = objectWidth*2.1;
 			//if(goalAngle == goalAnglePositive){
+				//Draws the intermediate goal location
 				$("canvas").drawRect({
-					  	strokeStyle: 'green',
+					  	strokeStyle: 'black',
 					  	strokeWidth: 5,
 					  	strokeDash: [10,5],
 					  	x: blockCOM_x * mapScale, y: blockCOM_y * mapScale,
 					  	width: goalW * mapScale,
 					  	height: goalH * mapScale,
-					  	rotate: -(90-goalAngle)
+					  	rotate: goalAngle-90
 					  }).restoreCanvas();
+				//Draws the final goal location
+				$("canvas").drawRect({
+					  	strokeStyle: 'green',
+					  	strokeWidth: 5,
+					  	strokeDash: [10,5],
+					  	x: finalGoalX * mapScale, y: finalGoalY * mapScale,
+					  	width: goalW*1.2 * mapScale,
+					  	height: goalH *1.2* mapScale,
+					  	rotate: goalAnglePositive -90 //in degrees, rotates clockwise
+					  }).restoreCanvas();
+
+				//Draw line from goal COM to find p.
+				$('canvas').drawLine({
+  strokeStyle: 'green',
+					  	strokeWidth: 3,
+  x1: (finalGoalX - 100* Math.cos(goalAnglePositive*Math.PI/180))* mapScale, y1: (finalGoalY - 100* Math.sin(goalAnglePositive*Math.PI/180))* mapScale,
+  x2: (finalGoalX + 100* Math.cos(goalAnglePositive*Math.PI/180))* mapScale, y2: (finalGoalY + 100* Math.sin(goalAnglePositive*Math.PI/180))* mapScale
+});
 
 			$("canvas").drawEllipse({
 				strokeStyle: "red",
@@ -538,6 +610,13 @@
 		x: blockCOM_x* mapScale, y: blockCOM_y * mapScale,
 		radius: radius * mapScale
 	}).restoreCanvas();
+		$("canvas").drawArc({ 
+		strokeStyle: "green",
+		strokeWidth: 5,
+		x: finalGoalX* mapScale, y: finalGoalY * mapScale,
+		radius: radius * mapScale*4
+	}).restoreCanvas();	
+				
 
          }; //end update
          

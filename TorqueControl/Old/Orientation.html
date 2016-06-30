@@ -43,8 +43,7 @@
 	  var goalAngle;
 	  var goalAngleNegative = -30;
 	  var goalAnglePositive = 30;
-	  var objectWidth = 8;
-	  var objectHeight = 0.8;
+	  var objectWidth = 6;
 	  var finalGoalX = 20;
 	  var finalGoalY;
 	  var StartingBlockCOMX;
@@ -129,7 +128,7 @@
     bodyDef.angle= 0 * Math.PI / 180;
     fixDef.shape = new b2PolygonShape;
     //fixDef.shape.b2PolygonShape(6.0);
-    fixDef.shape.SetAsBox(objectHeight,objectWidth);
+    fixDef.shape.SetAsBox(2.0,6.0);
     var obst = world.CreateBody(bodyDef);
     obst.CreateFixture(fixDef);
     obst.m_angularDamping = 8.0;
@@ -499,13 +498,12 @@
 			m_Robot[i].ApplyForce(impulseV,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
 		}
 		//console.log(elapsedTimeSec + " " + cov_xy + " " + cov_desired + " " +var_x+ " "+  min_desired_var_x + " " + var_y+" "+ min_desired_var_y);
-		var goalH= objectHeight*2.1;
-			var goalW = objectWidth*2.1;
+		var goalH= 2*2.1;
+			var goalW = 6*2.1;
 			//if(goalAngle == goalAnglePositive){
 				$("canvas").drawRect({
 					  	strokeStyle: 'green',
 					  	strokeWidth: 5,
-					  	strokeDash: [10,5],
 					  	x: blockCOM_x * mapScale, y: blockCOM_y * mapScale,
 					  	width: goalW * mapScale,
 					  	height: goalH * mapScale,
