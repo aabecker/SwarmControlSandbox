@@ -3,14 +3,14 @@
 
 
 <head>
-	<title>Demonstration of pure transition</title>
+	<title>Demonstration of Pose Control</title>
 </head>
 
 
 <body onload="init();">
 	<!--aspect ratio for HD is 16:9 -->
 
-	<canvas id="canvas" width="1120" height="630" style="background-color:#EEEEEE;" ></canvas>
+	<canvas id="canvas" width="2240" height="1260" style="background-color:#EEEEEE;" ></canvas>
 </body>
 <script type="text/javascript" src="../shared/Box2dWeb-2.1.a.3.min.js"></script> <!-- box2d -->
 <script type="text/javascript" src="../shared/jquery.min.js"></script> <!-- forms & strings, @ https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js -->
@@ -34,8 +34,8 @@
 
       var m_controlState = ROBOT_INPUT.ROBOT_IDLE;
       var mapScale = 30;
-      var canvasWidth = 1120 ;
-      var canvasHeight = 630 ;
+      var canvasWidth = 1120 *2;
+      var canvasHeight = 630 *2;
       var blockCOM_x = 0;
 	  var blockCOM_y = 0;
 	  var rAngle;
@@ -43,13 +43,13 @@
 	  var goalAngle;
 	  var goalAngleNegative = -30;
 	  var goalAnglePositive = 30;
-	  var objectWidth = 8;
-	  var objectHeight = 0.8;
-	  var finalGoalX = 20;
+	  var objectWidth = 6;
+	  var finalGoalX = 41;
 	  var finalGoalY;
 	  var StartingBlockCOMX;
 	  var StartingBlockCOMY;
 	  var initial = true;
+	  var counter = 0;
 
 
 
@@ -66,8 +66,8 @@
       	var lessVariance = true;
       	var GoalRecieved = false;
       	var goButtom = false;
-      	var maxVar = 3.5;
-		var minVar = 2.5;
+      	var maxVar = 5;
+		var minVar = 3;
 
       	var   b2Vec2 = Box2D.Common.Math.b2Vec2
       	,  b2AABB = Box2D.Collision.b2AABB
@@ -124,12 +124,12 @@
 		fixDef.density = 100.0;
 		fixDef.friction = 0.0;
     fixDef.restitution = 0.2;  //bouncing value
-    bodyDef.position.Set(10,10);
+    bodyDef.position.Set(10,20);
     bodyDef.userData = 'moveable';
     bodyDef.angle= 0 * Math.PI / 180;
     fixDef.shape = new b2PolygonShape;
     //fixDef.shape.b2PolygonShape(6.0);
-    fixDef.shape.SetAsBox(objectHeight,objectWidth);
+    fixDef.shape.SetAsBox(2.0,6.0);
     var obst = world.CreateBody(bodyDef);
     obst.CreateFixture(fixDef);
     obst.m_angularDamping = 8.0;
@@ -168,7 +168,7 @@
 
               ///  put the robots in a loose rectangle
               bodyDef.position.x = 0+(i%rowLength)*2*robotrad;
-              bodyDef.position.y = 7-Math.floor(i/rowLength)*2*robotrad; // for up it was 8. for straight it is 9, for down 10.
+              bodyDef.position.y = 20-Math.floor(i/rowLength)*2*robotrad; // for up it was 8. for straight it is 9, for down 10.
 
              ///  put the robots in a tight rectangle
          //   bodyDef.position.x = 0.5+(i%rowLength)*2*robotrad;
@@ -361,7 +361,7 @@
 
 				}
 			}
-			var cycleInSec = 70;
+			var cycleInSec = 40;
 			var day = new Date();
 
 
@@ -393,7 +393,9 @@
 
 			if(elapsedTimeSec%cycleInSec > cycleInSec/2 )
 			{
-				done = false;
+				//done = false;
+				done = true;
+
 
 			}
 			else
@@ -409,26 +411,17 @@
 					else 
 					{
 						goalAngle = goalAngleNegative;	
+						
 						GoalRecieved = false;
 						done = true;
 					}
 				}
 
 			}
-			var e = 0.5;
-			var angle = rAngle * 180/Math.PI;
-			if( Math.abs(goalAngle - angle) < e )
-			{
-				GoalRecieved = true;
-			}
-			else
-			{
-				GoalRecieved = false;
-			}
-
 			if(!GoalRecieved){
 
 				var Ko = 10;
+				var Kp = 0.01;
 				rGoalAngle = goalAngle * Math.PI/180;
 				// if (rGoalAngle<0)
 
@@ -436,8 +429,7 @@
 
 			// else
 			// 	deltaTheta =  -rGoalAngle + rAngle;
-				//console.log("deltaTheta " + " "+ deltaTheta*180/Math.PI + " " + "rGoalAngle "+ " "+rGoalAngle *180/Math.PI+ " " + "rAngle " + rAngle*180/Math.PI);
-				
+			//	console.log("deltaTheta " + " "+ deltaTheta*180/Math.PI + " " + "rGoalAngle "+ " "+rGoalAngle *180/Math.PI+ " " + "rAngle " + rAngle*180/Math.PI);
 				C = 1;
 			if (var_x > maxVar|| var_y > maxVar)
 			{
@@ -447,20 +439,60 @@
 			{
 				varCont = false;
 			}
+
          	if(!varCont){
-         		var Ko= 10;
+         		var e = 1;
+         		var a = Math.tan(goalAngle*Math.PI /180);
+         		var b = 1;
+				var c = -finalGoalY - a*finalGoalX;
+				//var p_x = ((blockCOM_x+ a * blockCOM_y)+ a)/(a^2 + 1);
+				var p_x = (b* (b * blockCOM_x- a * blockCOM_y)-a*c)/(a^2+ b^2);	
+
+				var p_y = (a*(-b * blockCOM_x+ a * blockCOM_y)- b*c)/(a^2 + b^2);
+
+
+
       			var sign = deltaTheta/ Math.abs(deltaTheta);
-  				if (Ko * Math.abs(deltaTheta) < objectWidth*2/3)
-         		//if(Math.abs(Ko * deltaTheta) < objectWidth*2/3 )
-         		{
-         			goalX = blockCOM_x + Ko * deltaTheta * Math.sin(rAngle) ;
-					goalY = blockCOM_y - Ko * deltaTheta * Math.cos(rAngle);
-         		}
-         		else
-         		{			
-     				goalX = blockCOM_x + sign* objectWidth*2/3 * Math.sin(rAngle) ;
-					goalY = blockCOM_y - sign*objectWidth*2/3* Math.cos(rAngle);
+      			if(blockCOM_x> StartingBlockCOMX+ (finalGoalX - StartingBlockCOMX)/2)
+				{
+				goalAngle = goalAnglePositive;
 				}
+
+				if(blockCOM_x < p_x + e && blockCOM_x> p_x - e && blockCOM_y < p_y + e && blockCOM_y> p_y - e)
+				{
+					if (Ko * Math.abs(deltaTheta) < objectWidth*2/3)
+	         		//if(Math.abs(Ko * deltaTheta) < objectWidth*2/3 )
+	         		{
+	         			goalX = blockCOM_x + Ko * deltaTheta * Math.sin(rAngle) ;
+						goalY = blockCOM_y - Ko * deltaTheta * Math.cos(rAngle);
+						//console.log("FIRST!");
+	         		}
+
+	         		else
+	         		{			
+	     				goalX = blockCOM_x + sign* objectWidth*2/3 * Math.sin(rAngle) ;
+						goalY = blockCOM_y - sign*objectWidth*2/3* Math.cos(rAngle);
+						//console.log("SECOND!");
+					}
+				}
+				else if(Kp * (blockCOM_x- p_x) + Ko * sign* Math.abs(deltaTheta) < objectWidth*2/3)
+				{
+					
+					goalX = blockCOM_x+ Kp * (blockCOM_x- p_x) * Math.sin(rAngle)+ Ko * deltaTheta* Math.sin(rAngle);
+					goalY = blockCOM_y-sign*( Kp * (blockCOM_y- p_y)* Math.cos(rAngle) +Ko * deltaTheta* Math.cos(rAngle));
+					//console.log("THIRD!");
+					var deltax = blockCOM_x- p_x;
+					var deltay = blockCOM_y - p_y;
+					console.log("P_x : " + p_x + " P_y : " + p_y + " finalgoalX = " + finalGoalX + " finalGoalY : "+ finalGoalY + " delta X: " + deltax + " delta Y: " +  deltay);
+
+				}
+  				else 
+  				{
+  					//console.log("FORTH!");
+  					goalX = blockCOM_x + sign* objectWidth*2/3 * Math.sin(rAngle) ;
+					goalY = blockCOM_y - sign*objectWidth*2/3* Math.cos(rAngle);
+  				}
+				
 			}
 			else
 			{
@@ -470,46 +502,53 @@
 				}
 				else{
 					goalX = 0;
-					goalY = 21;
+					goalY = 42;
 				}
-			}	
-			
-			
+			}
+			var ep = 0.5;
 
-				
-			
-		}
-		else
-		{
-			if(goalAngle >0){
-					goalX = 2 ;
-				 goalY = 2;
-				}
-				else{
-				 goalX = 2;
-				 goalY = 19;
+			if(blockCOM_x < finalGoalX +ep && blockCOM_x> finalGoalX -ep && blockCOM_y < finalGoalY +ep && blockCOM_y> finalGoalY -ep )
+			{
+				impulseV.y = 0;
+				impulseV.x = 0;
+			}
+			else
+			{
+				if(mean_position_x < goalX +ep && mean_position_x>  goalX-ep && mean_position_y < goalY +ep && mean_position_y> goalY -ep )
+				{
+
+					counter = counter +1;
 				}
 
+				impulseV.y =  Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
+				impulseV.x = Kgain*(goalX - mean_position_x) + Kderivative * (0-mean_velocity_x);
+			}			
 		}
-		console.log(elapsedTimeSec+ " " + rAngle*180/Math.PI + " " + goalAngle  )
-		impulseV.y =  Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
-			impulseV.x = Kgain*(goalX - mean_position_x) + Kderivative * (0-mean_velocity_x);
+
+		
 		for(var i =0; i<m_Robot.length; i++) {
 			m_Robot[i].SetLinearVelocity( new b2Vec2(0,0) );
 			m_Robot[i].ApplyForce(impulseV,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
 		}
-		//console.log(elapsedTimeSec + " " + cov_xy + " " + cov_desired + " " +var_x+ " "+  min_desired_var_x + " " + var_y+" "+ min_desired_var_y);
-		var goalH= objectHeight*2.1;
-			var goalW = objectWidth*2.1;
+		//console.log(elapsedTimeSec + " " + finalGoalX + " " + blockCOM_x + " " +finalGoalY+ " "+  blockCOM_y + " " + goalAnglePositive+" "+ rAngle*180/Math.PI);
+		var goalH= 2*2.1;
+			var goalW = 6*2.1;
 			//if(goalAngle == goalAnglePositive){
 				$("canvas").drawRect({
 					  	strokeStyle: 'green',
 					  	strokeWidth: 5,
-					  	strokeDash: [10,5],
 					  	x: blockCOM_x * mapScale, y: blockCOM_y * mapScale,
 					  	width: goalW * mapScale,
 					  	height: goalH * mapScale,
 					  	rotate: -(90-goalAngle)
+					  }).restoreCanvas();
+				$("canvas").drawRect({
+					  	strokeStyle: 'black',
+					  	strokeWidth: 5,
+					  	x: finalGoalX * mapScale, y: finalGoalY * mapScale,
+					  	width: goalW*1.2 * mapScale,
+					  	height: goalH *1.2* mapScale,
+					  	rotate: -(90- goalAnglePositive)
 					  }).restoreCanvas();
 
 			$("canvas").drawEllipse({
@@ -538,6 +577,12 @@
 		x: blockCOM_x* mapScale, y: blockCOM_y * mapScale,
 		radius: radius * mapScale
 	}).restoreCanvas();
+		$("canvas").drawArc({ 
+		strokeStyle: "green",
+		strokeWidth: 5,
+		x: finalGoalX* mapScale, y: finalGoalY * mapScale,
+		radius: radius * mapScale*4
+	}).restoreCanvas();				
 
          }; //end update
          

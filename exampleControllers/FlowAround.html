@@ -113,7 +113,7 @@ moves[8] = [0, 0];
 
 var zeta = 2;
 var eta = 5;
-var rhoNot = 500;
+var rhoNot = 1500;
 var rho = 0;
 var alphaWant = 0;
 
@@ -1078,8 +1078,8 @@ if(BFSDebugMode)
 			{	r = 1.5
 			}
 			
-			//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-			//goalY = blockCOM_y + r * policy_y[block_x][block_y];
+			
+
 			alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
 			//var r = Math.max(0.0, Math.min(1.5, 0.5*COMdist2swarm));	
 			rho=lineDistance(mean_position_x, mean_position_y,blockCOM_x - r * Math.cos(alphaWant+Math.PI),blockCOM_y - r * Math.sin(alphaWant+Math.PI));
@@ -1095,26 +1095,32 @@ if(BFSDebugMode)
 				FattY = /*zeta*rhoNot*/((blockCOM_y - r * Math.sin(alphaWant+Math.PI)) - mean_position_y)/rho;
 			//}
 			
-			rho=lineDistance(mean_position_x, mean_position_y,blockCOM_x - r * Math.cos(alphaWant),blockCOM_y - r * Math.sin(alphaWant))
+			rho=lineDistance(mean_position_x, mean_position_y, blockCOM_x - r * Math.cos(alphaWant), blockCOM_y - r * Math.sin(alphaWant))
 			
-			theta = Math.atan2(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant)),mean_position_x - (blockCOM_x - r * Math.cos(alphaWant)));
+			theta = Math.atan2(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant)), mean_position_x - (blockCOM_x - r * Math.cos(alphaWant)));
 			angdiff = alphaWant-theta;
 			if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
 			if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
 			
 			if(rho<rhoNot&&Math.abs(angdiff)<(3/4*Math.PI))
 			{
-				FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(mean_position_x - (blockCOM_x - r * Math.cos(alphaWant)));//change these lines
-				FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant)));
+				FrepX =0;// eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(mean_position_x - (blockCOM_x - r * Math.cos(alphaWant)));//change these lines
+				FrepY = 0;//eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant)));
+				// goalX = blockCOM_x + (FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
+				// goalY = blockCOM_y + (FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
 			}
 			else
 			{
+				// goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
+				// goalY = blockCOM_y + r * policy_y[block_x][block_y];
 				FrepX=0;
 				FrepY=0;
 			}
 			
-			goalX = blockCOM_x + (FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
-			goalY = blockCOM_y + (FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
+			//goalX = blockCOM_x - (FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
+			//goalY = blockCOM_y - (FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
+			 goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
+			 goalY = blockCOM_y + r * policy_y[block_x][block_y];
 		}
 		$("canvas").drawArc({ //draw the average position
 			strokeStyle: "red",
