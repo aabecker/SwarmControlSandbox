@@ -1,4 +1,4 @@
-function Gradient = MDPgridworldExample(map, goalX, goalY)
+function [V_hat_prob, DX,DY]  = MDPgridworldExample(map, goalX, goalY)
 %  Applies value iteration to learn a policy for a Markov Decision Process
 %  (MDP) -- a robot in a grid world.
 % 
@@ -50,24 +50,24 @@ R = -500*ones(size(World)); %-50 reward for obstacles
 R(World==0) = -1; %small penalty for not being at the goal
 R(goalX,goalY) = 100; %goal state has big reward
 
-%  DRAW THE WORLD, REWARD, ANIMATE VALUE ITERATION, DISPLAY POLICY
-subplot(2,2,1)
-imagesc(~World);
-set(gca,'Xtick',[], 'Ytick',[])
-axis equal
-axis tight
-text(25,-1,'World','HorizontalAlignment','center','FontSize',18)
-drawnow
-if pauseOn; pause(); end %#ok<*UNRCH>
-
-subplot(2,2,2)
-imagesc(R);
-axis equal
-axis tight
-set(gca, 'Xtick',[], 'Ytick',[])
-text(25,-1,'Reward function','HorizontalAlignment','center','FontSize',18)
-drawnow
-if pauseOn; pause(); end
+% %  DRAW THE WORLD, REWARD, ANIMATE VALUE ITERATION, DISPLAY POLICY
+% subplot(2,2,1)
+% imagesc(~World);
+% set(gca,'Xtick',[], 'Ytick',[])
+% axis equal
+% axis tight
+% text(25,-1,'World','HorizontalAlignment','center','FontSize',18)
+% drawnow
+% if pauseOn; pause(); end %#ok<*UNRCH>
+% 
+% subplot(2,2,2)
+% imagesc(R);
+% axis equal
+% axis tight
+% set(gca, 'Xtick',[], 'Ytick',[])
+% text(25,-1,'Reward function','HorizontalAlignment','center','FontSize',18)
+% drawnow
+%if pauseOn; pause(); end
 
 
 % V_hat = MDP_discrete_value_iteration(R,World,false);
@@ -77,14 +77,14 @@ if pauseOn; pause(); end
 % if pauseOn; pause(); end
 
 figure(f1)
-V_hat_prob = MDP_discrete_value_iteration(R,World,true);
-if pauseOn; pause(); end
-Gradient = V_hat_prob;
+[V_hat_prob, DX, DY] = MDP_discrete_value_iteration(R,World,true);
+%if pauseOn; pause(); end
+%Gradient = V_hat_prob;
 
-DrawPolicy(V_hat_prob,World,true);
-if pauseOn; pause(); end
+%DrawPolicy(V_hat_prob,World,true);
+%if pauseOn; pause(); end
 
-    function V_hat = MDP_discrete_value_iteration(R,World,prob)
+    function[V_hat, DX,DY] = MDP_discrete_value_iteration(R,World,prob)
         % iterates on the value function approximation V_hat until the V_hat converges.
         V_hat_prev = zeros(size(World));
         V_hat = -100*ones(size(World));
@@ -94,6 +94,10 @@ if pauseOn; pause(); end
         
         xIND = find(World == 0);
         iteration = 0;
+        
+        [X,Y] = meshgrid(1:size(World,2),1:size(World,1));
+        DX = zeros(size(X));
+        DY = zeros(size(Y));
         if ~prob
             subplot(2,2,3)
         else
@@ -107,8 +111,15 @@ if pauseOn; pause(); end
         iteration_limit = 200; %value function needs ~600 iterations to converge, but the policy converges after ~100 iterations
         while ~isequal(V_hat,V_hat_prev) && iteration < iteration_limit 
             V_hat_prev = V_hat;
-            for i = 1:numel(xIND)   
-                [~,bestPayoff] = policy_MDP(xIND(i),V_hat,prob);
+            for i = 1:numel(xIND)  
+                [bestMove,bestPayoff] = policy_MDP(xIND(i),V_hat,prob);
+                rowL = size(V_hat,1);
+                rowV = xIND(i)/rowL;
+                Ix = ceil(rowV);
+                Iy =  xIND(i)- rowL* floor(rowV);
+                DX(Iy,Ix) = bestMove(1);
+                DY(Iy,Ix) = bestMove(2);
+                %[~,bestPayoff] = policy_MDP(xIND(i),V_hat,prob);
                 V_hat(xIND(i)) = gamma*( R(xIND(i)) + bestPayoff );
             end
             iteration = iteration+1;

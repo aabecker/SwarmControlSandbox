@@ -98,6 +98,13 @@ A.~Becker, G.~Habibi, J.~Werfel, M.~Rubenstein, and J.~McLurkin, ``Massive
   common input signal,'' in \emph{IEEE/RSJ International Conference on
   Intelligent Robots and Systems (IROS)}, Nov. 2013, pp. 520--527.
 
+\bibitem{ou2012motion}
+Y.~Ou, D.~H. Kim, P.~Kim, M.~J. Kim, and A.~A. Julius, ``Motion control of
+  tetrahymena pyriformis cells with artificial magnetotaxis: model predictive
+  control (mpc) approach,'' in \emph{Robotics and Automation (ICRA), 2012 IEEE
+  International Conference on}.\hskip 1em plus 0.5em minus 0.4em\relax IEEE,
+  2012, pp. 2492--2497.
+
 \bibitem{Shahrokhi16torque}
 \BIBentryALTinterwordspacing
 S.~Shahrokhi and A.~T. Becker. (2016, March). [Online]. Available:

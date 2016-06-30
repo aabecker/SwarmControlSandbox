@@ -8,13 +8,13 @@
 %\subsection{Hardware System}
 
 
-Our experiments are on centimeter-scale hardware systems called \emph{kilobots}.  These allow us to emulate a variety of dynamics, while enabling a high degree of control over robot function, the environment, and data collection. The kilobot, from \cite{Rubenstein2012,rubenstein2014programmable} is a low-cost robot designed for testing collective algorithms with large numbers of robots. It is available as an open source platform or commercially from~\cite{K-Team2015}.  Each robot is approximately 3 cm in diameter, 3 cm tall, and uses two vibration motors to move on a flat surface at speeds up to 1 cm/s.  Each robot has one ambient light sensor that is used to implement \emph{phototaxis},  moving towards a light source. 
-In these experiments as shown in Fig.~\ref{fig:setup}, we used $n$=97 kilobots, a glass-covered 1.5 m$\times$1.2 m whiteboard as the workspace, and eight 30W LED floodlights arranged 1.5 m above the plane of the table at the $\{N,NE,E,SE,S,SW,W,NW\}$ vertices of a 6 m square centered on the workspace. The lights were controlled using an Arduino Uno board connected to an 8-relay shield.  Above  the table, an overhead machine vision system tracks the position of the swarm.
+Our experiments are on centimeter-scale hardware systems called \emph{kilobots}.  These allow us to emulate a variety of dynamics, while enabling a high degree of control over robot function, the environment, and data collection. The kilobot, from \cite{Rubenstein2012,rubenstein2014programmable}, is a low-cost robot designed for testing collective algorithms with large numbers of robots. It is available as an open source platform or commercially from~\cite{K-Team2015}.  Each robot is approximately 3 cm in diameter, 3 cm tall, and uses two vibration motors to move on a flat surface at speeds up to 1 cm/s.  Each robot has one ambient light sensor that is used to implement \emph{phototaxis},  moving towards a light source. 
+In these experiments, as shown in Fig.~\ref{fig:setup}, we used $n$=97 kilobots, a glass-covered 1.5 m$\times$1.2 m whiteboard as the workspace, and eight 30W LED floodlights arranged 1.5 m above the plane of the table at the $\{N,NE,E,SE,S,SW,W,NW\}$ vertices of a 6 m square centered on the workspace. The lights were controlled using an Arduino Uno board connected to an 8-relay shield.  Above  the table, an overhead machine vision system tracks the position of the swarm.
 
 
 \begin{figure}
 \begin{center}
-	\includegraphics[width=.9\columnwidth]{SetUp.jpg}
+	\includegraphics[width=.7\columnwidth]{SetUp.jpg}
 \end{center}
 \vspace{-1em}
 \caption{\label{fig:setup}
@@ -35,7 +35,7 @@ For this reason in Fig. \ref{fig:expBig}, the trial in the second row of screens
 \begin{figure*}
 \centering
 
-\includegraphics[width=2\columnwidth]{Experiment.png}
+\includegraphics[width=1.6\columnwidth]{Experiment.png}
 \vspace{-1em}
 \caption{\label{fig:expBig}{Snapshots showing the effect of pushing a pivoted rectangular object at different distances from the pivot point. 
  97 robots were programmed to move toward the brightest light in the room, and   controlled by choosing which of 8 lights were on at any given instant. The top row of snapshots illustrate the swarm pushing at the end of the object.  In this case,  the swarm flows past the object and the force decreases. The bottom row illustrates that when the swarm pushes at the middle of the object the force provided by the swarm remains constant. In this case the swarm does not flow past the object. See video attachment for recordings of these experiments at\href{https://www.youtube.com/watch?v=ZiKEa5UwukM&feature=youtu.be}{\cite{ShahrokhiTorqueVideo}}.

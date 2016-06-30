@@ -137,7 +137,7 @@ for j = 2:sizeOfMap(2)-1
 end
 
 %imwrite(img,'Obstacle.jpeg');
-%[probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
+[probability, movesX, movesY] = MDPgridworldExample(map,goalX,goalY);
 save('Map3', 'movesX', 'movesY','corners');
 %save('EmptyMap', 'corners');
 

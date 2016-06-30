@@ -1,11 +1,11 @@
-%%%%%%%%% By Shiva Shahrokhi June 2016: This code takes a snapshot of the
+%%%%%%%%% By Shiva Shahrokhi and Lillian Lin June 2016: This code takes a snapshot of the
 %%%%%%%%% webcam, then process it to find obstacles, gives that map to MDP
 %%%%%%%%% and gets the result and draw the gradients and regions. 
 success = false;
-webcamShot = false;
+webcamShot = true;
 obstacles = [];
 if webcamShot
-    cam = webcam(2);
+    cam = webcam(1);
 
 end
 t0 = tic;

@@ -1,7 +1,7 @@
 %%% Object Manipulation Experiment With Kilobots
 %%% In this code we want to use arduino and our vision system to control
 %%% kilobots for compeleting a block pushing experiment.
-%%% By Shiva Shahrokhi Dec 2015, Jan 2016
+%%% By Shiva Shahrokhi and Mable Wan Summer 2016
 
 clear all
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
@@ -27,7 +27,7 @@ again = true;
 %  hold on; hq=quiver(X,Y,DY,DX,0.5,'color',[0,0,0]); hold off
 % set(hq,'linewidth',2);
 % Using Arduino for our lamps, this is how we define arduino in Matlab:
-load('Map2', 'movesX', 'movesY','corners');
+load('Map3', 'movesX', 'movesY','corners');
 load('ThresholdMaps','transferRegion','mainRegion');
 % figure(1),imshow(transferRegion(:,:,1));
 % figure(2),imshow(transferRegion(:,:,2));
@@ -241,7 +241,7 @@ BW(stat(index).PixelIdxList)=0;
 %                 corInd = i;
 %             end   
 %    end
-   if (V > maxVar | VarCont)
+   if (V > maxVar)
         VarCont = true;
         for i = 1:size(corners)
             %dist = sqrt(sum((M - corners(i)) .^ 2));
