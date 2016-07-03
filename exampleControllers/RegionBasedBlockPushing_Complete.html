@@ -447,6 +447,7 @@ function init()
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
 	var numrobots = 200;//Math.floor(20/(4*robotrad*robotrad));
+	var totalRobots=200;	//for regions calculations
 	if(MDP_DebugMode || Gradient_DebugMode)
 	{
 		numrobots = 0;
@@ -990,7 +991,7 @@ if(BFSDebugMode)
 	    }
 	}
 	    //calculate mean and cov for robots only in that region
-	numrobots = 200;
+	numrobots = totalRobots;
 	var regionRobotCount = 0;
 	if (regionMain) {
 	    for (var i = 0; i < numrobots; ++i) {
