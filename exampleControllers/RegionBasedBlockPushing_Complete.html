@@ -61,7 +61,7 @@ var blockCOM_y = 0;
 // checking variables.
 var flagVar = false;
 var ifMDP = true;
-var ifGradient = true;
+var ifGradient = false;
 var ifBFS = true;
 
 
@@ -679,7 +679,7 @@ function init()
 			rotate: angle
 		}).drawArc(
 		{
-			fillStyle: "orange",
+			fillStyle: "green",
 			x: 5 * mapScale, y: 5 * mapScale,
 			radius: radius * mapScale
 		}).drawArc(
@@ -690,7 +690,7 @@ function init()
 			radius: 2.0 * mapScale
 		}).drawText(
 		{
-			strokeStyle: "orange",
+			strokeStyle: "green",
 			strokeWidth: 2,
 			x: goalPositionXDraw*mapScale  , y: goalPositionYDraw *mapScale ,
 			fontSize: 20,
@@ -856,7 +856,7 @@ if(BFSDebugMode)
 				var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
 				//console.log(X);
 				var pos = b.GetPosition();
-				var color = 'orange';
+				var color = 'green';
 				if(b.GetUserData() == 'obstacle')
 					color = 'brown';
 				if(b.GetUserData() == 'moveable')
