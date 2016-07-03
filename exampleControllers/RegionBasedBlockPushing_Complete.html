@@ -61,7 +61,7 @@ var blockCOM_y = 0;
 // checking variables.
 var flagVar = false;
 var ifMDP = true;
-var ifGradient = false;
+var ifGradient = true;
 var ifBFS = true;
 
 
@@ -70,7 +70,7 @@ var ifBFS = true;
 var MDP_DebugMode = false;
 var BFSDebugMode = false;
 var Gradient_DebugMode = false;
-var Gradient_DebugMode_MDP = true;
+var Gradient_DebugMode_MDP = false;
 var goalRecieved = false;  //have we reached the goal?
 var timeFinished = 1000;
 var wroteFinish = false;
@@ -134,7 +134,7 @@ var transferMaps = new Array();
 //    for (j=0;j<20;j++){
 //        mainMaps[0][i][j]=15;
 //    }
-//}    
+//}
 
 /////////////////////////////
 //End Global Variables
@@ -684,7 +684,7 @@ function init()
 			radius: radius * mapScale
 		}).drawArc(
 		{
-			strokeStyle: 'red',
+			strokeStyle: 'green',
 			strokeWidth: 16, //fillStyle: "green",
 			x: goalPositionXDraw * mapScale, y: goalPositionYDraw * mapScale,
 			radius: 2.0 * mapScale
@@ -770,7 +770,7 @@ if(BFSDebugMode)
 					if(map[i][j] != 0 && map[i][j] != 52){
 						$("canvas").drawText(
 						{
-							strokeStyle: '#25a',
+							strokeStyle: 'green',
 							strokeWidth: 2,
 							x: (i+ 0.5)*mapScale  , y: (j+0.5) *mapScale ,
 							fontSize: 20,
