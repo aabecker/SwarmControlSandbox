@@ -119,6 +119,10 @@ var rho = 0;
 var alphaWant = 0;
 var choose = true;
 var which = 1;
+var max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
+var min_desired_var_x = 0.75; //was .663
+var max_desired_var_y = max_desired_var_x;
+var min_desired_var_y = min_desired_var_x;
 
 var k = [0, 2, 4, 6, 1, 3, 5, 7, 8];
 
@@ -768,11 +772,11 @@ function init()
 		var amplitudeY = 5;
 		var offsetY = 5;
 		var amplitudeX = 5;
-		var offsetX = 5;
+		var offsetX = 5;/*
 		var max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
 		var min_desired_var_x = numrobots * robotrad * .05; //was .663
 		var max_desired_var_y = max_desired_var_x;
-		var min_desired_var_y = min_desired_var_x;
+		var min_desired_var_y = min_desired_var_x;*/
 		var sum_position_x = 0;
 		var sum_position_y = 0;
 		var sum2_x = 0;
@@ -925,37 +929,44 @@ function init()
 			if(!flagVar)
 			{
 				var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-				var r = 1.5;
-				if( COMdist2swarm > 2.5)
-				{	r = 1.5
-				}
+				var r = 0.8;
 				
+				attPointX=blockCOM_x - r * Math.cos(alphaWant+Math.PI);
+				attPointY=blockCOM_y - r * Math.sin(alphaWant+Math.PI);
+				repPointX=blockCOM_x - r * Math.cos(alphaWant);
+				repPointY=blockCOM_y - r * Math.sin(alphaWant);
+
 				//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
 				//goalY = blockCOM_y + r * policy_y[block_x][block_y];
 				alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
-				rho=lineDistance(mean_position_x, mean_position_y,blockCOM_x - r * Math.cos(alphaWant+Math.PI),blockCOM_y - r * Math.sin(alphaWant+Math.PI));
-				FattX = zeta*(mean_position_x - (blockCOM_x - r * Math.cos(alphaWant+Math.PI)))/rho;//change these lines
-				FattY = zeta*(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant+Math.PI)))/rho;
 
-				rho=lineDistance(mean_position_x, mean_position_y,blockCOM_x - r * Math.cos(alphaWant),blockCOM_y - r * Math.sin(alphaWant))
+				rho=lineDistance(mean_position_x, mean_position_y,repPointX,repPointY);
 			
-				theta = Math.atan2(mean_position_y - (blockCOM_y - r * Math.sin(alphaWant)),mean_position_x - (blockCOM_x - r * Math.cos(alphaWant)));
+				theta = Math.atan2(mean_position_y - repPointY,mean_position_x - repPointX);
 				angdiff = alphaWant-theta;
 				if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
 				if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
 				
-				if(rho<rhoNot&&Math.abs(angdiff)>(1/4*Math.PI))
+				if(rho<rhoNot&&Math.abs(angdiff)>(1/8*Math.PI))
 				{
-					FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_x - r * Math.cos(alphaWant)) - mean_position_x);//change these lines
-					FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_y - r * Math.sin(alphaWant)) - mean_position_y);
+					FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointX - mean_position_x);//change these lines
+					FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointY - mean_position_y);
+					rho=lineDistance(mean_position_x, mean_position_y,attPointX,attPointY);
+					FattX = zeta*(mean_position_x - attPointX)/rho;//change these lines
+					FattY = zeta*(mean_position_y - attPointY)/rho;
+
+					goalX = mean_position_x - 2*(FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
+					goalY = mean_position_y - 2*(FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
+					max_desired_var_x = 40;//numrobots * robotrad * .20; //was 1.91
+					max_desired_var_y = max_desired_var_x;
 				}else
 				{
-					FrepX=0;
-					FrepY=0;
+					goalX = blockCOM_x - r * policy_x[block_x][block_y];//change these lines
+					goalY = blockCOM_y - r * policy_y[block_x][block_y];
+					max_desired_var_x = 40;//numrobots * robotrad * .20; //was 1.91
+					max_desired_var_y = max_desired_var_x;
 				}
 				
-				goalX = mean_position_x - (FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
-				goalY = mean_position_y - (FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
 			}
 			$("canvas").drawArc({ //draw the average position
 				strokeStyle: "red",
@@ -1008,20 +1019,31 @@ function init()
 			for(var i = 0 ; i < mapXSize; i++){
 				for (var j = 0 ; j < mapYSize; j++){	
 					alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
-					rho=lineDistance((i+0.5), (j+0.5),blockCOM_x - r * Math.cos(alphaWant+Math.PI),blockCOM_y - r * Math.sin(alphaWant+Math.PI));
-					FattX = zeta*((i+0.5) - (blockCOM_x - r * Math.cos(alphaWant+Math.PI)))/rho;//change these lines
-					FattY = zeta*((j+0.5) - (blockCOM_y - r * Math.sin(alphaWant+Math.PI)))/rho;
-					rho=lineDistance((i+0.5), (j+0.5),blockCOM_x - r * Math.cos(alphaWant),blockCOM_y - r * Math.sin(alphaWant))
-					
-					theta = Math.atan2((j+0.5) - (blockCOM_y - r * Math.sin(alphaWant)),(i+0.5) - (blockCOM_x - r * Math.cos(alphaWant)));
+
+					rho=lineDistance((i+0.5), (j+0.5),attPointX,attPointY);
+					FattX = zeta*((i+0.5) - attPointX)/rho;//change these lines
+					FattY = zeta*((j+0.5) - attPointY)/rho;
+
+					rho=lineDistance((i+0.5), (j+0.5),repPointX,repPointY)
+					theta = Math.atan2((j+0.5) - repPointY,(i+0.5) - repPointX);
 					angdiff = alphaWant-theta;
 					if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
 					if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
 					
 					if(rho<rhoNot&&Math.abs(angdiff)>(1/8*Math.PI))
 					{
-						FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_x - r * Math.cos(alphaWant)) - (i+0.5));//change these lines
-						FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_y - r * Math.sin(alphaWant)) - (j+0.5));
+						FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointX- (i+0.5));//change these lines
+						FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointY - (j+0.5));
+						$('canvas').drawVector({
+							strokeStyle: '#000',
+							strokeWidth: 2,
+							rounded: true,
+							endArrow: true,
+							arrowRadius: 10,
+							arrowAngle: 30,
+							x: mapScale* (i+ 0.5  + 0.5*Math.cos(Math.atan2(FattY + FrepY,FattX + FrepX)))	, y: mapScale * (j + 0.5 + 0.5*Math.sin(Math.atan2(FattY + FrepY,FattX + FrepX))),
+							a1: (Math.atan2(FattY + FrepY,FattX + FrepX)*180/Math.PI)+270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
+						});
 					}
 					else
 					{
@@ -1029,16 +1051,7 @@ function init()
 						FrepY=0;
 					}
 
-					$('canvas').drawVector({
-						strokeStyle: '#000',
-						strokeWidth: 2,
-						rounded: true,
-						endArrow: true,
-						arrowRadius: 10,
-						arrowAngle: 30,
-						x: mapScale* (i+ 0.5  + 0.5*Math.cos(Math.atan2(FattY + FrepY,FattX + FrepX)))	, y: mapScale * (j + 0.5 + 0.5*Math.sin(Math.atan2(FattY + FrepY,FattX + FrepX))),
-						a1: (Math.atan2(FattY + FrepY,FattX + FrepX)*180/Math.PI)+270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
-					});
+					
 				}
 		//	}
 			
