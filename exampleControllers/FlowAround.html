@@ -72,7 +72,7 @@ var MDP_DebugMode = false;
 var BFSDebugMode = false;
 var Gradient_DebugMode = false;
 var Gradient_DebugMode_MDP = false;
-var ForceCheck_DebugMode = true;
+var ForceCheck_DebugMode = false;
 var goalRecieved = false;  //have we reached the goal?
 var timeFinished = 1000;
 var wroteFinish = false;
@@ -113,7 +113,7 @@ moves[7] = [1, -1];
 moves[8] = [0, 0];
 
 var zeta = 2;
-var eta = 5;
+var eta = 10;
 var rhoNot = 500;
 var rho = 0;
 var alphaWant = 0;
@@ -1146,7 +1146,7 @@ function init()
 					if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
 					if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
 					
-					if(rho<rhoNot&&Math.abs(angdiff)>(1/4*Math.PI))
+					if(rho<rhoNot&&Math.abs(angdiff)>(1/8*Math.PI))
 					{
 						FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_x - r * Math.cos(alphaWant)) - (i+0.5));//change these lines
 						FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_y - r * Math.sin(alphaWant)) - (j+0.5));
@@ -1205,7 +1205,7 @@ function init()
 						if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
 						if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
 						
-						if(rho<rhoNot&&Math.abs(angdiff)>(1/4*Math.PI))
+						if(rho<rhoNot&&Math.abs(angdiff)>(1/8*Math.PI))
 						{
 							FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_x - r * Math.cos(alphaWant)) - (i+0.5));//change these lines
 							FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_y - r * Math.sin(alphaWant)) - (j+0.5));
