@@ -325,7 +325,7 @@ function init()
 
 	var varCount = 0; //counter for variance control
 	var varCountMax = 100; //maximum time spent in variance control
-	var distanceMax = 5; //default distance for robots calculated in mean
+	var distanceMax = 20; //default distance for robots calculated in mean
 	var initialMean = true; //calculates the initial mean
 	var mean_position_x;
 	var mean_position_y;
@@ -391,8 +391,8 @@ function init()
 	    fixDef.shape.SetAsBox(1.0,1.0);
 	    var obst = world.CreateBody(bodyDef);
 	    obst.CreateFixture(fixDef);
-	    obst.m_angularDamping = 0.1;
-	    obst.m_linearDamping = 0.1;
+	    obst.m_angularDamping = 8;
+	    obst.m_linearDamping = 8;
 	}
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
@@ -656,115 +656,7 @@ function init()
 
 
 
-		if(MDP_DebugMode)
-		{
-			for(var i = 0 ; i < mapXSize; i++)
-				for (var j = 0 ; j < mapYSize; j++)
-				{
-					if(map_MDP[i][j] != 100 && map_MDP[i][j] != 52){
-						$("canvas").drawText(
-						{
-							strokeStyle: 'green',
-							strokeWidth: 2,
-							x: (i+ 0.5)*mapScale  , y: (j+0.5) *mapScale ,
-							fontSize: 20,
-							fontFamily: 'Verdana, sans-serif',
-							text: Math.round(map_MDP[i][j]/10-36)
-						});
-					}
-					else if (map_MDP[i][j] == 100 )
-					{
-						$("canvas").drawText(
-						{
-							strokeStyle: "brown",
-							strokeWidth: 2,
-							x: (i+ 0.5)*mapScale  , y: (j+0.5) *mapScale ,
-							fontSize: 20,
-							fontFamily: 'Verdana, sans-serif',
-							text: map_MDP[i][j]
-						});
-					}
-					
-				}
-			}
 
-		if(Gradient_DebugMode_MDP)
-		{
-			for(var i = 0 ; i < mapXSize; i++){
-				for (var j = 0 ; j < mapYSize; j++){	
-					$('canvas').drawVector({
-						strokeStyle: '#000',
-						strokeWidth: 2,
-						rounded: true,
-						endArrow: true,
-						arrowRadius: 10,
-						arrowAngle: 30,		  
-						x: mapScale* (i+ 0.5  + 0.5*Math.cos((90+policy_angle[i][j])*Math.PI/180.0))	 , y: mapScale * (j + 0.5 + 0.5*Math.sin((90+policy_angle[i][j])*Math.PI/180.0)),
-						a1: policy_angle[i][j], l1: mapScale
-					});
-				}
-			}
-		}
-
-		if(BFSDebugMode)
-				{
-			for(var i = 0 ; i < mapXSize; i++)
-				for (var j = 0 ; j < mapYSize; j++)
-				{
-					if(map[i][j] != 0 && map[i][j] != 52){
-						$("canvas").drawText(
-						{
-							strokeStyle: '#25a',
-							strokeWidth: 2,
-							x: (i+ 0.5)*mapScale  , y: (j+0.5) *mapScale ,
-							fontSize: 20,
-							fontFamily: 'Verdana, sans-serif',
-							text: map[i][j]
-						});
-					}
-					else if (map[i][j] == 0 )
-					{
-						$("canvas").drawText(
-						{
-							strokeStyle: "yellow",
-							strokeWidth: 2,
-							x: (i+ 0.5)*mapScale  , y: (j+0.5) *mapScale ,
-							fontSize: 20,
-							fontFamily: 'Verdana, sans-serif',
-							text: map[i][j]
-						});
-					}
-					else if (map[i][j] == 52)
-					{
-						$("canvas").drawText(
-						{
-							strokeStyle: "yellow",
-							strokeWidth: 2,
-							x: (i+ 0.5)*mapScale  , y: (j+0.5) *mapScale ,
-							fontSize: 20,
-							fontFamily: 'Verdana, sans-serif',
-							text: map[i][j]
-						});
-					}
-				}
-			}
-		if(Gradient_DebugMode)
-		{
-			for(var i = 0 ; i < mapXSize; i++){
-				for (var j = 0 ; j < mapYSize; j++){	
-					$('canvas').drawVector({
-						strokeStyle: '#000',
-						strokeWidth: 2,
-						rounded: true,
-						endArrow: true,
-						arrowRadius: 10,
-						arrowAngle: 30,		  
-						x: mapScale* (i+ 0.5  + 0.5*Math.cos((90+gradient_angle[i][j])*Math.PI/180.0))	 , y: mapScale * (j + 0.5 + 0.5*Math.sin((90+gradient_angle[i][j])*Math.PI/180.0)),
-						a1: gradient_angle[i][j], l1: mapScale
-					});
-				}
-			}
-		}
 
 		//draw robots and obstacles
 		for (b = world.GetBodyList() ; b; b = b.GetNext())
@@ -804,7 +696,7 @@ function init()
 						color = 'brown';
 					if(b.GetUserData() == 'moveable')
 					{
-						color = 'black';
+						color = 'orange';
 						blockCOM_x = pos.x;
 						blockCOM_y = pos.y;
 					}
@@ -821,26 +713,6 @@ function init()
 						cornerRadius: 0
 					})
 					.restoreCanvas();
-					if(MDP_DebugMode || Gradient_DebugMode_MDP){
-						for(var i = 0 ; i < 20; i++)
-						{
-							$("canvas")
-							.drawLine(
-							{
-								strokeStyle: 'gray',
-								strokeWidth: 1,
-								x1: i*mapScale, y1: 0,
-								x2: i*mapScale, y2: 20*mapScale
-							})
-							.drawLine({
-								strokeStyle: 'gray',
-								strokeWidth: 1,
-								x1: 0, y1: i*mapScale,
-								x2: 20*mapScale, y2: i*mapScale
-							})
-						}
-						$("canvas").restoreCanvas();
-					}
 				}
 			}
 		}
@@ -897,7 +769,7 @@ function init()
 		var offsetY = 5;
 		var amplitudeX = 5;
 		var offsetX = 5;
-		var max_desired_var_x = numrobots * robotrad * .20; //was 1.91
+		var max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
 		var min_desired_var_x = numrobots * robotrad * .05; //was .663
 		var max_desired_var_y = max_desired_var_x;
 		var min_desired_var_y = min_desired_var_x;
@@ -1053,7 +925,7 @@ function init()
 			if(!flagVar)
 			{
 				var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-				var r = 0.1;
+				var r = 1.5;
 				if( COMdist2swarm > 2.5)
 				{	r = 1.5
 				}
@@ -1082,8 +954,8 @@ function init()
 					FrepY=0;
 				}
 				
-				goalX = blockCOM_x + (FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
-				goalY = blockCOM_y + (FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
+				goalX = mean_position_x - (FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
+				goalY = mean_position_y - (FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
 			}
 			$("canvas").drawArc({ //draw the average position
 				strokeStyle: "red",
@@ -1128,11 +1000,11 @@ function init()
 		}
 		var mean_velocity_x = sum_velocity_x / numrobots;
 		var mean_velocity_y = sum_velocity_y / numrobots;
-		if (!ForceCheck_DebugMode){
+		//if (!ForceCheck_DebugMode){
 			m_ControlInputY = Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
 			m_ControlInputX = Kgain*(goalX - mean_position_x) + Kderivative*(0-mean_velocity_x) ;
 			m_controlState = ROBOT_INPUT.ROBOT_PROP;
-		}else{
+		//}else{
 			for(var i = 0 ; i < mapXSize; i++){
 				for (var j = 0 ; j < mapYSize; j++){	
 					alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
@@ -1168,7 +1040,7 @@ function init()
 						a1: (Math.atan2(FattY + FrepY,FattX + FrepX)*180/Math.PI)+270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
 					});
 				}
-			}
+		//	}
 			
 /*
 			if(choose){
