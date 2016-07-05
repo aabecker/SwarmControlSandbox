@@ -72,7 +72,7 @@ var MDP_DebugMode = false;
 var BFSDebugMode = false;
 var Gradient_DebugMode = false;
 var Gradient_DebugMode_MDP = false;
-var ForceCheck_DebugMode = false;
+var ForceCheck_DebugMode = true;
 var goalRecieved = false;  //have we reached the goal?
 var timeFinished = 1000;
 var wroteFinish = false;
@@ -1133,6 +1133,44 @@ function init()
 			m_ControlInputX = Kgain*(goalX - mean_position_x) + Kderivative*(0-mean_velocity_x) ;
 			m_controlState = ROBOT_INPUT.ROBOT_PROP;
 		}else{
+			for(var i = 0 ; i < mapXSize; i++){
+				for (var j = 0 ; j < mapYSize; j++){	
+					alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
+					rho=lineDistance((i+0.5), (j+0.5),blockCOM_x - r * Math.cos(alphaWant+Math.PI),blockCOM_y - r * Math.sin(alphaWant+Math.PI));
+					FattX = zeta*((i+0.5) - (blockCOM_x - r * Math.cos(alphaWant+Math.PI)))/rho;//change these lines
+					FattY = zeta*((j+0.5) - (blockCOM_y - r * Math.sin(alphaWant+Math.PI)))/rho;
+					rho=lineDistance((i+0.5), (j+0.5),blockCOM_x - r * Math.cos(alphaWant),blockCOM_y - r * Math.sin(alphaWant))
+					
+					theta = Math.atan2((j+0.5) - (blockCOM_y - r * Math.sin(alphaWant)),(i+0.5) - (blockCOM_x - r * Math.cos(alphaWant)));
+					angdiff = alphaWant-theta;
+					if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
+					if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
+					
+					if(rho<rhoNot&&Math.abs(angdiff)>(1/4*Math.PI))
+					{
+						FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_x - r * Math.cos(alphaWant)) - (i+0.5));//change these lines
+						FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*((blockCOM_y - r * Math.sin(alphaWant)) - (j+0.5));
+					}
+					else
+					{
+						FrepX=0;
+						FrepY=0;
+					}
+
+					$('canvas').drawVector({
+						strokeStyle: '#000',
+						strokeWidth: 2,
+						rounded: true,
+						endArrow: true,
+						arrowRadius: 10,
+						arrowAngle: 30,
+						x: mapScale* (i+ 0.5  + 0.5*Math.cos(Math.atan2(FattY + FrepY,FattX + FrepX)))	, y: mapScale * (j + 0.5 + 0.5*Math.sin(Math.atan2(FattY + FrepY,FattX + FrepX))),
+						a1: (Math.atan2(FattY + FrepY,FattX + FrepX)*180/Math.PI)+270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
+					});
+				}
+			}
+			
+/*
 			if(choose){
 				which = confirm("Press Confirm to show the Attractive Forces\nPress Cancel to show Repulsive Forces");
 				if (which == true) {
@@ -1190,11 +1228,9 @@ function init()
 						
 					}
 				}
-			}
+			}*/
 		}
-}
-	//console.log(elapsedTimeSec + " " + mean_position_y + " " + goalY + " " + mean_position_x + " " + goalX );
-	//console.log(elapsedTimeSec + " " + var_x );
+	}
 	}; //end update
 };
 </script>
