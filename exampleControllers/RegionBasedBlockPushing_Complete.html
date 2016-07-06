@@ -462,8 +462,8 @@ function init()
     fixDef.shape.SetAsBox(1.0,1.0);
     var obst = world.CreateBody(bodyDef);
     obst.CreateFixture(fixDef);
-    obst.m_angularDamping = .1;
-    obst.m_linearDamping = .1;
+    obst.m_angularDamping = 3;
+    obst.m_linearDamping = 3;
 }
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
@@ -501,8 +501,8 @@ function init()
 		bodyDef.position.y = 18.5-Math.floor(i/rowLength)*2*robotrad;
 		m_Robot[i] = world.CreateBody(bodyDef);
 		m_Robot[i].CreateFixture(fixDef);
-		m_Robot[i].m_angularDamping = 1; //was 1, we used 10 on SwarmControl
-		m_Robot[i].m_linearDamping = 1;
+		m_Robot[i].m_angularDamping = 10; //was 1, we used 10 on SwarmControl
+		m_Robot[i].m_linearDamping = 10;
 	}
 
 
@@ -1157,11 +1157,11 @@ if(BFSDebugMode)
 					IndexMinDist = i;
 				}
 			}
-			if( IndexMinDist>0 )
-			{
-				//console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
-				IndexMinDist = IndexMinDist-1;
-			}
+			//if( IndexMinDist>0 )
+			//{
+			//	//console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
+			//	IndexMinDist = IndexMinDist-1;
+			//}
 			goalX = CornerValuesX[IndexMinDist];
 			goalY = CornerValuesY[IndexMinDist];
 		}
