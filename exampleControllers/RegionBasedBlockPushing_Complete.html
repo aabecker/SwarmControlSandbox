@@ -93,7 +93,17 @@ var iteration = 0;
 var iteration_limit = 200;
 var probStraight = 0.5;
 
-
+var zeta = 2;
+var eta = 10;
+var rhoNot = 500;
+var rho = 0;
+var alphaWant = 0;
+var choose = true;
+var which = 1;
+var max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
+var min_desired_var_x = 0.75; //was .663
+var max_desired_var_y = max_desired_var_x;
+var min_desired_var_y = min_desired_var_x;
 var move_ysize = 9;
 var move_xsize = 2;
 var moves = new Array(move_ysize);
@@ -125,16 +135,12 @@ for (var i = 0; i < mapXSize; i++)
 	policy_y[i] = new Array(mapYSize);
 	policy_angle[i] = new Array(mapYSize);
 }
-////////////////////////////
     //region Arrays
 var mainMaps = new Array();
 var transferMaps = new Array();
-
-//for (i=0;i<20;i++){
-//    for (j=0;j<20;j++){
-//        mainMaps[0][i][j]=15;
-//    }
-//}
+    
+    //print test array results
+var seeTestResults = false;
 
 /////////////////////////////
 //End Global Variables
@@ -306,8 +312,24 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 //End Drawing Functions
 ///////////////////////////
 
+
+
 function init()
 {
+    var test = localStorage.getItem("test");
+    if (test==null)
+    {
+        test = {
+            currentRun: 0,
+            test: {
+                runs: [100,200,300,400],
+                outcomes: []
+            }
+        }
+        localStorage.setItem("test", JSON.stringify(test));
+    }
+    
+
     ///////////////creating the main Regions
     mainMaps[0] = new Array(); //creating 3D array
     mainMaps[1] = new Array();
@@ -440,14 +462,27 @@ function init()
     fixDef.shape.SetAsBox(1.0,1.0);
     var obst = world.CreateBody(bodyDef);
     obst.CreateFixture(fixDef);
-    obst.m_angularDamping = 0.1;
-    obst.m_linearDamping = 0.1;
+    obst.m_angularDamping = .1;
+    obst.m_linearDamping = .1;
 }
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
-	var numrobots = 200;//Math.floor(20/(4*robotrad*robotrad));
-	var totalRobots=200;	//for regions calculations
+    //updating numrobots and totalrobots for testing results
+	var numRobots = null;
+	var totalRobots = null;
+	var inputTest = JSON.parse(localStorage.getItem("test"));
+	if (inputTest.test.runs[inputTest.currentRun]==null){
+	    window.stop();
+	} else {
+	    var value = inputTest.test.runs[inputTest.currentRun]
+	    numrobots = value;
+	    totalRobots = value;
+	    console.log("value "+value);
+	}
+	//var numrobots = 200;//Math.floor(20/(4*robotrad*robotrad));
+	//var totalRobots = 200;	//for regions calculations
+    ////////////////////
 	if(MDP_DebugMode || Gradient_DebugMode)
 	{
 		numrobots = 0;
@@ -497,6 +532,9 @@ function init()
 
 	//giving -100 to boundaries
 
+    //////testing saving data to local server
+
+    ///////
 
 
 
@@ -646,7 +684,8 @@ function init()
 	}
 
 	//called each animation round
-	//y-axis is inverted in webpage
+    //y-axis is inverted in webpage
+	var hasLoggedData = false;
 	function update()
 	{
 		var impulseV=new b2Vec2(0,0);
@@ -660,7 +699,7 @@ function init()
 		var brownianImpulse = new b2Vec2(0,0);
 		var mag = 0;
 		var ang = 0;
-		var vary= 0.5; //was 1
+		var vary= 0.1; //was 1
 		for(var i =0; i<m_Robot.length; i++)
 		{
 			mag = vary * Math.random();
@@ -950,10 +989,6 @@ if(BFSDebugMode)
 	var offsetY = 5;
 	var amplitudeX = 5;
 	var offsetX = 5;
-	var max_desired_var_x = 1.91;//numrobots * robotrad * 1/2;
-	var min_desired_var_x = 0.663;//numrobots * robotrad * 3/2;;
-	var max_desired_var_y = max_desired_var_x;
-	var min_desired_var_y = min_desired_var_x;
 	var sum_position_x = 0;
 	var sum_position_y = 0;
 	var sum2_x = 0;
@@ -969,7 +1004,7 @@ if(BFSDebugMode)
 	if (!regionMain) {
 	    var blockPosition = transferMaps[regionNum][block_x][block_y];
 	}
-	console.log("REGION " + regionMain + " NUM: " + regionNum + " POS " + blockPosition);
+	//console.log("REGION " + regionMain + " NUM: " + regionNum + " POS " + blockPosition);
 	if (blockPosition == 0) {
 	    if (regionMain) {//if it's in the main region
 	        regionMain = false; //switch to transfer regions
@@ -1045,7 +1080,7 @@ if(BFSDebugMode)
 	        }
 	    }
 	}
-	console.log("numRobot: " + numrobots);
+	//console.log("numRobot: " + numrobots);
     ////////////////////////////////
 
 	var var_x = sum2_x / numrobots;
@@ -1122,7 +1157,7 @@ if(BFSDebugMode)
 					IndexMinDist = i;
 				}
 			}
-			if(   CornerValuesD[IndexMinDist] <  map[block_x][block_y]  && IndexMinDist>0 )
+			if( IndexMinDist>0 )
 			{
 				//console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
 				IndexMinDist = IndexMinDist-1;
@@ -1132,14 +1167,42 @@ if(BFSDebugMode)
 		}
 		if(!flagVar)
 		{
-			var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-			var r = 0.1;
-			if( COMdist2swarm > 2.5)
-			{	r = 1.5
-			}
-			//var r = Math.max(0.0, Math.min(1.5, 0.5*COMdist2swarm));
-			goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-			goalY = blockCOM_y + r * policy_y[block_x][block_y];
+		    var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+		    var r = 0.8;
+
+		    attPointX = blockCOM_x - r * Math.cos(alphaWant + Math.PI);
+		    attPointY = blockCOM_y - r * Math.sin(alphaWant + Math.PI);
+		    repPointX = blockCOM_x - r * Math.cos(alphaWant);
+		    repPointY = blockCOM_y - r * Math.sin(alphaWant);
+
+		    //goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
+		    //goalY = blockCOM_y + r * policy_y[block_x][block_y];
+		    alphaWant = Math.atan2(policy_y[block_x][block_y], policy_x[block_x][block_y]);
+
+		    rho = lineDistance(mean_position_x, mean_position_y, repPointX, repPointY);
+
+		    theta = Math.atan2(mean_position_y - repPointY, mean_position_x - repPointX);
+		    angdiff = alphaWant - theta;
+		    if (angdiff > Math.PI) { angdiff = angdiff - 2 * Math.PI };
+		    if (angdiff < -Math.PI) { angdiff = angdiff + 2 * Math.PI };
+
+		    if (rho < rhoNot && Math.abs(angdiff) > (1 / 8 * Math.PI)) {
+		        FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointX - mean_position_x);//change these lines
+		        FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointY - mean_position_y);
+		        rho = lineDistance(mean_position_x, mean_position_y, attPointX, attPointY);
+		        FattX = zeta * (mean_position_x - attPointX) / rho;//change these lines
+		        FattY = zeta * (mean_position_y - attPointY) / rho;
+
+		        goalX = mean_position_x - 2 * (FattX + FrepX) / lineDistance(FattX, FattY, FrepX, FrepY);
+		        goalY = mean_position_y - 2 * (FattY + FrepY) / lineDistance(FattX, FattY, FrepX, FrepY);
+		        max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
+		        max_desired_var_y = max_desired_var_x;
+		    } else {
+		        goalX = blockCOM_x - r * policy_x[block_x][block_y];//change these lines
+		        goalY = blockCOM_y - r * policy_y[block_x][block_y];
+		        max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
+		        max_desired_var_y = max_desired_var_x;
+		    }
 		}
 	$("canvas").drawArc({ //draw the average position
 		strokeStyle: "red",
@@ -1179,8 +1242,47 @@ if(BFSDebugMode)
 }
 	//console.log(elapsedTimeSec + " " + mean_position_y + " " + goalY + " " + mean_position_x + " " + goalX );
 	//console.log(elapsedTimeSec + " " + var_x );
+	//console.log("currentRun " + tests.currentRun + " goal: " + goalRecieved);
+	if (elapsedTimeSec > 300) {
+	    var state = JSON.parse(localStorage.getItem("test"));
+	    //alert(JSON.stringify(state));
+	    state.test.outcomes[state.currentRun] = "error";
+	    state.currentRun++;
+	    localStorage.setItem("test", JSON.stringify(state));
+	    hasLoggedData = true;
+	    location.reload(true);
+	}
+
+	if (goalRecieved && !hasLoggedData) {
+	    var state = JSON.parse(localStorage.getItem("test"));
+	   // alert(JSON.stringify(state));
+	    state.test.outcomes[state.currentRun] = elapsedTimeSec;
+	    state.currentRun++;
+	    localStorage.setItem("test", JSON.stringify(state));
+	    hasLoggedData = true;
+	    location.reload(true); 
+	}
+	
+
 	}; //end update
+
+    if (seeTestResults) {
+	        for (i = 0; i < 2 ; i++) {
+	        console.log(tests.outcomes[i]);
+	    }
+    }
+	//if (typeof (Storage) !== "undefined") {
+	//    localStorage.setItem(tests.outcomes[currentRun], timeFinished);
+	//    // Code for localStorage/sessionStorage.
+	//} else {
+	//    console.log("storage doesn't works");
+	//    // Sorry! No Web Storage support..
+    //}
+
 };
+
+
+
 </script>
 <style>
     #cc {
