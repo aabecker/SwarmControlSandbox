@@ -93,7 +93,7 @@ goal_y &= K_\tau \Delta_{\theta} + O_y  \label{eq:TranslationAndOrientation}
 In this task, the swarm pushed the object in the $+x$ direction while trying to regulate the orientation to $goal_{\theta} = 0^\circ$.
  The swarm can push the object without changing its orientation only if it pushes along a line intersecting the COM of the object.  A feedback control law regulates the object's orientation.
 }
-\vspace{-1em}
+\vspace{-2em}
 \end{figure}
 
 \paragraph{Line following with perpendicular orientation} \label{para:PureTranslation}
@@ -124,9 +124,9 @@ The goal position for the swarm is based on the nearest point from COM to the li
 
 \begin{figure}
 \begin{center}
-	\includegraphics[width=0.75\columnwidth]{Linear.eps}
+	\includegraphics[width=0.9\columnwidth]{Linear.eps}
 \end{center}
-\vspace{-2em}
+\vspace{-1em}
 \caption{\label{fig:Linear} 
 Following an arbitrary line with perpendicular orientation. This control law centers the object to the line, while it regulates its orientation.
 }
@@ -164,13 +164,13 @@ Each works by first controlling the orientation and then regulating that orienta
 
 \begin{figure}
 \begin{center}
-	\includegraphics[width=.7\columnwidth]{perpendicular.jpg}
+	\includegraphics[width=.75\columnwidth]{perpendicular.jpg}
 \end{center}
 \vspace{-1em}
 \caption{\label{fig:perpendicular} 
 a.) Pushing an object perpendicular to its minor axis. The swarm spreads around the object. b.)  Applying force perpendicular to the object's long axis reduces the probability of splitting the swarm.
 }
-\vspace{-1em}
+\vspace{-2em}
 \end{figure}
 
 The na\"{i}ve approach is represented in Alg. \ref{alg:naivePoseControlApproach}. It defines  the coordinate frame such that $[goal_x, goal_y, goal_{\theta}] = [0,0,0]$.
@@ -244,7 +244,7 @@ Pose control using Alg. \ref{alg:PoseControl}.  The objects is delivered to a go
 \begin{figure*}
 \centering
 
-\includegraphics[width=1.6\columnwidth]{PoseControl.pdf}
+\includegraphics[width=1.61\columnwidth]{PoseControl.pdf}
 \vspace{0em}
 \caption{\label{fig:PosScreenShot}
 Different stages for position control of a block while controlling its orientation. The first task (0--90 s) is to push the object COM to a line perpendicular to the goal. The second task (90--210 s) is to push the object along this perpendicular line while regulating the orientation.
