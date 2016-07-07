@@ -1,0 +1,54 @@
+%%%% Weekly Report Information %%%%
+\newcommand{\handoutName}{Weekly report}
+\newcommand{\handoutdate}{\today}
+%\newcommand{\duedate}{}
+\input{Header.tex}
+
+\section{My \emph{Objectives} this week}
+\begin{itemize}
+\item Finishing the simulation part.
+\item Had a very good run with the kilobots by having regions, but not still accomplishing.
+
+\end{itemize}
+\section{My \emph{Accomplishments} this week}
+
+
+\begin{itemize}
+\item I gave Mable to implement the regions in simulations, and gave Lillian in flowing around simulation and helped for the debugging and discussions. We made the debug mode.
+\item So, today we combined all the codes. The flow around the object worked after I changed the chosen corners, but new problems arrived:
+
+1. When we are using flowing around the object, and region maps, sometimes the region that we are working on has no robots.
+solutions:
+
+First and ultimate solution: Use gathering to one point algorithm in these times to gather all the robots in one point, then go back to object's region and push the object. This could be the ultimate solution, but because we don't have an algorithm with an acceptable speed for that, we thought of the second idea:
+
+When the number of robots in the current region is less than some number, we consider the neighbors of that region and gather those robots with flowing around algorithm. (means that we stop the current algorithm and gather the previous or next robots around the object) each transfer region has two neighbor main regions, and each main region has at least one neighbor transfer region. 
+
+The third idea is that if the neighboring regions didn't have enough robots, we can gather the further regions by using BFS from the robot's mean to the object.
+
+I appreciate your comments on this.
+
+
+2. When forces cancel each other, we get stuck. 
+
+Solution: we want to put a timer when we are approaching the 0 gradient, and leave that point to the variance control mode. (Lillian is currently working on that)
+
+\end{itemize}
+
+
+\section{My \emph{Plan} for next week}
+
+\begin{itemize}
+\item I want all the algorithms implemented, and have some successful runs. (Hope that after implementing flowAround for the kilobots, we can see one success)
+\item I would like to have all the simulation plots ready. Chris and Mable now made it automatic.
+\item I want to write the algorithms and start wrapping the paper if the kilobot experiment was successful.
+\item If those were accomplished, I would like us to start working for the friction control idea, and have the final plot of the first torque control challenge.
+\end{itemize}
+
+\subsection{Meeting with Dr. Becker  }
+
+\begin{itemize}
+\item You are not here for the next meeting!
+\end{itemize}
+
+\end{document}

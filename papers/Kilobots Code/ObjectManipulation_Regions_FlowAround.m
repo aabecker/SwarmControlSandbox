@@ -1,7 +1,7 @@
 %%% Object Manipulation Experiment With Kilobots
 %%% In this code we want to use arduino and our vision system to control
 %%% kilobots for compeleting a block pushing experiment.
-%%% By Shiva Shahrokhi and Mable Wan Summer 2016
+%%% By Shiva Shahrokhi, Mable Wan and Lillian Lin Summer 2016
 
 clear all
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
@@ -10,6 +10,7 @@ cam = webcam(1);
 Relay=0;
 
 VarCont = false;
+flowDebug = true;
 
 goalX = 6;
 goalY = 5;
@@ -48,14 +49,14 @@ c = 0;
 meanControl=false;
 
 %Flow Around Variables
-eta=10
-zeta=2
-rhoNot=500
+eta=50;
+zeta=1;
+rhoNot=7.5;
 alphaWant=0;
 
 %1 is main regions, 0 is transfer regions
 regionID=1;
-regionNum=3;
+regionNum=1;
 %load regions
 currentRegionMap=mainRegion(:,:,regionNum); %init map
 
@@ -77,7 +78,7 @@ else
 end 
  s = size(originalImage);
  scale = 30;
- epsilon = 1* scale;
+ epsilon = 0.1* scale;
  sizeOfMap = floor(s/scale);
  imshow(originalImage);
 % map = zeros(sizeOfMap(1),sizeOfMap(2));
@@ -138,8 +139,6 @@ hold off
 % originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
 % originalImage(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 255;
 
-regionID
-regionNum
 ObjCentX=floor(ObjectCentroidX/scale);
 ObjCentY=floor(ObjectCentroidY/scale);
 if (ObjCentX==0)
@@ -149,7 +148,7 @@ if (ObjCentY==0)
     ObjCentY=1;
 end
 
-position = currentRegionMap(ObjCentY,ObjCentX)
+position = currentRegionMap(ObjCentY,ObjCentX);
 %switching regions
 if(position==0)
     if (regionID==1)%check if it's in mainRegion state
@@ -191,9 +190,11 @@ BW(stat(index).PixelIdxList)=0;
   for i=1:m
       cenX=floor(centers(i,1)/scale);
       cenY=floor(centers(i,2)/scale);
-      if (cenX==0) cenX=1;
+      if (cenX==0) 
+          cenX=1;
       end 
-      if (cenY==0) cenY=1;
+      if (cenY==0) 
+          cenY=1;
       end  
       if(currentRegionMap(cenY,cenX)==1) %if robot is in region
         sumX= sumX+centers(i,1);
@@ -203,16 +204,16 @@ BW(stat(index).PixelIdxList)=0;
         cenArray(countMean,2)= centers(i,2);
       end
   end
-    cou=countMean %debug
+    %cou=countMean %debug
     % %Mean
-    M(1,1)= sumX/countMean;
-    M(1,2)= sumY/countMean;
+   M(1,1)= sumX/countMean;
+  M(1,2)= sumY/countMean;
 %  M = mean(centers);
     %Variance
-    V = var(cenArray)
+    V = var(cenArray);
     %Covariance
-    C = cov(cenArray)
-
+    C = cov(cenArray);
+%C = cov(centers);
     
     h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
@@ -264,8 +265,8 @@ BW(stat(index).PixelIdxList)=0;
             VarCont = false;
         end
     end
-    if ~VarCont
-     r = 0; %was 0.1
+if ~VarCont
+     %r = 0; %was 0.1
       ep = 5;
      minDistance =  5*scale;
      
@@ -273,14 +274,7 @@ BW(stat(index).PixelIdxList)=0;
     indY = floor(M(1,2)/scale);
     indOX = floor(ObjectCentroidX/scale);
     indOY = floor(ObjectCentroidY/scale);
-     if M(1,1) > ObjectCentroidX- minDistance && M(1,1) < ObjectCentroidX+minDistance && M(1,2) < ObjectCentroidY+minDistance && M(1,2) > ObjectCentroidY-minDistance
-         r = 0.1;
-     %else if M(1,1) > ObjectCentroidX- (corners(corInd,1))*scale && M(1,1) < ObjectCentroidX+minDistance && M(1,2) < ObjectCentroidY+minDistance && M(1,2) > ObjectCentroidY-minDistance
-     %        r = 2.5;
-     else
-             r = 2.5;
-         
-     end
+     
 %     if M(1,1) > ObjectCentroidX- minDistance || M(1,1) < ObjectCentroidX-minDistance
 %        if M(1,2) > ObjectCentroidY-minDistance || M(1,2) < ObjectCentroidY-minDistance
 %            r = 2.5
@@ -293,42 +287,112 @@ BW(stat(index).PixelIdxList)=0;
 %         end
 %     end
 %% Flow Around Goal Algorithm
-    alphaWant=atan(movesX(indY,indX)/movesY(indY,indX));
-    repPointX=ObjectCentroidX - r * cos(alphaWant);
-    repPointY=ObjectCentroidY - r * sin(alphaWant);
-    theta = Math.atan2((mean_position_x - repPointX)/(mean_position_y - repPointY));
+    r = 2.5;
+    alphaWant=atan2(movesX(indOY,indOX),movesY(indOY,indOX));
+    repPointX=ObjectCentroidX/scale - r * cos(alphaWant+pi);
+    repPointY=ObjectCentroidY/scale - r * sin(alphaWant+pi);
+    theta = atan2((M(1,2)/scale - repPointY),(M(1,1)/scale - repPointX));
     angdiff = alphaWant-theta;
-    rho=sqrt((M(1)-repPointX)^2 + (M(2)-repPointY)^2);
-    if(angdiff > pi) angdiff = angdiff - 2*pi;end
-    if(angdiff < -pi) angdiff = angdiff + 2*pi;end
+    rho=sqrt((M(1,1)/scale-repPointX)^2 + (M(1,2)/scale-repPointY)^2);
+    if(angdiff > pi) 
+        angdiff = angdiff - 2*pi;
+    end
+    if(angdiff < -pi) 
+        angdiff = angdiff + 2*pi;
+    end
     
-    if (rho<rhoNot && abs(angdiff)>pi/8)
-        FrepX=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointX-M(1));
-        FrepY=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointY-M(2));
+    if (rho<rhoNot && abs(angdiff)<pi*7/8)
+        something = 3
+        FrepX=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointX-M(1,1)/scale);
+        FrepY=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointY-M(1,2)/scale);
         
-        attPointX=ObjectCentroidX - r * cos(alphaWant+pi);
-        attPointY=ObjectCentroidY - r * sin(alphaWant+pi);
-        rho=sqrt((M(1)-attPointX)^2 + (M(2)-attPointY)^2);
-        FattX=zeta*(M(1)-attPointX)/rho;
-        FattY=zeta*(M(2)-attPointY)/rho;
+        attPointX=ObjectCentroidX/scale - r * cos(alphaWant+pi);
+        attPointY=ObjectCentroidY/scale - r * sin(alphaWant+pi);
+        rho=sqrt((M(1,1)-attPointX)^2 + (M(1,2)-attPointY)^2);
+        FattX=zeta*(M(1,1)-attPointX)/rho;
+        FattY=zeta*(M(1,2)-attPointY)/rho;
         
-        currgoalX=M(1)-2*(FattX+FrepX)/sqrt((FrepX-FattX)^2 + (FrepY-FattY)^2);
-        currgoalY=M(2)-2*(FattY+FrepY)/sqrt((FrepX-FattX)^2 + (FrepY-FattY)^2);;
+         currgoalX=M(1,1)+cos(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
+         currgoalY=M(1,2)+sin(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
+         lineLength = 1000;
+angle = atan2((-FrepY-FattY),(-FattX-FrepX));
+x(1) = M(1,1);
+y(1) = M(1,2);
+x(2) = x(1) + lineLength * cos(angle);
+y(2) = y(1) + lineLength * sin(angle);
+hold on; % Don't blow away the image.
+plot(x, y);
+
+%         currgoalX=M(1,1)+(-FattY-FrepY)/sqrt((-FrepX-FattX)^2 + (-FrepY-FattY)^2)*scale;
+%         currgoalY=M(1,2)+(-FattX-FrepX)/sqrt((-FrepX-FattX)^2 + (-FrepY-FattY)^2)*scale;
     else 
-%% Old Goal Algorithm            
+%% Old Goal Algorithm 
+rho
+angdiff
+        if M(1,1) > ObjectCentroidX- minDistance && M(1,1) < ObjectCentroidX+minDistance && M(1,2) < ObjectCentroidY+minDistance && M(1,2) > ObjectCentroidY-minDistance
+            r = 0.1;
+     %else if M(1,1) > ObjectCentroidX- (corners(corInd,1))*scale && M(1,1) < ObjectCentroidX+minDistance && M(1,2) < ObjectCentroidY+minDistance && M(1,2) > ObjectCentroidY-minDistance
+     %        r = 2.5;
+        else
+            r = 2.5;
+        end
+
         if M(1,1) > ObjectCentroidX- r*scale+ep || M(1,1) < ObjectCentroidX-r*scale-ep
            if M(1,2) > ObjectCentroidY-r*scale+ep || M(1,2) < ObjectCentroidY-r*scale-ep
         currgoalX = ObjectCentroidX - r*scale * movesY(indOY,indOX);
         currgoalY = ObjectCentroidY - r*scale * movesX(indOY,indOX);
+        tada = 0
            end
         else
            currgoalX = M(1,1)+ movesY(indY,indX)*scale;
            currgoalY = M(1,2) + movesX(indY,indX)*scale;
+           tada = 1
         end
     end
+    if flowDebug
+    s = size(movesX);
+    X = zeros(size(movesX));
+    Y = zeros(size(movesX));
+    DX = zeros(size(movesX));
+    DY = zeros(size(movesX));
+    for i = 1:s(2)
+        for j = 1:s(1)
+            X(i,j) = i;
+            Y(i,j) = j;
+            thetaD = atan2(j - repPointY,i - repPointX);
+            angdiffD = alphaWant-thetaD;
+            rhoD=sqrt((i-repPointX)^2 + (j-repPointY)^2);
+            if(angdiffD > pi) 
+        angdiffD = angdiffD - 2*pi;
+            end
+    if(angdiffD < -pi) 
+        angdiffD = angdiffD + 2*pi;
+    end
+    FrepX=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointX-i);
+        FrepY=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointY-j);
+        
+        attPointX=ObjectCentroidX/scale - r * cos(alphaWant);
+        attPointY=ObjectCentroidY/scale - r * sin(alphaWant);
+        rhoD=sqrt((i-attPointX)^2 + (j-attPointY)^2);
+        FattX=zeta*(i-attPointX)/rhoD;
+        FattY=zeta*(j-attPointY)/rhoD;
+        
+        plot(attPointX *scale, attPointY*scale,'*','Markersize',16,'color','blue','linewidth',3);
+        plot(repPointX*scale , repPointY*scale,'*','Markersize',16,'color','cyan','linewidth',3);
+        DX(i,j)=cos(atan2((-FrepY-FattY),(-FattX-FrepX)));
+        DY(i,j)=sin(atan2((-FrepY-FattY),(-FattX-FrepX)));
+        end
+    end
+     hq=quiver(X*scale,Y*scale,DX,DY,'color',[0,0,0]); 
+    end
+%     set(hq,'linewidth',2);
+%         drawnow
+       
+       
 end
+    
     plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
-    plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
+    plot(currgoalX , currgoalY,'*','Markersize',16,'color','yellow','linewidth',3);
     plot(goalX*scale , goalY*scale,'*','Markersize',16,'color','green','linewidth',3);
     plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','cyan','linewidth',3);
     circle(goalX*scale, goalY*scale,4*scale);
