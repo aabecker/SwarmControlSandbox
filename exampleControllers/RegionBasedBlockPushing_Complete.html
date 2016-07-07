@@ -1184,8 +1184,6 @@ if(Gradient_DebugMode_MDP)
 		    if (angdiff > Math.PI) { angdiff = angdiff - 2 * Math.PI };
 		    if (angdiff < -Math.PI) { angdiff = angdiff + 2 * Math.PI };
 
-		    
-
 		    if (rho < rhoNot && Math.abs(angdiff) > (1 / 8 * Math.PI)) {
 		    	goalWant=0;
 		    } else { goalWant=1; }
@@ -1206,8 +1204,8 @@ if(Gradient_DebugMode_MDP)
 		        FattX = zeta * (mean_position_x - attPointX) / rho;//change these lines
 		        FattY = zeta * (mean_position_y - attPointY) / rho;
 
-		        goalX = mean_position_x - 2 * (FattX + FrepX) / lineDistance(FattX, FattY, FrepX, FrepY);
-		        goalY = mean_position_y - 2 * (FattY + FrepY) / lineDistance(FattX, FattY, FrepX, FrepY);
+		        goalX = mean_position_x - Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
+		        goalY = mean_position_y - Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));;
 		        max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
 		        max_desired_var_y = max_desired_var_x;
 		    }else{

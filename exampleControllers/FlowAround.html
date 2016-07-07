@@ -72,7 +72,8 @@ var MDP_DebugMode = false;
 var BFSDebugMode = false;
 var Gradient_DebugMode = false;
 var Gradient_DebugMode_MDP = false;
-var ForceCheck_DebugMode = false;
+var DrawForce_DebugMode = true;			// Draw the attractive and repuslive forces together (only while running)
+var SingleForceCheck_DebugMode = false;	// Choose to draw the repulsive or attractive forces
 var goalRecieved = false;  //have we reached the goal?
 var timeFinished = 1000;
 var wroteFinish = false;
@@ -453,9 +454,6 @@ function init()
 
 	//giving -100 to boundaries
 
-
-
-
 	if(ifBFS)
 	{	//at the end, map[x][y] is the BFS distance to the goal
 		for(var i = 0 ; i < mapXSize; i++){
@@ -484,9 +482,6 @@ function init()
 		BFS(goalPositionX, goalPositionY);
 		ifBFS = false;
 	}
-
-
-
 
 	if(ifMDP)
 	{	
@@ -612,7 +607,7 @@ function init()
 			impulseV.x = m_ControlInputX;
 			impulseV.y = m_ControlInputY;
 		}
-		if(!ForceCheck_DebugMode){
+		if(!SingleForceCheck_DebugMode){
 			//apply Brownian noise:
 			var brownianImpulse = new b2Vec2(0,0);
 			var mag = 0;
@@ -656,11 +651,6 @@ function init()
 			fontFamily: 'Verdana, sans-serif',
 			text: "Goal"
 		}).restoreCanvas();
-
-
-
-
-
 
 		//draw robots and obstacles
 		for (b = world.GetBodyList() ; b; b = b.GetNext())
@@ -931,6 +921,8 @@ function init()
 				var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
 				var r = 0.8;
 				
+				alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
+				
 				attPointX=blockCOM_x - r * Math.cos(alphaWant+Math.PI);
 				attPointY=blockCOM_y - r * Math.sin(alphaWant+Math.PI);
 				repPointX=blockCOM_x - r * Math.cos(alphaWant);
@@ -938,7 +930,6 @@ function init()
 
 				//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
 				//goalY = blockCOM_y + r * policy_y[block_x][block_y];
-				alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
 
 				rho=lineDistance(mean_position_x, mean_position_y,repPointX,repPointY);
 			
@@ -955,8 +946,8 @@ function init()
 					FattX = zeta*(mean_position_x - attPointX)/rho;//change these lines
 					FattY = zeta*(mean_position_y - attPointY)/rho;
 
-					goalX = mean_position_x - 2*(FattX+FrepX)/lineDistance(FattX,FattY,FrepX,FrepY);
-					goalY = mean_position_y - 2*(FattY+FrepY)/lineDistance(FattX,FattY,FrepX,FrepY);
+					goalX = mean_position_x - Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
+					goalY = mean_position_y - Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));
 					max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
 					max_desired_var_y = max_desired_var_x;
 				}else
@@ -1011,57 +1002,56 @@ function init()
 		}
 		var mean_velocity_x = sum_velocity_x / numrobots;
 		var mean_velocity_y = sum_velocity_y / numrobots;
-		//if (!ForceCheck_DebugMode){
+		if (!SingleForceCheck_DebugMode){
 			m_ControlInputY = Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
 			m_ControlInputX = Kgain*(goalX - mean_position_x) + Kderivative*(0-mean_velocity_x) ;
 			m_controlState = ROBOT_INPUT.ROBOT_PROP;
-		//}else{
-			for(var i = 0 ; i < mapXSize; i++){
-				for (var j = 0 ; j < mapYSize; j++){	
-					alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
+			if(DrawForce_DebugMode){
+				for(var i = 0 ; i < mapXSize; i++){
+					for (var j = 0 ; j < mapYSize; j++){	
+						alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
 
-					rho=lineDistance((i+0.5), (j+0.5),attPointX,attPointY);
-					FattX = zeta*((i+0.5) - attPointX)/rho;//change these lines
-					FattY = zeta*((j+0.5) - attPointY)/rho;
+						rho=lineDistance((i+0.5), (j+0.5),attPointX,attPointY);
+						FattX = zeta*((i+0.5) - attPointX)/rho;//change these lines
+						FattY = zeta*((j+0.5) - attPointY)/rho;
 
-					rho=lineDistance((i+0.5), (j+0.5),repPointX,repPointY)
-					theta = Math.atan2((j+0.5) - repPointY,(i+0.5) - repPointX);
-					angdiff = alphaWant-theta;
-					if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
-					if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
-					
-					if(rho<rhoNot&&Math.abs(angdiff)>(1/8*Math.PI))
-					{
-						FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointX- (i+0.5));//change these lines
-						FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointY - (j+0.5));
-						$('canvas').drawVector({
-							strokeStyle: '#000',
-							strokeWidth: 2,
-							rounded: true,
-							endArrow: true,
-							arrowRadius: 10,
-							arrowAngle: 30,
-							x: mapScale* (i+ 0.5  + 0.5*Math.cos(Math.atan2(FattY + FrepY,FattX + FrepX)))	, y: mapScale * (j + 0.5 + 0.5*Math.sin(Math.atan2(FattY + FrepY,FattX + FrepX))),
-							a1: (Math.atan2(FattY + FrepY,FattX + FrepX)*180/Math.PI)+270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
-						});
+						rho=lineDistance((i+0.5), (j+0.5),repPointX,repPointY)
+						theta = Math.atan2((j+0.5) - repPointY,(i+0.5) - repPointX);
+						angdiff = alphaWant-theta;
+						if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
+						if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
+						
+						if(rho<rhoNot&&Math.abs(angdiff)>(1/8*Math.PI))
+						{
+							FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointX- (i+0.5));//change these lines
+							FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointY - (j+0.5));
+							$('canvas').drawVector({
+								strokeStyle: '#000',
+								strokeWidth: 2,
+								rounded: true,
+								endArrow: true,
+								arrowRadius: 10,
+								arrowAngle: 30,
+								x: mapScale* (i+ 0.5  + 0.5*Math.cos(Math.atan2(FattY + FrepY,FattX + FrepX)))	, y: mapScale * (j + 0.5 + 0.5*Math.sin(Math.atan2(FattY + FrepY,FattX + FrepX))),
+								a1: (Math.atan2(FattY + FrepY,FattX + FrepX)*180/Math.PI)+270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
+							});
+						}
+						else
+						{
+							FrepX=0;
+							FrepY=0;
+						}
 					}
-					else
-					{
-						FrepX=0;
-						FrepY=0;
-					}
-
-					
 				}
-		//	}
-			
-/*
+			}
+		}else
+		{
 			if(choose){
 				which = confirm("Press Confirm to show the Attractive Forces\nPress Cancel to show Repulsive Forces");
 				if (which == true) {
-				    x = "Showing Attractive Forces";
+					x = "Showing Attractive Forces";
 				} else {
-				    x = "Showing Repulsive Forces!";
+					x = "Showing Repulsive Forces!";
 				}
 				choose=false;
 			}
@@ -1110,10 +1100,9 @@ function init()
 							FrepX=0;
 							FrepY=0;
 						}
-						
-					}
+					}	
 				}
-			}*/
+			}
 		}
 	}
 	}; //end update
