@@ -56,7 +56,7 @@ alphaWant=0;
 
 %1 is main regions, 0 is transfer regions
 regionID=1;
-regionNum=1;
+regionNum=3;
 %load regions
 currentRegionMap=mainRegion(:,:,regionNum); %init map
 
@@ -78,7 +78,7 @@ else
 end 
  s = size(originalImage);
  scale = 30;
- epsilon = 0.1* scale;
+ epsilon = 1* scale;
  sizeOfMap = floor(s/scale);
  imshow(originalImage);
 % map = zeros(sizeOfMap(1),sizeOfMap(2));
@@ -232,7 +232,7 @@ BW(stat(index).PixelIdxList)=0;
     minDis = 10000;
     corInd = 0;
     maxVar = 12000; %was 16000
-    minVar = 11000; %was 12000
+    minVar = 10000; %was 12000
         
     
     %%%%Variance Control
@@ -247,6 +247,26 @@ BW(stat(index).PixelIdxList)=0;
 %                 corInd = i;
 %             end   
 %    end
+
+if (countMean<10)
+        NumRobotCont = true;
+        for i = 1:size(corners)
+            %dist = sqrt(sum((M - corners(i)) .^ 2));
+            %dist = sqrt(sum((centroids(index) - corners(i)) .^ 2));
+            dist = sqrt((ObjectCentroidX/scale - corners(i,1)) * (ObjectCentroidX/scale - corners(i,1)) + (ObjectCentroidY/scale- corners(i,2)) * (ObjectCentroidY/scale- corners(i,2)));
+            
+            if minDis > dist
+                minDis = dist;
+                corInd = i;
+            end   
+        end
+        currgoalX = (corners(corInd,1))*scale;
+        currgoalY = (corners(corInd,2))*scale;
+    else if countMean> 20
+            NumRobotCont = false;
+        end
+    end
+
    if (V > maxVar)
         VarCont = true;
         for i = 1:size(corners)
@@ -265,15 +285,20 @@ BW(stat(index).PixelIdxList)=0;
             VarCont = false;
         end
     end
-if ~VarCont
+if ~VarCont & ~NumRobotCont
      %r = 0; %was 0.1
+     
       ep = 5;
      minDistance =  5*scale;
      
     indX = floor(M(1,1)/scale);
     indY = floor(M(1,2)/scale);
+    
     indOX = floor(ObjectCentroidX/scale);
     indOY = floor(ObjectCentroidY/scale);
+    if indOY ==1
+        indOY = 2;
+    end
      
 %     if M(1,1) > ObjectCentroidX- minDistance || M(1,1) < ObjectCentroidX-minDistance
 %        if M(1,2) > ObjectCentroidY-minDistance || M(1,2) < ObjectCentroidY-minDistance
@@ -301,7 +326,8 @@ if ~VarCont
         angdiff = angdiff + 2*pi;
     end
     
-    if (rho<rhoNot && abs(angdiff)<pi*7/8)
+    if ((rho<rhoNot) && (abs(angdiff)<pi*5/8))
+        epsilon = 0.2 * scale;
         something = 3
         FrepX=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointX-M(1,1)/scale);
         FrepY=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointY-M(1,2)/scale);
@@ -327,8 +353,7 @@ plot(x, y);
 %         currgoalY=M(1,2)+(-FattX-FrepX)/sqrt((-FrepX-FattX)^2 + (-FrepY-FattY)^2)*scale;
     else 
 %% Old Goal Algorithm 
-rho
-angdiff
+epsilon = 1*scale;
         if M(1,1) > ObjectCentroidX- minDistance && M(1,1) < ObjectCentroidX+minDistance && M(1,2) < ObjectCentroidY+minDistance && M(1,2) > ObjectCentroidY-minDistance
             r = 0.1;
      %else if M(1,1) > ObjectCentroidX- (corners(corInd,1))*scale && M(1,1) < ObjectCentroidX+minDistance && M(1,2) < ObjectCentroidY+minDistance && M(1,2) > ObjectCentroidY-minDistance
@@ -337,17 +362,25 @@ angdiff
             r = 2.5;
         end
 
-        if M(1,1) > ObjectCentroidX- r*scale+ep || M(1,1) < ObjectCentroidX-r*scale-ep
-           if M(1,2) > ObjectCentroidY-r*scale+ep || M(1,2) < ObjectCentroidY-r*scale-ep
+        
+        
         currgoalX = ObjectCentroidX - r*scale * movesY(indOY,indOX);
         currgoalY = ObjectCentroidY - r*scale * movesX(indOY,indOX);
-        tada = 0
-           end
-        else
-           currgoalX = M(1,1)+ movesY(indY,indX)*scale;
-           currgoalY = M(1,2) + movesX(indY,indX)*scale;
-           tada = 1
-        end
+%         if M(1,1) > ObjectCentroidX- r*scale+ep || M(1,1) < ObjectCentroidX-r*scale-ep
+%            if M(1,2) > ObjectCentroidY-r*scale+ep || M(1,2) < ObjectCentroidY-r*scale-ep
+%         currgoalX = ObjectCentroidX - r*scale * movesY(indOY,indOX);
+%         currgoalY = ObjectCentroidY - r*scale * movesX(indOY,indOX);
+%         tada = 0
+%         else
+%            currgoalX = ObjectCentroidX - r*scale * movesY(indOY,indOX);
+%             currgoalY = ObjectCentroidY - r*scale * movesX(indOY,indOX);
+%            something=7
+%            end
+%         else
+%            currgoalX = M(1,1)+ movesY(indY,indX)*scale;
+%            currgoalY = M(1,2) + movesX(indY,indX)*scale;
+%            tada = 1
+%         end
     end
     if flowDebug
     s = size(movesX);

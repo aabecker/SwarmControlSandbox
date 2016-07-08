@@ -138,7 +138,7 @@ end
 
 %imwrite(img,'Obstacle.jpeg');
 [probability, movesX, movesY] = MDPgridworldExample(map,goalX,goalY);
-save('Map3', 'movesX', 'movesY','corners');
+save('MapDebug', 'movesX', 'movesY','corners');
 %save('EmptyMap', 'corners');
 
 
