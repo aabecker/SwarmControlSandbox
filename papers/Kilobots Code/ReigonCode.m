@@ -97,22 +97,25 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
        line([xlim(1) xlim(2)],[slope(i)*xlim(1)+offset(i) slope(i)*xlim(2)+offset(i)])
        line([xlim(1) xlim(2)],[(-1/slope(i))*xlim(1)+Tangent_offset(i) (-1/slope(i))*xlim(2)+Tangent_offset(i)])
    end
-   intersect = [];
-   for i=1:size(slope,1)
-      for j=i+1:size(slope,1)
-          if ((offset(j)-offset(i))/(slope(i)-slope(j))>xlim(1) && (offset(j)-offset(i))/(slope(i)-slope(j))<xlim(2))
-              if (offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)>ylim(1) && (offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)<ylim(2)
-                  intersect = [[intersect]; [(offset(j)-offset(i))/(slope(i)-slope(j)),(offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)]];
-                  plot((offset(j)-offset(i))/(slope(i)-slope(j)),(offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i),'*','color','red');
-              end
-          end
-      end
-   end
+%% Intersection Prediction Code   
+%    intersect = [];
+%    for i=1:size(slope,1)
+%       for j=i+1:size(slope,1)
+%           if ((offset(j)-offset(i))/(slope(i)-slope(j))>xlim(1) && (offset(j)-offset(i))/(slope(i)-slope(j))<xlim(2))
+%               if (offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)>ylim(1) && (offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)<ylim(2)
+%                   intersect = [[intersect]; [(offset(j)-offset(i))/(slope(i)-slope(j)),(offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)]];
+%                   plot((offset(j)-offset(i))/(slope(i)-slope(j)),(offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i),'*','color','red');
+%               end
+%           end
+%       end
+%    end
 hold off
+%% Map Creation
 goalX = 4;
 goalY = 4;
-s = size(original);
-scale = 30;
+s = size(rgbIm);
+numberOfSquares=30; %number of squares we want in the x direction
+scale = floor(s(2)/numberOfSquares);
 sizeOfMap = floor(s/scale);
 map = zeros(sizeOfMap(1),sizeOfMap(2));
 mainRegion = zeros(sizeOfMap(1),sizeOfMap(2),(1+size(obstacles,1)));
@@ -125,7 +128,7 @@ map(sizeOfMap(1),:) = 1;
 map(:,sizeOfMap(2)) = 1;
 found = false;
 hold on
-%%% Plot Grid
+%% Plot Grid
 for i= 1:sizeOfMap(1)
     plot(xlim,[i*scale i*scale],'color','red')
 end
@@ -135,19 +138,21 @@ for j = 1:sizeOfMap(2)
 end
 hold off
 
+%% Determining the Main Region
 ReigonCount=1;
 
-for i=0:sizeOfMap(1)-1          %Horizontal Grid (y-values)
-    for j=0:sizeOfMap(2)-1      %Vertical Grid (x-values)
+for i=1:sizeOfMap(1)         %Horizontal Grid (y-values)
+    for j=1:sizeOfMap(2)     %Vertical Grid (x-values)
         for equation=1:size(slope,1)
-            if (15+j*30)>((15+i*30)-offset(equation))/slope(equation)
+            if ((scale/2)+j*scale)>(((scale/2)+i*scale)-offset(equation))/slope(equation)
                 ReigonCount=ReigonCount+1;
             end
         end
-        mainRegion((i+1),(j+1),ReigonCount)=1;
+        mainRegion((i),(j),ReigonCount)=1;
         ReigonCount=1;
     end
 end
+%% Determining the Low Region
 for i=1:size(slope,1)
     lowx=xlim(1);
     highx=xlim(2);
@@ -157,13 +162,13 @@ for i=1:size(slope,1)
                 if i==j
                     continue;
                 end
-                if (((((ygrid*scale)-15)/2)-offset(j))/slope(j))-tipx(i)<0 % on left side
-                   if abs(((((ygrid*scale)-15)/2)-offset(j))/slope(j)-tipx(i))<abs(lowx-tipx(i))
-                       lowx=((((ygrid*scale)-15)/2)-offset(j))/slope(j);
+                if (((((ygrid*scale)-(scale/2))/2)-offset(j))/slope(j))-tipx(i)<0 % on left side
+                   if abs(((((ygrid*scale)-(scale/2))/2)-offset(j))/slope(j)-tipx(i))<abs(lowx-tipx(i))
+                       lowx=((((ygrid*scale)-(scale/2))/2)-offset(j))/slope(j);
                    end
                else % on right side
-                   if abs(((((ygrid*scale)-15)/2)-offset(j))/slope(j)-tipx(i))<abs(highx-tipx(i))
-                       highx=((((ygrid*scale)-15)/2)-offset(j))/slope(j);
+                   if abs(((((ygrid*scale)-(scale/2))/2)-offset(j))/slope(j)-tipx(i))<abs(highx-tipx(i))
+                       highx=((((ygrid*scale)-(scale/2))/2)-offset(j))/slope(j);
                    end
                end
             end
@@ -172,18 +177,18 @@ for i=1:size(slope,1)
             end
         end
     else % bottom is closer
-        for ygrid=floor(tipy(i)/scale):floor(ylim(2)/scale)
+        for ygrid=floor(tipy(i)/scale):sizeOfMap(1)
             for j=1:size(slope,1)
                 if i==j
                     continue;
                 end
-                if (((((ylim(2)+((ygrid*scale)-15))/2)-offset(j))/slope(j))-tipx(i))<0 % on left side
-                    if abs(((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j))-tipx(i))<abs(lowx-tipx(i))
-                        lowx=((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j));
+                if (((((ylim(2)+((ygrid*scale)-(scale/2)))/2)-offset(j))/slope(j))-tipx(i))<0 % on left side
+                    if abs(((((ylim(2)+ ((ygrid*scale)-(scale/2)))/2)-offset(j))/slope(j))-tipx(i))<abs(lowx-tipx(i))
+                        lowx=((((ylim(2)+ ((ygrid*scale)-(scale/2)))/2)-offset(j))/slope(j));
                     end
                 else
-                    if abs(((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j))-tipx(i))<abs(highx-tipx(i))
-                        highx=((((ylim(2)+ ((ygrid*scale)-15))/2)-offset(j))/slope(j));
+                    if abs(((((ylim(2)+ ((ygrid*scale)-(scale/2)))/2)-offset(j))/slope(j))-tipx(i))<abs(highx-tipx(i))
+                        highx=((((ylim(2)+ ((ygrid*scale)-(scale/2)))/2)-offset(j))/slope(j));
                     end
                 end
             end
@@ -193,18 +198,18 @@ for i=1:size(slope,1)
         end
     end
 end
-
+%% Remove Obstacles from Image
 for obs=1:size(obstacles,1)
-    for along = ceil((centroids(obstacles(obs),2) + sin(orientations(obstacles(obs))*pi/180)* majorLength(obstacles(obs))/2.3)/scale) :ceil((centroids(obstacles(obs),2) - sin(orientations(obstacles(obs))*pi/180)* majorLength(obstacles(obs))/2.3)/scale) 
+    for along = floor((centroids(obstacles(obs),2) + sin(orientations(obstacles(obs))*pi/180)* majorLength(obstacles(obs))/2.3)/scale) :floor((centroids(obstacles(obs),2) - sin(orientations(obstacles(obs))*pi/180)* majorLength(obstacles(obs))/2.3)/scale) 
         if along<ylim(1)||along>ylim(2)
             continue;
         end
-        x=ceil(((along-offset(obs))/slope(obs))/scale);
+        x=floor(((along-offset(obs))/slope(obs))/scale);
         transferRegion(along,x,:)=2;
         mainRegion(along,x,:)=2;
     end
 end
-
+%% Display Regions
 figure(2), imshow(transferRegion(:,:,1));
 figure(3), imshow(transferRegion(:,:,2));
 figure(4), imshow(mainRegion);
@@ -312,13 +317,3 @@ save('ThresholdMaps','transferRegion','mainRegion');
 if webcamShot
 clear('cam'); % (*turns off the camera*)
 end
-% 
-% img = imread('testImage12.png');  % Load a jpeg image
-% test2 = 12*30;
-% test = 30;
-% hold on
-% 
-% img(test:test+10,test2:test2+10,1)= 255;
-% img(test:test+10,test2:test2+10,2)= 0;
-% img(test:test+10,test2:test2+10,3)= 0;
-% imshow(img)

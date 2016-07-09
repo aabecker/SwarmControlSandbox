@@ -84,7 +84,7 @@ else
     originalImage = imcrop(rgbIm,[345 60 1110 850]);
 end 
  s = size(originalImage);
- scale = 30;
+ scale = floor( size(originalImage,2)/size(mainRegion,2));
  epsilon = 1* scale;
  sizeOfMap = floor(s/scale);
  imshow(originalImage);
@@ -323,10 +323,9 @@ if ~VarCont & ~NumRobotCont
 %         end
 %     end
 %% Flow Around Goal Algorithm
-    r = 2.5;
     alphaWant=atan2(movesX(indOY,indOX),movesY(indOY,indOX));
-    repPointX=ObjectCentroidX/scale - ObjectRadius/scale * cos(alphaWant+pi);
-    repPointY=ObjectCentroidY/scale - ObjectRadius/scale * sin(alphaWant+pi);
+    repPointX=ObjectCentroidX/scale;
+    repPointY=ObjectCentroidY/scale;
     theta = atan2((M(1,2)/scale - repPointY),(M(1,1)/scale - repPointX));
     angdiff = alphaWant-theta;
     rho=sqrt((M(1,1)/scale-repPointX)^2 + (M(1,2)/scale-repPointY)^2);
@@ -343,8 +342,8 @@ if ~VarCont & ~NumRobotCont
         FrepX=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointX-M(1,1)/scale);
         FrepY=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointY-M(1,2)/scale);
         
-        attPointX=ObjectCentroidX/scale - r * cos(alphaWant+pi);
-        attPointY=ObjectCentroidY/scale - r * sin(alphaWant+pi);
+        attPointX=ObjectCentroidX/scale - ObjectRadius/scale * cos(alphaWant);
+        attPointY=ObjectCentroidY/scale - ObjectRadius/scale * sin(alphaWant);
         rho=sqrt((M(1,1)-attPointX)^2 + (M(1,2)-attPointY)^2);
         FattX=zeta*(M(1,1)-attPointX)/rho;
         FattY=zeta*(M(1,2)-attPointY)/rho;
@@ -372,9 +371,7 @@ epsilon = 1*scale;
         else
             r = 2.5;
         end
-
-        
-        
+      
         currgoalX = ObjectCentroidX - r*scale * movesY(indOY,indOX);
         currgoalY = ObjectCentroidY - r*scale * movesX(indOY,indOX);
 %         if M(1,1) > ObjectCentroidX- r*scale+ep || M(1,1) < ObjectCentroidX-r*scale-ep
@@ -415,8 +412,8 @@ epsilon = 1*scale;
         FrepX=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointX-i);
         FrepY=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointY-j);
         
-        attPointX=ObjectCentroidX/scale - r * cos(alphaWant);
-        attPointY=ObjectCentroidY/scale - r * sin(alphaWant);
+        attPointX=ObjectCentroidX/scale - ObjectRadius/scale * cos(alphaWant);
+        attPointY=ObjectCentroidY/scale - ObjectRadius/scale * sin(alphaWant);
         rhoD=sqrt((i-attPointX)^2 + (j-attPointY)^2);
         FattX=zeta*(i-attPointX)/rhoD;
         FattY=zeta*(j-attPointY)/rhoD;
@@ -440,7 +437,7 @@ end
     plot(goalX*scale , goalY*scale,'*','Markersize',16,'color','green','linewidth',3);
     plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','cyan','linewidth',3);
     circle(goalX*scale, goalY*scale,goalSize*scale);
-    circle(ObjectCentroidX*scale, ObjectCentroidY*scale,ObjectRadius);
+    circle(ObjectCentroidX, ObjectCentroidY,ObjectRadius);
     for i = 1:size(corners)
         txt = int2str(i);
         text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
