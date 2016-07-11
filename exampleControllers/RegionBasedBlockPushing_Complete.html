@@ -64,8 +64,6 @@ var ifMDP = true;
 var ifGradient = false;
 var ifBFS = true;
 
-
-
 // Debugging Variables.
 var MDP_DebugMode = false;
 var BFSDebugMode = false;
@@ -93,7 +91,6 @@ var iteration = 0;
 var iteration_limit = 200;
 var probStraight = 0.5;
 
-
 var move_ysize = 9;
 var move_xsize = 2;
 var moves = new Array(move_ysize);
@@ -110,13 +107,16 @@ moves[6] = [0, -1];
 moves[7] = [1, -1];
 moves[8] = [0, 0];
 
-var zeta = 2;
-var eta = 10;
-var rhoNot = 500;
+var zeta = 1;
+var eta = 7.5;
+var rhoNot = 5;
 var rho = 0;
 var alphaWant = 0;
-var choose = true;
-var which = 1;
+
+var goalTime = null;
+var goalType = 2;
+var goalAngle = 3/8*Math.PI;
+
 var max_desired_var_x = 8;//numrobots * robotrad * .20; //was 1.91
 var min_desired_var_x = 1.1; //was .663
 var max_desired_var_y = max_desired_var_x;
@@ -252,7 +252,7 @@ function Gradient(x,y)
 		gradient_angle[x][y] = Math.atan2(gradient_y[x][y],gradient_x[x][y] ) * 180 / Math.PI + 270;
 }
 
-//to determine the gradien for Markov Decision Process
+//to determine the gradient for Markov Decision Process
 
 function policy_MDP(x, y)
 {
@@ -286,7 +286,6 @@ for (i = 0; i < k.length; i++ )
 		}
 	}
 }
-
 
 ////////////////////////////
 //End Algorithmic Functions
@@ -539,8 +538,8 @@ function init()
     fixDef.shape.SetAsBox(1.0,1.0);
     var obst = world.CreateBody(bodyDef);
     obst.CreateFixture(fixDef);
-    obst.m_angularDamping = 6;
-    obst.m_linearDamping = 6;
+    obst.m_angularDamping = 4;
+    obst.m_linearDamping = 4;
 }
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
@@ -596,9 +595,6 @@ function init()
 
 	//giving -100 to boundaries
 
-
-
-
 	if(ifBFS)
 	{	//at the end, map[x][y] is the BFS distance to the goal
 		for(var i = 0 ; i < mapXSize; i++){
@@ -627,9 +623,6 @@ function init()
 		BFS(goalPositionX, goalPositionY);
 		ifBFS = false;
 	}
-
-
-
 
 	if(ifMDP)
 	{
@@ -678,27 +671,22 @@ function init()
         map_MDP[goalPositionX][goalPositionY] = 100;
 		map_R[goalPositionX][goalPositionY] = 100;
 
-		while( (iteration < iteration_limit))
-					{
-						map_prev = map_MDP;
-			for (var i = 0; i < mapXSize; i++)
-			{
-				for(var j = 0; j < mapYSize; j++)
-				{
-					if (map_MDP[i][j] != -100)
-						{
+		while( (iteration < iteration_limit)){
+			map_prev = map_MDP;
+			for (var i = 0; i < mapXSize; i++){
+				for(var j = 0; j < mapYSize; j++){
+					if (map_MDP[i][j] != -100){
 						policy_MDP(i, j);
 						map_MDP[i][j] = gamma * (map_R[i][j] + bestpayoff);
 						policy_x[i][j] = -bestmove[0];
 						policy_y[i][j] = -bestmove[1];
 
-					policy_angle[i][j] = Math.atan2(policy_y[i][j],policy_x[i][j] ) * 180 / Math.PI + 270;
+						policy_angle[i][j] = Math.atan2(policy_y[i][j],policy_x[i][j] ) * 180 / Math.PI + 270;
 
-						}
+					}
 				}
 			}
-		iteration++;
-
+			iteration++;
 		//console.log(iteration);
 		}
 
@@ -707,12 +695,9 @@ function init()
 		//console.log(JSON.stringify(map));
 
 		ifMDP = false;
-
 	}
 
 	if(ifGradient)
-
-
 	{	//for each cell, calculate the gradient
 		for(var i = 0 ; i < mapXSize; i ++){
 			for(var j = 0 ; j <mapYSize; j++)
@@ -728,13 +713,11 @@ function init()
 		requestAnimFrame(animloop);
 		update();
 	})();
-	if ( timeStart == null)
-	{
+	if ( timeStart == null){
 		var day = new Date();
 		timeStart= day.getTime();
 	}
-	function lineDistance( x1,y1,x2,y2)
-	{
+	function lineDistance( x1,y1,x2,y2){
 		var xs = 0;
 		var ys = 0;
 		xs = x1 - x2;
@@ -797,9 +780,6 @@ function init()
 			text: "Goal"
 		}).restoreCanvas();
 
-
-
-
 		if(MDP_DebugMode)
 		{
 			for(var i = 0 ; i < mapXSize; i++)
@@ -828,40 +808,28 @@ function init()
 							text: map_MDP[i][j]
 						});
 					}
+				}
+		}
 
+		if(Gradient_DebugMode_MDP)
+		{
+			for(var i = 0 ; i < mapXSize; i++){
+				for (var j = 0 ; j < mapYSize; j++){
+					$('canvas').drawVector({
+						strokeStyle: '#000',
+						strokeWidth: 2,
+						rounded: true,
+						endArrow: true,
+						arrowRadius: 10,
+						arrowAngle: 30,
+						x: mapScale* (i+ 0.5  + 0.5*Math.cos((90+policy_angle[i][j])*Math.PI/180.0))	 , y: mapScale * (j + 0.5 + 0.5*Math.sin((90+policy_angle[i][j])*Math.PI/180.0)),
+						a1: policy_angle[i][j], l1: mapScale
+					});
 				}
 			}
+		}
 
-
-
-if(Gradient_DebugMode_MDP)
-			{
-				for(var i = 0 ; i < mapXSize; i++){
-					for (var j = 0 ; j < mapYSize; j++){
-						$('canvas').drawVector({
-							strokeStyle: '#000',
-							strokeWidth: 2,
-							rounded: true,
-							endArrow: true,
-							arrowRadius: 10,
-							arrowAngle: 30,
-							x: mapScale* (i+ 0.5  + 0.5*Math.cos((90+policy_angle[i][j])*Math.PI/180.0))	 , y: mapScale * (j + 0.5 + 0.5*Math.sin((90+policy_angle[i][j])*Math.PI/180.0)),
-							a1: policy_angle[i][j], l1: mapScale
-						});
-					}
-				}
-			}
-
-
-
-
-
-
-
-
-
-
-if(BFSDebugMode)
+		if(BFSDebugMode)
 		{
 			for(var i = 0 ; i < mapXSize; i++)
 				for (var j = 0 ; j < mapYSize; j++)
@@ -902,399 +870,390 @@ if(BFSDebugMode)
 						});
 					}
 				}
-			}
-			if(Gradient_DebugMode)
-			{
-				for(var i = 0 ; i < mapXSize; i++){
-					for (var j = 0 ; j < mapYSize; j++){
-						$('canvas').drawVector({
-							strokeStyle: '#000',
-							strokeWidth: 2,
-							rounded: true,
-							endArrow: true,
-							arrowRadius: 10,
-							arrowAngle: 30,
-							x: mapScale* (i+ 0.5  + 0.5*Math.cos((90+gradient_angle[i][j])*Math.PI/180.0))	 , y: mapScale * (j + 0.5 + 0.5*Math.sin((90+gradient_angle[i][j])*Math.PI/180.0)),
-							a1: gradient_angle[i][j], l1: mapScale
-						});
-					}
+		}
+		if(Gradient_DebugMode)
+		{
+			for(var i = 0 ; i < mapXSize; i++){
+				for (var j = 0 ; j < mapYSize; j++){
+					$('canvas').drawVector({
+						strokeStyle: '#000',
+						strokeWidth: 2,
+						rounded: true,
+						endArrow: true,
+						arrowRadius: 10,
+						arrowAngle: 30,
+						x: mapScale* (i+ 0.5  + 0.5*Math.cos((90+gradient_angle[i][j])*Math.PI/180.0))	 , y: mapScale * (j + 0.5 + 0.5*Math.sin((90+gradient_angle[i][j])*Math.PI/180.0)),
+						a1: gradient_angle[i][j], l1: mapScale
+					});
 				}
 			}
-
+		}
 
 		//draw robots and obstacles
-	for (b = world.GetBodyList() ; b; b = b.GetNext())
-	{
-		var angle = b.GetAngle()*(180/Math.PI);
-		for(f = b.GetFixtureList(); f; f = f.GetNext())
+		for (b = world.GetBodyList() ; b; b = b.GetNext())
 		{
-			if (b.GetUserData() == 'robot')
+			var angle = b.GetAngle()*(180/Math.PI);
+			for(f = b.GetFixtureList(); f; f = f.GetNext())
 			{
-
-				var radius = f.GetShape().GetRadius();
-				var pos = b.GetPosition();
-				$("canvas")
-				.rotateCanvas(
+				if (b.GetUserData() == 'robot')
 				{
-					x: pos.x * mapScale, y: pos.y * mapScale,
-					rotate: angle
-				})
-				.drawArc(
-				{
-					strokeStyle: "lightblue",
-					strokeWidth: 1,
-					fillStyle: "blue",
-					x: pos.x * mapScale, y: pos.y * mapScale,
-					radius: radius * mapScale
-				})
-				.restoreCanvas();
-			}
-			else if (b.GetUserData() == 'obstacle' || b.GetUserData() == 'moveable' || b.GetUserData() == 'rectangle_ground')
-			{
-				var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
-				var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
-				//console.log(X);
-				var pos = b.GetPosition();
-				var color = 'green';
-				if(b.GetUserData() == 'obstacle')
-					color = 'brown';
-				if(b.GetUserData() == 'moveable')
-				{
-					color = 'black';
-					blockCOM_x = pos.x;
-					blockCOM_y = pos.y;
-				}
-				$("canvas")
-				.rotateCanvas({
-					x: pos.x * mapScale, y: pos.y * mapScale,
-					rotate: angle
-				})
-				.drawRect({
-					fillStyle: color,
-					x: pos.x * mapScale, y: pos.y * mapScale,
-					width: X * mapScale,
-					height: Y * mapScale,
-					cornerRadius: 0
-				})
-				.restoreCanvas();
-				if(MDP_DebugMode || Gradient_DebugMode_MDP){
-					for(var i = 0 ; i < 20; i++)
+					var radius = f.GetShape().GetRadius();
+					var pos = b.GetPosition();
+					$("canvas")
+					.rotateCanvas(
 					{
-						$("canvas")
-						.drawLine(
-						{
-							strokeStyle: 'gray',
-							strokeWidth: 1,
-							x1: i*mapScale, y1: 0,
-							x2: i*mapScale, y2: 20*mapScale
-						})
-						.drawLine({
-							strokeStyle: 'gray',
-							strokeWidth: 1,
-							x1: 0, y1: i*mapScale,
-							x2: 20*mapScale, y2: i*mapScale
-						})
+						x: pos.x * mapScale, y: pos.y * mapScale,
+						rotate: angle
+					})
+					.drawArc(
+					{
+						strokeStyle: "lightblue",
+						strokeWidth: 1,
+						fillStyle: "blue",
+						x: pos.x * mapScale, y: pos.y * mapScale,
+						radius: radius * mapScale
+					})
+					.restoreCanvas();
+				}
+				else if (b.GetUserData() == 'obstacle' || b.GetUserData() == 'moveable' || b.GetUserData() == 'rectangle_ground')
+				{
+					var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
+					var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
+					//console.log(X);
+					var pos = b.GetPosition();
+					var color = 'green';
+					if(b.GetUserData() == 'obstacle')
+						color = 'brown';
+					if(b.GetUserData() == 'moveable')
+					{
+						color = 'black';
+						blockCOM_x = pos.x;
+						blockCOM_y = pos.y;
 					}
-					$("canvas").restoreCanvas();
+					$("canvas").rotateCanvas({
+						x: pos.x * mapScale, y: pos.y * mapScale,
+						rotate: angle
+					})
+					.drawRect({
+						fillStyle: color,
+						x: pos.x * mapScale, y: pos.y * mapScale,
+						width: X * mapScale,
+						height: Y * mapScale,
+						cornerRadius: 0
+					})
+					.restoreCanvas();
+					if(MDP_DebugMode || Gradient_DebugMode_MDP){
+						for(var i = 0 ; i < 20; i++)
+						{
+							$("canvas").drawLine(
+							{
+								strokeStyle: 'gray',
+								strokeWidth: 1,
+								x1: i*mapScale, y1: 0,
+								x2: i*mapScale, y2: 20*mapScale
+							})
+							.drawLine({
+								strokeStyle: 'gray',
+								strokeWidth: 1,
+								x1: 0, y1: i*mapScale,
+								x2: 20*mapScale, y2: i*mapScale
+							})
+						}
+						$("canvas").restoreCanvas();
+					}
 				}
 			}
 		}
-	}
 
-	if(!goalRecieved){
-		$("canvas")
-		.drawArc({
-		//draw the goal mean position
-		strokeStyle: "lightblue",
-		strokeWidth: 5,
-		x: goalX * mapScale, y: goalY * mapScale,
-		radius: radius * mapScale
-	})
-		.drawArc({
-		//draw the goal mean position
-		strokeStyle: "lightblue",
-		strokeWidth: 5,
-		x: goalX * mapScale, y: goalY * mapScale,
-		radius: (radius + 0.2) * mapScale
-	})
-		.restoreCanvas();
-	}
-	$("canvas")
-	.drawArc({
-		//COM of the block
-		strokeStyle: "orange",
-		strokeWidth: 5,
-		x: blockCOM_x * mapScale, y: blockCOM_y * mapScale,
-		radius: radius * mapScale
-	})
-	.restoreCanvas();
-
-	var day = new Date();
-	if( timeFinish == null && false)
-		{ timeFinish = day.getTime();}
-	if(overall_time == null) // set the start time
-	{
-		overall_time = day.getTime();
-	}
-	var elapsedTimeSec = (day.getTime()- overall_time )/1000;
-	string = "Time = "+ elapsedTimeSec +"s<br>Algorithm II  is making robots (blue discs) push a block to the goal</strong>";
-	$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-
-	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// CONTROLLER
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//goal positions
-	var cycleInSec = 20;
-	var amplitudeY = 5;
-	var offsetY = 5;
-	var amplitudeX = 5;
-	var offsetX = 5;
-	
-	var sum_position_x = 0;
-	var sum_position_y = 0;
-	var sum2_x = 0;
-	var sum2_y = 0;
-	var desired_var_x;
-	var cov_xy = 0;
-	var block_x = Math.floor(blockCOM_x);
-	var block_y = Math.floor(blockCOM_y);
-
-////////////switching regions
-	if (regionMain) {
-	    var blockPosition = mainMaps[regionNum][block_x][block_y];
-	}
-	if (!regionMain) {
-	    var blockPosition = transferMaps[regionNum][block_x][block_y];
-	}
-	//console.log("REGION " + regionMain + " NUM: " + regionNum + " POS " + blockPosition);
-	if (blockPosition == 0) {
-	    if (regionMain) {//if it's in the main region
-	        regionMain = false; //switch to transfer regions
-	        if (transferMaps[0][block_x][block_y] == 1) {
-	            regionNum = 0; //checking which region the block is in
-	        }
-	        else if (transferMaps[1][block_x][block_y] == 1) {
-	            regionNum = 1;
-	        }
-	    }else if (!regionMain) {
-	        regionMain = true;
-	        if (mainMaps[0][block_x][block_y] == 1) {
-	            regionNum = 0;
-	        }else if (mainMaps[1][block_x][block_y] == 1) {
-	            regionNum = 1;
-	        } else if (mainMaps[2][block_x][block_y] == 1) {
-	            regionNum = 2;
-	        }
-	    }
-	}
-	//console.log("test " + mainMaps[2][1][1]);
-	    //calculate mean and cov for robots only in that region
-	numrobots = totalRobots;
-	var regionRobotCount = 0;
-	if (regionMain) {
-	    for (var i = 0; i < numrobots; ++i) {
-	        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-	        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-	        var pos = mainMaps[regionNum][pos_x][pos_y];
-	        if (pos == 1) {
-	            sum_position_x += m_Robot[i].GetPosition().x;
-	            sum_position_y += m_Robot[i].GetPosition().y;
-	            regionRobotCount=regionRobotCount+1;
-	        }
-	    }
-	}
-	if (!regionMain) {
-	    for (var i = 0; i < numrobots; ++i) {
-	        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-	        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-	        var pos = transferMaps[regionNum][pos_x][pos_y];
-	        if (pos == 1) {
-	            sum_position_x += m_Robot[i].GetPosition().x;
-	            sum_position_y += m_Robot[i].GetPosition().y;
-	            regionRobotCount = regionRobotCount + 1;
-	        }
-	    }
-	}
-	numrobots = regionRobotCount;
-	console.log("numrobots " + numrobots);
-	var mean_position_x = sum_position_x / numrobots;
-	var mean_position_y = sum_position_y / numrobots;
-        //calculating cov
-	if (regionMain) {
-	    for (var i = 0; i < numrobots; ++i) {
-	        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-	        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-	        var pos = mainMaps[regionNum][pos_x][pos_y];
-	        if (pos == 1) {
-	            sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
-	            sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
-	            cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
-	        }
-	    }
-	}
-	if (!regionMain) {
-	    for (var i = 0; i < numrobots; ++i) {
-	        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-	        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-	        var pos = transferMaps[regionNum][pos_x][pos_y];
-	        if (pos == 1) {
-	            sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
-	            sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
-	            cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
-	        }
-	    }
-	}
-
- 
-
-	var var_x = sum2_x / numrobots;
-	var var_y = sum2_y / numrobots;
-	var diffeq = Math.sqrt( (var_x-var_y)*(var_x-var_y)/4 + cov_xy*cov_xy);
-	var var_xp = (var_x+var_y)/2 + diffeq;
-	var var_yp = (var_x+var_y)/2 - diffeq;
-	var angle2 = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, var_x-var_y);
-	var angle_min_variance = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, min_desired_var_x-min_desired_var_y);
-	var angle_max_variance = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, max_desired_var_x-max_desired_var_y);
-	var index_x = Math.floor(mean_position_x);
-	var index_y = Math.floor(mean_position_y);
-
-	    //finds the adjacent region with the most robots
-	var count1 = 0;
-	var count2 = 0;
-	var adjCount = 0;
-	if (regionRobotCount < 15) {
-	    flagVar = true;
-	}
-
-	var adj1 = findAdjRegion(regionMain, regionNum, 0); //grabs the regions
-	var adj2 = findAdjRegion(regionMain, regionNum, 1);
-	//console.log("adj1: " + adj1 + " adj2: " + adj2);
-	if (adj2 == null) {
-	    if (regionRobotCount>adj1){
-	        robotMain = regionMain;
-	        mostRobotRegion = regionNum;
-	    } else {
-	        mostRobotRegion = adj1;
-	        mostRobotRegion = !regionNum;
-	    }
-	} else { //counts robots in each adjacent region
-	    for (i = 0; i < totalRobots; i++) {
-	       // console.log("starts counting");
-	        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-	        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-	        if (regionMain) {
-	            var pos1 = transferMaps[adj1][pos_x][pos_y];
-	            if (pos1 == 1) { //check if robot's in 1st adjacent region
-	                count1++;
-	            }
-	            var pos2 = transferMaps[adj2][pos_x][pos_y];
-	            if (pos2 == 1) {
-	                count2++;
-	            }
-	        }
-	        if (!regionMain) {
-	            var pos1 = mainMaps[adj1][pos_x][pos_y];
-	            if (pos1 == 1) {
-	                count1++;
-	            }
-	            var pos2 = mainMaps[adj2][pos_x][pos_y];
-	            if (pos2 == 1) {
-	                count2++;
-	            }
-	        }
-	    }
-	   // console.log("Counting robots in region: " + count1 + " " + count2);
-	    if ((regionRobotCount>count1)&&(regionRobotCount>count2)) { //if regionNum has the most robots
-	        robotMain=regionMain;
-	        mostRobotRegion=regionNum;
-	    }else if ((count1>regionRobotCount)&&(count1>count2)){ //if adj1 has the most robots
-	        robotMain=!regionMain; //the robots has the opposite map from the obj
-	        mostRobotRegion=adj1;
-	    }else if((count2>regionRobotCount)&&(count2>count1)){
-	        robotMain=!regionMain; //the robots has the opposite map from the obj
-	        mostRobotRegion=adj2;
-	    }
-	}
-	//console.log("mostRobotRegion: " + mostRobotRegion);
-	//console.log("robotMain: " + robotMain);
-
-	    ////////////////////////////////
-
-	if(!goalRecieved){
-		$("canvas").drawEllipse({
-			strokeStyle: "red",
+		if(!goalRecieved){
+			$("canvas")
+			.drawArc({
+			//draw the goal mean position
+			strokeStyle: "lightblue",
 			strokeWidth: 5,
-			setLineDash: 6 ,
-			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-			width: 3 * 30*Math.sqrt(var_xp), height: 3 * 30*Math.sqrt(var_yp),
-			rotate: angle2
+			x: goalX * mapScale, y: goalY * mapScale,
+			radius: radius * mapScale
+		}).drawArc({
+			//draw the goal mean position
+			strokeStyle: "lightblue",
+			strokeWidth: 5,
+			x: goalX * mapScale, y: goalY * mapScale,
+			radius: (radius + 0.2) * mapScale
+		}).restoreCanvas();
+		}
+		$("canvas").drawArc({
+			//COM of the block
+			strokeStyle: "orange",
+			strokeWidth: 5,
+			x: blockCOM_x * mapScale, y: blockCOM_y * mapScale,
+			radius: radius * mapScale
 		})
 		.restoreCanvas();
-	}else{
-		 var winstring = "Success,\n "+ numrobots +" robots in " +Math.floor(timeFinished) + "s";
-		 $("canvas").drawText(
-		 {
-		 	strokeStyle: "blue",
-		 	strokeWidth: 4,
-		 	x: 9*mapScale  , y: 10 *mapScale ,
-			fontSize: 40,
-		 	fontFamily: 'Verdana, sans-serif',
-		 	text: winstring
-		 }).restoreCanvas();
-	}
-	if(Math.abs(blockCOM_x - goalPositionX) < 2 && Math.abs(blockCOM_y - goalPositionY) <2)
-	{
-		goalRecieved = true;
 
-		if(wroteFinish == false){
-			timeFinished = elapsedTimeSec;
-			console.log(elapsedTimeSec + " " + numrobots);
-			wroteFinish = true;
-		}
-		m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
-	}
-	if(!goalRecieved){
-		if(var_x < min_desired_var_x && var_y < min_desired_var_y)
+		var day = new Date();
+		if( timeFinish == null && false)
+			{ timeFinish = day.getTime();}
+		if(overall_time == null) // set the start time
 		{
-			flagVar = false;
+			overall_time = day.getTime();
 		}
-		if(var_x > max_desired_var_x || var_y > max_desired_var_y)
-		{
-			flagVar = true;
+		var elapsedTimeSec = (day.getTime()- overall_time )/1000;
+		string = "Time = "+ elapsedTimeSec +"s<br>Algorithm II  is making robots (blue discs) push a block to the goal</strong>";
+		$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// CONTROLLER
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//goal positions
+		var cycleInSec = 20;
+		var amplitudeY = 5;
+		var offsetY = 5;
+		var amplitudeX = 5;
+		var offsetX = 5;
+		
+		var sum_position_x = 0;
+		var sum_position_y = 0;
+		var sum2_x = 0;
+		var sum2_y = 0;
+		var desired_var_x;
+		var cov_xy = 0;
+		var block_x = Math.floor(blockCOM_x);
+		var block_y = Math.floor(blockCOM_y);
+
+	////////////switching regions
+		if (regionMain) {
+			var blockPosition = mainMaps[regionNum][block_x][block_y];
 		}
-		if(flagVar)
-		{
-			var CornerValuesX = [1,		19,	19,	1,	1,	100];
-			var CornerValuesY = [19,	19,	7,	13,	1,	100];
-			var CornerValuesD = [51,	41, 30,	24, 17, 100];
-			var dist2corner = new Array(CornerValuesX.length);
-			var COMdist2corner = new Array(CornerValuesX.length);
-			var minDistCorner = 10000;
-			var IndexMinDist = 0;
-			for (var i = 0 ; i < CornerValuesX.length ; i++)
-			{	//computes distance from all corners to COM  and swarm mean.  Also records closest corner to  mean of swarm
-				dist2corner[i] = lineDistance(mean_position_x, mean_position_y, CornerValuesX[i], CornerValuesY[i]);
-				COMdist2corner[i] = lineDistance(blockCOM_x, blockCOM_y, CornerValuesX[i], CornerValuesY[i]);
-				if(minDistCorner > dist2corner[i])
-				{
-					minDistCorner = dist2corner[i];
-					IndexMinDist = i;
+		if (!regionMain) {
+			var blockPosition = transferMaps[regionNum][block_x][block_y];
+		}
+		//console.log("REGION " + regionMain + " NUM: " + regionNum + " POS " + blockPosition);
+		if (blockPosition == 0) {
+			if (regionMain) {//if it's in the main region
+				regionMain = false; //switch to transfer regions
+				if (transferMaps[0][block_x][block_y] == 1) {
+					regionNum = 0; //checking which region the block is in
+				}
+				else if (transferMaps[1][block_x][block_y] == 1) {
+					regionNum = 1;
+				}
+			}else if (!regionMain) {
+				regionMain = true;
+				if (mainMaps[0][block_x][block_y] == 1) {
+					regionNum = 0;
+				}else if (mainMaps[1][block_x][block_y] == 1) {
+					regionNum = 1;
+				} else if (mainMaps[2][block_x][block_y] == 1) {
+					regionNum = 2;
 				}
 			}
-			if(   CornerValuesD[IndexMinDist] <  map[block_x][block_y]  && IndexMinDist>0 )
-			{
-				//console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
-				IndexMinDist = IndexMinDist-1;
-			}
-			var cornerCali = findRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);
-			IndexMinDist = cornerCali;
-			console.log("flagVar cornerCali: " + cornerCali);
-			goalX = CornerValuesX[IndexMinDist];
-			goalY = CornerValuesY[IndexMinDist];
 		}
-		if(!flagVar)
+		//console.log("test " + mainMaps[2][1][1]);
+			//calculate mean and cov for robots only in that region
+		numrobots = totalRobots;
+		var regionRobotCount = 0;
+		if (regionMain) {
+			for (var i = 0; i < numrobots; ++i) {
+				var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+				var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+				var pos = mainMaps[regionNum][pos_x][pos_y];
+				if (pos == 1) {
+					sum_position_x += m_Robot[i].GetPosition().x;
+					sum_position_y += m_Robot[i].GetPosition().y;
+					regionRobotCount=regionRobotCount+1;
+				}
+			}
+		}
+		if (!regionMain) {
+			for (var i = 0; i < numrobots; ++i) {
+				var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+				var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+				var pos = transferMaps[regionNum][pos_x][pos_y];
+				if (pos == 1) {
+					sum_position_x += m_Robot[i].GetPosition().x;
+					sum_position_y += m_Robot[i].GetPosition().y;
+					regionRobotCount = regionRobotCount + 1;
+				}
+			}
+		}
+		numrobots = regionRobotCount;
+		console.log("numrobots " + numrobots);
+		var mean_position_x = sum_position_x / numrobots;
+		var mean_position_y = sum_position_y / numrobots;
+			//calculating cov
+		if (regionMain) {
+			for (var i = 0; i < numrobots; ++i) {
+				var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+				var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+				var pos = mainMaps[regionNum][pos_x][pos_y];
+				if (pos == 1) {
+					sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
+					sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
+					cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
+				}
+			}
+		}
+		if (!regionMain) {
+			for (var i = 0; i < numrobots; ++i) {
+				var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+				var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+				var pos = transferMaps[regionNum][pos_x][pos_y];
+				if (pos == 1) {
+					sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
+					sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
+					cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
+				}
+			}
+		}
+
+		var var_x = sum2_x / numrobots;
+		var var_y = sum2_y / numrobots;
+		var diffeq = Math.sqrt( (var_x-var_y)*(var_x-var_y)/4 + cov_xy*cov_xy);
+		var var_xp = (var_x+var_y)/2 + diffeq;
+		var var_yp = (var_x+var_y)/2 - diffeq;
+		var angle2 = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, var_x-var_y);
+		var angle_min_variance = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, min_desired_var_x-min_desired_var_y);
+		var angle_max_variance = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, max_desired_var_x-max_desired_var_y);
+		var index_x = Math.floor(mean_position_x);
+		var index_y = Math.floor(mean_position_y);
+
+			//finds the adjacent region with the most robots
+		var count1 = 0;
+		var count2 = 0;
+		var adjCount = 0;
+		if (regionRobotCount < 15) {
+			flagVar = true;
+		}
+
+		var adj1 = findAdjRegion(regionMain, regionNum, 0); //grabs the regions
+		var adj2 = findAdjRegion(regionMain, regionNum, 1);
+		//console.log("adj1: " + adj1 + " adj2: " + adj2);
+		if (adj2 == null) {
+			if (regionRobotCount>adj1){
+				robotMain = regionMain;
+				mostRobotRegion = regionNum;
+			} else {
+				mostRobotRegion = adj1;
+				mostRobotRegion = !regionNum;
+			}
+		} else { //counts robots in each adjacent region
+			for (i = 0; i < totalRobots; i++) {
+			   // console.log("starts counting");
+				var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+				var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+				if (regionMain) {
+					var pos1 = transferMaps[adj1][pos_x][pos_y];
+					if (pos1 == 1) { //check if robot's in 1st adjacent region
+						count1++;
+					}
+					var pos2 = transferMaps[adj2][pos_x][pos_y];
+					if (pos2 == 1) {
+						count2++;
+					}
+				}
+				if (!regionMain) {
+					var pos1 = mainMaps[adj1][pos_x][pos_y];
+					if (pos1 == 1) {
+						count1++;
+					}
+					var pos2 = mainMaps[adj2][pos_x][pos_y];
+					if (pos2 == 1) {
+						count2++;
+					}
+				}
+			}
+		   // console.log("Counting robots in region: " + count1 + " " + count2);
+			if ((regionRobotCount>count1)&&(regionRobotCount>count2)) { //if regionNum has the most robots
+				robotMain=regionMain;
+				mostRobotRegion=regionNum;
+			}else if ((count1>regionRobotCount)&&(count1>count2)){ //if adj1 has the most robots
+				robotMain=!regionMain; //the robots has the opposite map from the obj
+				mostRobotRegion=adj1;
+			}else if((count2>regionRobotCount)&&(count2>count1)){
+				robotMain=!regionMain; //the robots has the opposite map from the obj
+				mostRobotRegion=adj2;
+			}
+		}
+		//console.log("mostRobotRegion: " + mostRobotRegion);
+		//console.log("robotMain: " + robotMain);
+
+			////////////////////////////////
+
+		if(!goalRecieved){
+			$("canvas").drawEllipse({
+				strokeStyle: "red",
+				strokeWidth: 5,
+				setLineDash: 6 ,
+				x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+				width: 3 * 30*Math.sqrt(var_xp), height: 3 * 30*Math.sqrt(var_yp),
+				rotate: angle2
+			})
+			.restoreCanvas();
+		}else{
+			var winstring = "Success,\n "+ numrobots +" robots in " +Math.floor(timeFinished) + "s";
+			$("canvas").drawText(
+			{
+				strokeStyle: "blue",
+				strokeWidth: 4,
+				x: 9*mapScale  , y: 10 *mapScale ,
+				fontSize: 40,
+				fontFamily: 'Verdana, sans-serif',
+				text: winstring
+			}).restoreCanvas();
+		}
+		if(Math.abs(blockCOM_x - goalPositionX) < 2 && Math.abs(blockCOM_y - goalPositionY) <2)
 		{
-						
+			goalRecieved = true;
+
+			if(wroteFinish == false){
+				timeFinished = elapsedTimeSec;
+				console.log(elapsedTimeSec + " " + numrobots);
+				wroteFinish = true;
+			}
+			m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
+		}
+		if(!goalRecieved){
+			if(var_x < min_desired_var_x && var_y < min_desired_var_y)
+			{
+				flagVar = false;
+			}
+			if(var_x > max_desired_var_x || var_y > max_desired_var_y)
+			{
+				flagVar = true;
+			}
+			if(flagVar)
+			{
+				var CornerValuesX = [1,		19,	19,	1,	1,	100];
+				var CornerValuesY = [19,	19,	7,	13,	1,	100];
+				var CornerValuesD = [51,	41, 30,	24, 17, 100];
+				var dist2corner = new Array(CornerValuesX.length);
+				var COMdist2corner = new Array(CornerValuesX.length);
+				var minDistCorner = 10000;
+				var IndexMinDist = 0;
+				for (var i = 0 ; i < CornerValuesX.length ; i++)
+				{	//computes distance from all corners to COM  and swarm mean.  Also records closest corner to  mean of swarm
+					dist2corner[i] = lineDistance(mean_position_x, mean_position_y, CornerValuesX[i], CornerValuesY[i]);
+					COMdist2corner[i] = lineDistance(blockCOM_x, blockCOM_y, CornerValuesX[i], CornerValuesY[i]);
+					if(minDistCorner > dist2corner[i])
+					{
+						minDistCorner = dist2corner[i];
+						IndexMinDist = i;
+					}
+				}
+				if(   CornerValuesD[IndexMinDist] <  map[block_x][block_y]  && IndexMinDist>0 )
+				{
+					//console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
+					IndexMinDist = IndexMinDist-1;
+				}
+				var cornerCali = findRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);
+				IndexMinDist = cornerCali;
+				console.log("flagVar cornerCali: " + cornerCali);
+				goalX = CornerValuesX[IndexMinDist];
+				goalY = CornerValuesY[IndexMinDist];
+				goalAngle = 3/8*Math.PI;
+			}
+			if(!flagVar)
+			{
 				var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
 				var r = 0.8;
 				
@@ -1302,11 +1261,8 @@ if(BFSDebugMode)
 				
 				attPointX=blockCOM_x - r * Math.cos(alphaWant+Math.PI);
 				attPointY=blockCOM_y - r * Math.sin(alphaWant+Math.PI);
-				repPointX=blockCOM_x - r * Math.cos(alphaWant);
-				repPointY=blockCOM_y - r * Math.sin(alphaWant);
-
-				//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-				//goalY = blockCOM_y + r * policy_y[block_x][block_y];
+				repPointX=blockCOM_x;
+				repPointY=blockCOM_y;
 
 				rho=lineDistance(mean_position_x, mean_position_y,repPointX,repPointY);
 			
@@ -1315,7 +1271,7 @@ if(BFSDebugMode)
 				if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
 				if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
 				
-				if(rho<rhoNot&&Math.abs(angdiff)>(1/8*Math.PI))
+				if(rho<rhoNot&&Math.abs(angdiff)>(goalAngle))
 				{
 					FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointX - mean_position_x);//change these lines
 					FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointY - mean_position_y);
@@ -1327,52 +1283,56 @@ if(BFSDebugMode)
 					goalY = mean_position_y - Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));
 					max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
 					max_desired_var_y = max_desired_var_x;
+					goalAngle = 2/16*Math.PI;
 				}else
 				{
-					goalX = blockCOM_x - r * policy_x[block_x][block_y];//change these lines
-					goalY = blockCOM_y - r * policy_y[block_x][block_y];
-					max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
-					max_desired_var_y = max_desired_var_x;
+					if(!goalType){flagVar = true;}
+					else{
+						goalX = blockCOM_x - r * policy_x[block_x][block_y];//change these lines
+						goalY = blockCOM_y - r * policy_y[block_x][block_y];
+						max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
+						max_desired_var_y = max_desired_var_x;
+						goalAngle = 3/8*Math.PI;
+					}
+					
 				}
-				
-			
+			}
+			$("canvas").drawArc({ //draw the average position
+				strokeStyle: "red",
+				strokeWidth: 5,
+				x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+				radius: radius * mapScale
+			})
+			.drawEllipse({
+				strokeStyle: "green",
+				strokeWidth: 5,
+				setLineDash: 6 ,
+				x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+				width: 3 * 30*Math.sqrt(min_desired_var_x), height: 3 * 30*Math.sqrt(min_desired_var_y),
+				rotate: angle2
+			})
+			.drawEllipse({
+				strokeStyle: "green",
+				strokeWidth: 5,
+				setLineDash: 6 ,
+				x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+				width: 3 * 30*Math.sqrt(max_desired_var_x), height: 3 * 30*Math.sqrt(max_desired_var_y),
+				rotate: angle2
+			}).restoreCanvas();
+			var Kgain = 12;
+			var Kderivative = 1;
+			var sum_velocity_x = 0;
+			var sum_velocity_y = 0;
+			for(var i = 0; i < numrobots; ++i) {
+				sum_velocity_x += m_Robot[i].GetLinearVelocity().x;
+				sum_velocity_y += m_Robot[i].GetLinearVelocity().y;
+			}
+			var mean_velocity_x = sum_velocity_x / numrobots;
+			var mean_velocity_y = sum_velocity_y / numrobots;
+			m_ControlInputY = Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
+			m_ControlInputX = Kgain*(goalX - mean_position_x) + Kderivative*(0-mean_velocity_x) ;
+			m_controlState = ROBOT_INPUT.ROBOT_PROP;
 		}
-	$("canvas").drawArc({ //draw the average position
-		strokeStyle: "red",
-		strokeWidth: 5,
-		x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-		radius: radius * mapScale
-	}).restoreCanvas();
-	$("canvas").drawEllipse({
-			strokeStyle: "green",
-			strokeWidth: 5,
-			setLineDash: 6 ,
-			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-			width: 3 * 30*Math.sqrt(min_desired_var_x), height: 3 * 30*Math.sqrt(min_desired_var_y),
-			rotate: angle2
-		}).restoreCanvas();
-	$("canvas").drawEllipse({
-			strokeStyle: "green",
-			strokeWidth: 5,
-			setLineDash: 6 ,
-			x: mean_position_x* mapScale, y: mean_position_y * mapScale,
-			width: 3 * 30*Math.sqrt(max_desired_var_x), height: 3 * 30*Math.sqrt(max_desired_var_y),
-			rotate: angle2
-		}).restoreCanvas();
-	var Kgain = 12;
-	var Kderivative = 1;
-	var sum_velocity_x = 0;
-	var sum_velocity_y = 0;
-	for(var i = 0; i < numrobots; ++i) {
-		sum_velocity_x += m_Robot[i].GetLinearVelocity().x;
-		sum_velocity_y += m_Robot[i].GetLinearVelocity().y;
-	}
-	var mean_velocity_x = sum_velocity_x / numrobots;
-	var mean_velocity_y = sum_velocity_y / numrobots;
-	m_ControlInputY = Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
-	m_ControlInputX = Kgain*(goalX - mean_position_x) + Kderivative*(0-mean_velocity_x) ;
-	m_controlState = ROBOT_INPUT.ROBOT_PROP;
-}
 	//console.log(elapsedTimeSec + " " + mean_position_y + " " + goalY + " " + mean_position_x + " " + goalX );
 	//console.log(elapsedTimeSec + " " + var_x );
 	}; //end update
