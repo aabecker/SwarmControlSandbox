@@ -10,7 +10,7 @@ t0 = tic;
 results3= [];
 %while success == false
 if webcamShot
-    cam = webcam(2);
+    cam = webcam(1);
     originalImage = snapshot(cam);
     if (ispc)  
         original = imcrop(originalImage,[50 10 500 400]);

@@ -7,7 +7,7 @@ success = false;
 webcamShot = true;
 obstacles = [];
 if webcamShot
-    cam = webcam(2);
+    cam = webcam(1);
 
 end
 t0 = tic;

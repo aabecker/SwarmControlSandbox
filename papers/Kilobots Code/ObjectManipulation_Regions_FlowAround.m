@@ -6,7 +6,7 @@
 clear all
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(2);
+cam = webcam(1);
 Relay=0;
 
 VarCont = false;
@@ -20,9 +20,9 @@ if (ispc==1)
     goalY = 3;
     goalSize = 2;
 else 
-    goalX = 6;
+    goalX = 5;
     goalY = 5;
-    goalSize = 4;
+    goalSize = 3.5;
 end 
 % %%% First finding value iteration and creating the map:
 % originalImage = snapshot(cam);
@@ -35,7 +35,7 @@ end
 %  hold on; hq=quiver(X,Y,DY,DX,0.5,'color',[0,0,0]); hold off
 % set(hq,'linewidth',2);
 % Using Arduino for our lamps, this is how we define arduino in Matlab:
-load('Map3', 'movesX', 'movesY','corners');
+load('MapDebug', 'movesX', 'movesY','corners');
 load('ThresholdMaps','transferRegion','mainRegion');
 % figure(1),imshow(transferRegion(:,:,1));
 % figure(2),imshow(transferRegion(:,:,2));
@@ -338,7 +338,7 @@ if ~VarCont & ~NumRobotCont
         angdiff = angdiff + 2*pi;
     end
     
-    if ((rho<rhoNot) && (abs(angdiff)<pi*5/8))
+    if ((rho<rhoNot) && (abs(angdiff)<pi*2/8))
         epsilon = 0.2 * scale;
 
         %disp('In Flow Control Goal System')
@@ -347,9 +347,9 @@ if ~VarCont & ~NumRobotCont
         
         attPointX=ObjectCentroidX/scale - ObjectRadius/scale * cos(alphaWant);
         attPointY=ObjectCentroidY/scale - ObjectRadius/scale * sin(alphaWant);
-        rho=sqrt((M(1,1)-attPointX)^2 + (M(1,2)-attPointY)^2);
-        FattX=zeta*(M(1,1)-attPointX)/rho;
-        FattY=zeta*(M(1,2)-attPointY)/rho;
+        rho=sqrt((M(1,1)/scale-attPointX)^2 + (M(1,2)/scale-attPointY)^2);
+        FattX=zeta*(M(1,1)/scale-attPointX)/rho;
+        FattY=zeta*(M(1,2)/scale-attPointY)/rho;
         
          currgoalX=M(1,1)/scale*scale+cos(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
          currgoalY=M(1,2)/scale*scale+sin(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
@@ -425,7 +425,7 @@ epsilon = 1*scale;
         angdiffD = angdiffD + 2*pi;
     end
 
-    if ((rhoD<rhoNot) && (abs(angdiffD)<pi*5/8))
+    if ((rhoD<rhoNot) && (abs(angdiffD)<pi*2/8))
 
         FrepX=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointX-i);
         FrepY=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointY-j);
