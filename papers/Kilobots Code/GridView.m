@@ -1,6 +1,8 @@
 %%%%%%%%% By Shiva Shahrokhi Dec 2015-Jan 2016: This code takes a snapshot of the
 %%%%%%%%% webcam, then process it to find obstacles, gives that map to MDP
 %%%%%%%%% and gets the result and draw the gradients. 
+clear all
+
 success = false;
 webcamShot = true;
 
@@ -8,11 +10,12 @@ t0 = tic;
 results3= [];
 %while success == false
 if webcamShot
-    cam = webcam(1);
+    cam = webcam(2);
     originalImage = snapshot(cam);
     if (ispc)  
         original = imcrop(originalImage,[50 10 500 400]);
         img = imcrop(originalImage,[50 10 500 400]);
+        imwrite(original,'PC.jpeg')
     else 
         original = imcrop(originalImage,[345 60 1110 860]);
         img = imcrop(originalImage,[345 60 1110 860]);
@@ -44,6 +47,7 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
 goalX = 4;
 goalY = 4;
 s = size(BW);
+numberOfSquares=30;
 scale = floor(s(2)/numberOfSquares);
 sizeOfMap = floor(s/scale);
 map = zeros(sizeOfMap(1),sizeOfMap(2));
