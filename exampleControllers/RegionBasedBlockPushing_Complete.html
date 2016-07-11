@@ -312,6 +312,11 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 	return points;
 }
 
+    //controls for simulation tests
+var testRobots = false;
+var testNoise = false;
+var TestShapes = false;
+
 var regionNum = null; //to calculates object's region
 var regionMain = null;
 var mostRobotRegion = null; //for adjacent regionsf
@@ -406,6 +411,29 @@ function findAdjRegion(regionMain, regionNum, x) {
 
 function init()
 {
+    var test = localStorage.getItem("test"); //creates object for localStorage
+    if (test == null) {
+        if (testRobots) {
+            test = {
+                currentRun: 0,
+                test: {
+                    runs: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, ],
+                    outcomes: []
+                }
+            }
+        } else if (testNoise) { //changing brownian noise 0,.1,.5,1,5
+            test = {
+                currentRun: 0,
+                test: {
+                    runs: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, .1, .1, .1, .1, .1, .1, .1, .1, .1, .1, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, ],
+                    outcomes: []
+                }
+            }
+        }
+        localStorage.setItem("test", JSON.stringify(test));
+    }
+    
+
     ///////////////creating the main Regions
     mainMaps[0] = new Array(); //creating 3D array
     mainMaps[1] = new Array();
@@ -545,7 +573,28 @@ function init()
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
 	var numrobots = 200;//Math.floor(20/(4*robotrad*robotrad));
-	var totalRobots=200;	//for regions calculations
+	var totalRobots = 200;	//for regions calculations
+	var vary = 5; //was .5 / 1
+	if (testRobots||testNoise) {//getting values to run simulations
+	    var inputTest = JSON.parse(localStorage.getItem("test"));
+	    console.log("input " + inputTest.currentRun + " " + inputTest.test.runs[0]);
+	    if (inputTest.test.runs[inputTest.currentRun] == null) {
+	        window.stop();
+	    } else {
+	        var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
+	        console.log("value " + value);
+	        if (testRobots) {
+	            numrobots = value; //getting value for robots
+	            totalRobots = value;
+	        } else if (testNoise) {
+	            vary = value; //getting value for brownian noise
+	            numrobots = 100; //getting value for robots
+	            totalRobots = 100;
+            }
+	    }
+	}
+	
+
 	if(MDP_DebugMode || Gradient_DebugMode)
 	{
 		numrobots = 0;
@@ -728,7 +777,8 @@ function init()
 	}
 
 	//called each animation round
-	//y-axis is inverted in webpage
+    //y-axis is inverted in webpage
+	var hasLoggedData = false; //control variable for localStorage
 	function update()
 	{
 		var impulseV=new b2Vec2(0,0);
@@ -742,7 +792,6 @@ function init()
 		var brownianImpulse = new b2Vec2(0,0);
 		var mag = 0;
 		var ang = 0;
-		var vary= 0.5; //was 1
 		for(var i =0; i<m_Robot.length; i++)
 		{
 			mag = vary * Math.random();
@@ -999,6 +1048,9 @@ function init()
 		var elapsedTimeSec = (day.getTime()- overall_time )/1000;
 		string = "Time = "+ elapsedTimeSec +"s<br>Algorithm II  is making robots (blue discs) push a block to the goal</strong>";
 		$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
+
+	    //log time into localStorage
+
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// CONTROLLER
@@ -1343,7 +1395,28 @@ function init()
 				}).restoreCanvas();
 			}*/
 		}
-		
+
+		if (elapsedTimeSec > 300) { //runtime error
+		    var state = JSON.parse(localStorage.getItem("test"));
+		    //alert(JSON.stringify(state));
+		    state.test.outcomes[state.currentRun] = "error";
+		    state.currentRun++;
+		    localStorage.setItem("test", JSON.stringify(state));
+		    hasLoggedData = true;
+		    location.reload(true);
+		}
+
+		if (goalRecieved && !hasLoggedData) { //stores game time
+		    var state = JSON.parse(localStorage.getItem("test"));
+		    // alert(JSON.stringify(state));
+		    state.test.outcomes[state.currentRun] = elapsedTimeSec;
+		    state.currentRun++;
+		    localStorage.setItem("test", JSON.stringify(state));
+		    hasLoggedData = true;
+		    location.reload(true);
+		}
+
+
 	//console.log(elapsedTimeSec + " " + mean_position_y + " " + goalY + " " + mean_position_x + " " + goalX );
 	//console.log(elapsedTimeSec + " " + var_x );
 	}; //end update
