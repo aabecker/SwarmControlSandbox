@@ -68,7 +68,7 @@ var ifBFS = true;
 var MDP_DebugMode = false;
 var BFSDebugMode = false;
 var Gradient_DebugMode = false;
-var Gradient_DebugMode_MDP = true;
+var Gradient_DebugMode_MDP = false;
 var goalRecieved = false;  //have we reached the goal?
 var timeFinished = 1000;
 var wroteFinish = false;
@@ -859,8 +859,7 @@ function init()
 					}
 					else if (map[i][j] == 52)
 					{
-						$("canvas").drawText(
-						{
+						$("canvas").drawText({
 							strokeStyle: "yellow",
 							strokeWidth: 2,
 							x: (i+ 0.5)*mapScale  , y: (j+0.5) *mapScale ,
@@ -1248,9 +1247,12 @@ function init()
 				var cornerCali = findRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);
 				IndexMinDist = cornerCali;
 				console.log("flagVar cornerCali: " + cornerCali);
-				goalX = CornerValuesX[IndexMinDist];
-				goalY = CornerValuesY[IndexMinDist];
-				goalAngle = 3/8*Math.PI;
+				//goalX = CornerValuesX[IndexMinDist];
+				//goalY = CornerValuesY[IndexMinDist];
+				
+				goalX = mean_position_x + Math.cos(Math.atan2(CornerValuesY[IndexMinDist]-mean_position_y,CornerValuesX[IndexMinDist]-mean_position_x));
+				goalY = mean_position_y + Math.sin(Math.atan2(CornerValuesY[IndexMinDist]-mean_position_y,CornerValuesX[IndexMinDist]-mean_position_x));
+				goalAngle = 2/8*Math.PI;
 			}
 			if(!flagVar)
 			{
@@ -1279,22 +1281,20 @@ function init()
 					FattX = zeta*(mean_position_x - attPointX)/rho;//change these lines
 					FattY = zeta*(mean_position_y - attPointY)/rho;
 
-					goalX = mean_position_x - Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
-					goalY = mean_position_y - Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));
+					goalX = mean_position_x - 1.25*Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
+					goalY = mean_position_y - 1.25*Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));
 					max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
 					max_desired_var_y = max_desired_var_x;
 					goalAngle = 2/16*Math.PI;
 				}else
 				{
-					if(!goalType){flagVar = true;}
-					else{
-						goalX = blockCOM_x - r * policy_x[block_x][block_y];//change these lines
-						goalY = blockCOM_y - r * policy_y[block_x][block_y];
-						max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
-						max_desired_var_y = max_desired_var_x;
-						goalAngle = 3/8*Math.PI;
-					}
-					
+					//goalX = blockCOM_x - r * policy_x[block_x][block_y];//change these lines
+					//goalY = blockCOM_y - r * policy_y[block_x][block_y];
+					goalX = mean_position_x + 1.25*Math.cos(Math.atan2(blockCOM_y - r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x - r * policy_x[block_x][block_y]-mean_position_x));
+					goalY = mean_position_y + 1.25*Math.sin(Math.atan2(blockCOM_y - r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x - r * policy_x[block_x][block_y]-mean_position_x));
+					max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
+					max_desired_var_y = max_desired_var_x;
+					goalAngle = 2/8*Math.PI;
 				}
 			}
 			$("canvas").drawArc({ //draw the average position
@@ -1332,7 +1332,18 @@ function init()
 			m_ControlInputY = Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
 			m_ControlInputX = Kgain*(goalX - mean_position_x) + Kderivative*(0-mean_velocity_x) ;
 			m_controlState = ROBOT_INPUT.ROBOT_PROP;
+			/*for (var i = 0 ; i < CornerValuesX.length ; i++){	
+				$("canvas").drawArc(
+				{
+					strokeStyle: "lightblue",
+					strokeWidth: 1,
+					fillStyle: "pink",
+					x: CornerValuesX[i] * mapScale, y: CornerValuesY[i] * mapScale,
+					radius: radius * mapScale
+				}).restoreCanvas();
+			}*/
 		}
+		
 	//console.log(elapsedTimeSec + " " + mean_position_y + " " + goalY + " " + mean_position_x + " " + goalX );
 	//console.log(elapsedTimeSec + " " + var_x );
 	}; //end update
