@@ -61,7 +61,7 @@ var blockCOM_y = 0;
 // checking variables.
 var flagVar = false;
 var ifMDP = true;
-var ifGradient = true;
+var ifGradient = false;
 var ifBFS = true;
 
 
@@ -70,7 +70,7 @@ var ifBFS = true;
 var MDP_DebugMode = false;
 var BFSDebugMode = false;
 var Gradient_DebugMode = false;
-var Gradient_DebugMode_MDP = false;
+var Gradient_DebugMode_MDP = true;
 var goalRecieved = false;  //have we reached the goal?
 var timeFinished = 1000;
 var wroteFinish = false;
@@ -93,21 +93,7 @@ var iteration = 0;
 var iteration_limit = 200;
 var probStraight = 0.5;
 
-var zeta = 2;
-var eta = 10;
-var rhoNot = 500;
-var rho = 0;
-var alphaWant = 0;
-var choose = true;
-var which = 1;
-var goalTime=null;
-var goalWant=0;
-var goalLast=0;
 
-var max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
-var min_desired_var_x = 0.75; //was .663
-var max_desired_var_y = max_desired_var_x;
-var min_desired_var_y = min_desired_var_x;
 var move_ysize = 9;
 var move_xsize = 2;
 var moves = new Array(move_ysize);
@@ -139,12 +125,16 @@ for (var i = 0; i < mapXSize; i++)
 	policy_y[i] = new Array(mapYSize);
 	policy_angle[i] = new Array(mapYSize);
 }
+////////////////////////////
     //region Arrays
 var mainMaps = new Array();
 var transferMaps = new Array();
-    
-    //print test array results
-var seeTestResults = false;
+
+//for (i=0;i<20;i++){
+//    for (j=0;j<20;j++){
+//        mainMaps[0][i][j]=15;
+//    }
+//}
 
 /////////////////////////////
 //End Global Variables
@@ -311,76 +301,147 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 	return points;
 }
 
+var regionNum = null; //to calculates object's region
+var regionMain = null;
+var mostRobotRegion = null; //for adjacent regionsf
+var robotMain = null; //what map are the most robots in?
+    //determines variance corner based on regions
+function findRegionBasedVar(regionMain, objRegion, robotMain, mostRobotRegion) {
+    var corner;
+    if (regionMain) { //if object is in a main region
+        if(robotMain){ //if most of the robots are in the same obj region map
+            if (regionNum==0){
+                corner=0;
+            }else if (regionNum==1){
+                corner=2;
+            }else if(regionNum==2){
+                corner=4;
+            }
+        }else{//if most of the robots are in the adj obj region map
+            if (objRegion == 0) {
+                corner = 0;
+            } else if (objRegion == 1) {
+                if (mostRobotRegion == 0) {
+                    corner = 2;
+                } else if (mostRobotRegion == 1) {
+                    corner = 3;
+                }
+            } else if (objRegion == 2) {
+                corner = 4;
+            }
+        }
+    } else if (!regionMain) {
+        if(!robotMain){ //if the most robots are in the same transfer region
+            if(regionNum==0){
+                corner=1;
+            }else if(regionNum==1){
+                corner=3;
+            }
+        }else{
+            if (objRegion == 0) {
+                if (mostRobotRegion == 0) {
+                    corner = 1;
+                } else if (mostRobotRegion == 1) {
+                    corner = 2;
+                }
+            } else if (objRegion == 1) {
+                if (mostRobotRegion == 1) {
+                    corner = 3;
+                } else if (mostRobotRegion == 2) {
+                    corner = 4;
+                }
+            }
+        }
+    }
+    return corner;
+}
 
+//hardcodes adjacent regions to each region
+function findAdjRegion(regionMain, regionNum, x) {
+    var adjRegions = new Array(2);
+    if (regionMain) {
+        if (regionNum == 0) {
+            adjRegions[0] = 0; //adjacent region = transferRegion1
+            adjRegions[1] = null;
+        }
+        else if (regionNum == 1) {
+            adjRegions[0] = 0;
+            adjRegions[1] = 1;
+        } else if (regionNum == 2) {
+            adjRegions[0] = 1;
+            adjRegions[1] = null;
+        }
+    }
+    if (!regionMain) {
+        if (regionNum == 0) {
+            adjRegions[0] = 0; //adjacent region = mainRegion1&2
+            adjRegions[1] = 1;
+        }
+        else if (regionNum == 1) {
+            adjRegions[0] = 1;
+            adjRegions[1] = 2;
+        }
+    }
+    if (x == 0) {
+        return adjRegions[0];
+    } else if (x == 1) {
+        return adjRegions[1];
+    }
+
+}
 ///////////////////////////
 //End Drawing Functions
 ///////////////////////////
 
-
-
 function init()
 {
-    var test = localStorage.getItem("test");
-    if (test==null)
-    {
-        test = {
-            currentRun: 0,
-            test: {
-                runs: [100,200,300,400],
-                outcomes: []
-            }
-        }
-        localStorage.setItem("test", JSON.stringify(test));
-    }
-    
-
     ///////////////creating the main Regions
     mainMaps[0] = new Array(); //creating 3D array
     mainMaps[1] = new Array();
     mainMaps[2] = new Array();
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i <= 20; i++) {
         mainMaps[0][i] = new Array();
         mainMaps[1][i] = new Array();
         mainMaps[2][i] = new Array();
     }
-    for (i = 0; i < 20; i++) { //setting the background to 0
-        for (j = 0; j < 20; j++) {
+    for (i = 0; i <= 20; i++) { //setting the background to 0
+        for (j = 0; j <= 20; j++) {
             mainMaps[0][i][j] = 0;
             mainMaps[1][i][j] = 0;
             mainMaps[2][i][j] = 0;
         }
     }
     //creating each mainRegion
-    for (x = 1; x < 20; x++) {
+    for (x = 1; x <= 20; x++) {
         for (y = 13; y <= 20; y++) {
             mainMaps[0][x][y] = 1;
         }
     }
-    for (x = 1; x < 20; x++) {
+    for (x = 1; x <= 20; x++) {
         for (y = 7; y < 13; y++) {
             mainMaps[1][x][y] = 1;
         }
     }
-    for (x = 1; x < 20; x++) {
-        for (y = 2; y < 7; y++) {
+    for (x = 1; x <= 20; x++) {
+        for (y = 1; y < 7; y++) {
             mainMaps[2][x][y] = 1;
         }
     }
     //creating the transfer Regions
     transferMaps[0] = new Array(); //creating 3D array
     transferMaps[1] = new Array();
-    for (i = 0; i < 20; i++) {
+    for (i = 0; i <= 20; i++) {
         transferMaps[0][i] = new Array();
         transferMaps[1][i] = new Array();
     }
-    for (i = 0; i < 20; i++) { //setting the background to 0
-        for (j = 0; j < 20; j++) {
+    for (i = 0; i <= 20; i++) { //setting the background to 0
+        for (j = 0; j <= 20; j++) {
             transferMaps[0][i][j] = 0;
             transferMaps[1][i][j] = 0;
         }
     }
-    for (x = 15; x < 20; x++) {
-        for (y = 6; y < 20; y++) {
+    for (x = 15; x <= 20; x++) {
+        for (y = 6; y <= 20; y++) {
             transferMaps[0][x][y] = 1;
         }
     }
@@ -390,8 +451,8 @@ function init()
         }
     }
     //creating region status and control variables
-    var regionNum = 0;
-    var regionMain = true;
+    regionNum = 0;
+    regionMain = true;
     //////////////////////
 	var b2Vec2 = Box2D.Common.Math.b2Vec2
 	, b2AABB = Box2D.Collision.b2AABB
@@ -466,27 +527,14 @@ function init()
     fixDef.shape.SetAsBox(1.0,1.0);
     var obst = world.CreateBody(bodyDef);
     obst.CreateFixture(fixDef);
-    obst.m_angularDamping = 3;
-    obst.m_linearDamping = 3;
+    obst.m_angularDamping = 0.1;
+    obst.m_linearDamping = 0.1;
 }
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.1; //for SwarmControl.net, we used 0.2;
-    //updating numrobots and totalrobots for testing results
-	var numRobots = null;
-	var totalRobots = null;
-	var inputTest = JSON.parse(localStorage.getItem("test"));
-	if (inputTest.test.runs[inputTest.currentRun]==null){
-	    window.stop();
-	} else {
-	    var value = inputTest.test.runs[inputTest.currentRun]
-	    numrobots = value;
-	    totalRobots = value;
-	    console.log("value "+value);
-	}
-	//var numrobots = 200;//Math.floor(20/(4*robotrad*robotrad));
-	//var totalRobots = 200;	//for regions calculations
-    ////////////////////
+	var numrobots = 200;//Math.floor(20/(4*robotrad*robotrad));
+	var totalRobots=200;	//for regions calculations
 	if(MDP_DebugMode || Gradient_DebugMode)
 	{
 		numrobots = 0;
@@ -505,8 +553,8 @@ function init()
 		bodyDef.position.y = 18.5-Math.floor(i/rowLength)*2*robotrad;
 		m_Robot[i] = world.CreateBody(bodyDef);
 		m_Robot[i].CreateFixture(fixDef);
-		m_Robot[i].m_angularDamping = 10; //was 1, we used 10 on SwarmControl
-		m_Robot[i].m_linearDamping = 10;
+		m_Robot[i].m_angularDamping = 1; //was 1, we used 10 on SwarmControl
+		m_Robot[i].m_linearDamping = 1;
 	}
 
 
@@ -536,9 +584,6 @@ function init()
 
 	//giving -100 to boundaries
 
-    //////testing saving data to local server
-
-    ///////
 
 
 
@@ -688,8 +733,7 @@ function init()
 	}
 
 	//called each animation round
-    //y-axis is inverted in webpage
-	var hasLoggedData = false;
+	//y-axis is inverted in webpage
 	function update()
 	{
 		var impulseV=new b2Vec2(0,0);
@@ -703,7 +747,7 @@ function init()
 		var brownianImpulse = new b2Vec2(0,0);
 		var mag = 0;
 		var ang = 0;
-		var vary= 0.1; //was 1
+		var vary= 0.5; //was 1
 		for(var i =0; i<m_Robot.length; i++)
 		{
 			mag = vary * Math.random();
@@ -727,7 +771,7 @@ function init()
 			radius: radius * mapScale
 		}).drawArc(
 		{
-			strokeStyle: 'green',
+			strokeStyle: 'red',
 			strokeWidth: 16, //fillStyle: "green",
 			x: goalPositionXDraw * mapScale, y: goalPositionYDraw * mapScale,
 			radius: 2.0 * mapScale
@@ -776,6 +820,8 @@ function init()
 				}
 			}
 
+
+
 if(Gradient_DebugMode_MDP)
 			{
 				for(var i = 0 ; i < mapXSize; i++){
@@ -794,14 +840,24 @@ if(Gradient_DebugMode_MDP)
 				}
 			}
 
-		if(BFSDebugMode){
+
+
+
+
+
+
+
+
+
+if(BFSDebugMode)
+		{
 			for(var i = 0 ; i < mapXSize; i++)
 				for (var j = 0 ; j < mapYSize; j++)
 				{
 					if(map[i][j] != 0 && map[i][j] != 52){
 						$("canvas").drawText(
 						{
-							strokeStyle: 'green',
+							strokeStyle: '#25a',
 							strokeWidth: 2,
 							x: (i+ 0.5)*mapScale  , y: (j+0.5) *mapScale ,
 							fontSize: 20,
@@ -981,6 +1037,10 @@ if(Gradient_DebugMode_MDP)
 	var offsetY = 5;
 	var amplitudeX = 5;
 	var offsetX = 5;
+	var max_desired_var_x = 1.91;//numrobots * robotrad * 1/2;
+	var min_desired_var_x = 0.75;//numrobots * robotrad * 3/2 // was.663
+	var max_desired_var_y = max_desired_var_x;
+	var min_desired_var_y = min_desired_var_x;
 	var sum_position_x = 0;
 	var sum_position_y = 0;
 	var sum2_x = 0;
@@ -989,6 +1049,7 @@ if(Gradient_DebugMode_MDP)
 	var cov_xy = 0;
 	var block_x = Math.floor(blockCOM_x);
 	var block_y = Math.floor(blockCOM_y);
+
 ////////////switching regions
 	if (regionMain) {
 	    var blockPosition = mainMaps[regionNum][block_x][block_y];
@@ -1017,6 +1078,7 @@ if(Gradient_DebugMode_MDP)
 	        }
 	    }
 	}
+	//console.log("test " + mainMaps[2][1][1]);
 	    //calculate mean and cov for robots only in that region
 	numrobots = totalRobots;
 	var regionRobotCount = 0;
@@ -1045,6 +1107,7 @@ if(Gradient_DebugMode_MDP)
 	    }
 	}
 	numrobots = regionRobotCount;
+	console.log("numrobots " + numrobots);
 	var mean_position_x = sum_position_x / numrobots;
 	var mean_position_y = sum_position_y / numrobots;
         //calculating cov
@@ -1072,8 +1135,8 @@ if(Gradient_DebugMode_MDP)
 	        }
 	    }
 	}
-	//console.log("numRobot: " + numrobots);
-    ////////////////////////////////
+
+ 
 
 	var var_x = sum2_x / numrobots;
 	var var_y = sum2_y / numrobots;
@@ -1086,7 +1149,67 @@ if(Gradient_DebugMode_MDP)
 	var index_x = Math.floor(mean_position_x);
 	var index_y = Math.floor(mean_position_y);
 
+	    //finds the adjacent region with the most robots
+	var count1 = 0;
+	var count2 = 0;
+	var adjCount = 0;
+	if (regionRobotCount < 15) {
+	    flagVar = true;
+	}
 
+	var adj1 = findAdjRegion(regionMain, regionNum, 0); //grabs the regions
+	var adj2 = findAdjRegion(regionMain, regionNum, 1);
+	//console.log("adj1: " + adj1 + " adj2: " + adj2);
+	if (adj2 == null) {
+	    if (regionRobotCount>adj1){
+	        robotMain = regionMain;
+	        mostRobotRegion = regionNum;
+	    } else {
+	        mostRobotRegion = adj1;
+	        mostRobotRegion = !regionNum;
+	    }
+	} else { //counts robots in each adjacent region
+	    for (i = 0; i < totalRobots; i++) {
+	       // console.log("starts counting");
+	        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+	        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+	        if (regionMain) {
+	            var pos1 = transferMaps[adj1][pos_x][pos_y];
+	            if (pos1 == 1) { //check if robot's in 1st adjacent region
+	                count1++;
+	            }
+	            var pos2 = transferMaps[adj2][pos_x][pos_y];
+	            if (pos2 == 1) {
+	                count2++;
+	            }
+	        }
+	        if (!regionMain) {
+	            var pos1 = mainMaps[adj1][pos_x][pos_y];
+	            if (pos1 == 1) {
+	                count1++;
+	            }
+	            var pos2 = mainMaps[adj2][pos_x][pos_y];
+	            if (pos2 == 1) {
+	                count2++;
+	            }
+	        }
+	    }
+	   // console.log("Counting robots in region: " + count1 + " " + count2);
+	    if ((regionRobotCount>count1)&&(regionRobotCount>count2)) { //if regionNum has the most robots
+	        robotMain=regionMain;
+	        mostRobotRegion=regionNum;
+	    }else if ((count1>regionRobotCount)&&(count1>count2)){ //if adj1 has the most robots
+	        robotMain=!regionMain; //the robots has the opposite map from the obj
+	        mostRobotRegion=adj1;
+	    }else if((count2>regionRobotCount)&&(count2>count1)){
+	        robotMain=!regionMain; //the robots has the opposite map from the obj
+	        mostRobotRegion=adj2;
+	    }
+	}
+	//console.log("mostRobotRegion: " + mostRobotRegion);
+	//console.log("robotMain: " + robotMain);
+
+	    ////////////////////////////////
 
 	if(!goalRecieved){
 		$("canvas").drawEllipse({
@@ -1130,11 +1253,6 @@ if(Gradient_DebugMode_MDP)
 		{
 			flagVar = true;
 		}
-		var ep = 0.1;
-		if (mean_position_x < goalX + ep && mean_position_x> goalX - ep && mean_position_y < goalY + ep && mean_position_y> goalY - ep )
-		{
-			flagVar = true;
-		}
 		if(flagVar)
 		{
 			var CornerValuesX = [1,		19,	19,	1,	1,	100];
@@ -1154,64 +1272,27 @@ if(Gradient_DebugMode_MDP)
 					IndexMinDist = i;
 				}
 			}
-			if( IndexMinDist>0 )
+			if(   CornerValuesD[IndexMinDist] <  map[block_x][block_y]  && IndexMinDist>0 )
 			{
 				//console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
 				IndexMinDist = IndexMinDist-1;
 			}
-			goalTime=null;
+			var cornerCali = findRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);
+			IndexMinDist = cornerCali;
+			console.log("flagVar cornerCali: " + cornerCali);
 			goalX = CornerValuesX[IndexMinDist];
 			goalY = CornerValuesY[IndexMinDist];
 		}
 		if(!flagVar)
 		{
-		    var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-		    var r = 0.8;
-
-		    attPointX = blockCOM_x - r * Math.cos(alphaWant + Math.PI);
-		    attPointY = blockCOM_y - r * Math.sin(alphaWant + Math.PI);
-		    repPointX = blockCOM_x - r * Math.cos(alphaWant);
-		    repPointY = blockCOM_y - r * Math.sin(alphaWant);
-
-		    //goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-		    //goalY = blockCOM_y + r * policy_y[block_x][block_y];
-		    alphaWant = Math.atan2(policy_y[block_x][block_y], policy_x[block_x][block_y]);
-
-		    rho = lineDistance(mean_position_x, mean_position_y, repPointX, repPointY);
-
-		    theta = Math.atan2(mean_position_y - repPointY, mean_position_x - repPointX);
-		    angdiff = alphaWant - theta;
-		    if (angdiff > Math.PI) { angdiff = angdiff - 2 * Math.PI };
-		    if (angdiff < -Math.PI) { angdiff = angdiff + 2 * Math.PI };
-
-		    if (rho < rhoNot && Math.abs(angdiff) > (1 / 8 * Math.PI)) {
-		    	goalWant=0;
-		    } else { goalWant=1; }
-
-		    if(goalWant || (day.getTime()-goalTime)<=2000){
-		    	goalX = blockCOM_x - r * policy_x[block_x][block_y];//change these lines
-		        goalY = blockCOM_y - r * policy_y[block_x][block_y];
-		        max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
-		        max_desired_var_y = max_desired_var_x;
-		        goalLast=0;
-		        if (goalTime==null){ goalTime=day.getTime(); }
-		    }
-		    else if(!goalWant && goalTime==null){
-		    	goalTime=null;
-		    	FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointX - mean_position_x);//change these lines
-		        FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointY - mean_position_y);
-		        rho = lineDistance(mean_position_x, mean_position_y, attPointX, attPointY);
-		        FattX = zeta * (mean_position_x - attPointX) / rho;//change these lines
-		        FattY = zeta * (mean_position_y - attPointY) / rho;
-
-		        goalX = mean_position_x - Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
-		        goalY = mean_position_y - Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));;
-		        max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
-		        max_desired_var_y = max_desired_var_x;
-		    }else{
-		    	goalTime=null;
-		    	flagVar=true;
-		    }
+			var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+			var r = 0.1;
+			if( COMdist2swarm > 2.5)
+			{	r = 1.5
+			}
+			//var r = Math.max(0.0, Math.min(1.5, 0.5*COMdist2swarm));
+			goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
+			goalY = blockCOM_y + r * policy_y[block_x][block_y];
 		}
 	$("canvas").drawArc({ //draw the average position
 		strokeStyle: "red",
@@ -1251,47 +1332,8 @@ if(Gradient_DebugMode_MDP)
 }
 	//console.log(elapsedTimeSec + " " + mean_position_y + " " + goalY + " " + mean_position_x + " " + goalX );
 	//console.log(elapsedTimeSec + " " + var_x );
-	//console.log("currentRun " + tests.currentRun + " goal: " + goalRecieved);
-	if (elapsedTimeSec > 300) {
-	    var state = JSON.parse(localStorage.getItem("test"));
-	    //alert(JSON.stringify(state));
-	    state.test.outcomes[state.currentRun] = "error";
-	    state.currentRun++;
-	    localStorage.setItem("test", JSON.stringify(state));
-	    hasLoggedData = true;
-	    location.reload(true);
-	}
-
-	if (goalRecieved && !hasLoggedData) {
-	    var state = JSON.parse(localStorage.getItem("test"));
-	   // alert(JSON.stringify(state));
-	    state.test.outcomes[state.currentRun] = elapsedTimeSec;
-	    state.currentRun++;
-	    localStorage.setItem("test", JSON.stringify(state));
-	    hasLoggedData = true;
-	    location.reload(true); 
-	}
-	
-
 	}; //end update
-
-    if (seeTestResults) {
-	        for (i = 0; i < 2 ; i++) {
-	        console.log(tests.outcomes[i]);
-	    }
-    }
-	//if (typeof (Storage) !== "undefined") {
-	//    localStorage.setItem(tests.outcomes[currentRun], timeFinished);
-	//    // Code for localStorage/sessionStorage.
-	//} else {
-	//    console.log("storage doesn't works");
-	//    // Sorry! No Web Storage support..
-    //}
-
 };
-
-
-
 </script>
 <style>
     #cc {
