@@ -110,6 +110,18 @@ moves[6] = [0, -1];
 moves[7] = [1, -1];
 moves[8] = [0, 0];
 
+var zeta = 2;
+var eta = 10;
+var rhoNot = 500;
+var rho = 0;
+var alphaWant = 0;
+var choose = true;
+var which = 1;
+var max_desired_var_x = 8;//numrobots * robotrad * .20; //was 1.91
+var min_desired_var_x = 1.1; //was .663
+var max_desired_var_y = max_desired_var_x;
+var min_desired_var_y = min_desired_var_x;
+
 var k = [0, 2, 4, 6, 1, 3, 5, 7, 8];
 
 for (var i = 0; i < mapXSize; i++)
@@ -441,7 +453,7 @@ function init()
         }
     }
     for (x = 15; x <= 20; x++) {
-        for (y = 6; y <= 20; y++) {
+        for (y = 7; y <= 20; y++) {
             transferMaps[0][x][y] = 1;
         }
     }
@@ -527,8 +539,8 @@ function init()
     fixDef.shape.SetAsBox(1.0,1.0);
     var obst = world.CreateBody(bodyDef);
     obst.CreateFixture(fixDef);
-    obst.m_angularDamping = 0.1;
-    obst.m_linearDamping = 0.1;
+    obst.m_angularDamping = 6;
+    obst.m_linearDamping = 6;
 }
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
@@ -1037,10 +1049,7 @@ if(BFSDebugMode)
 	var offsetY = 5;
 	var amplitudeX = 5;
 	var offsetX = 5;
-	var max_desired_var_x = 1.91;//numrobots * robotrad * 1/2;
-	var min_desired_var_x = 0.75;//numrobots * robotrad * 3/2 // was.663
-	var max_desired_var_y = max_desired_var_x;
-	var min_desired_var_y = min_desired_var_x;
+	
 	var sum_position_x = 0;
 	var sum_position_y = 0;
 	var sum2_x = 0;
@@ -1285,14 +1294,48 @@ if(BFSDebugMode)
 		}
 		if(!flagVar)
 		{
-			var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-			var r = 0.1;
-			if( COMdist2swarm > 2.5)
-			{	r = 1.5
-			}
-			//var r = Math.max(0.0, Math.min(1.5, 0.5*COMdist2swarm));
-			goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-			goalY = blockCOM_y + r * policy_y[block_x][block_y];
+						
+				var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+				var r = 0.8;
+				
+				alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
+				
+				attPointX=blockCOM_x - r * Math.cos(alphaWant+Math.PI);
+				attPointY=blockCOM_y - r * Math.sin(alphaWant+Math.PI);
+				repPointX=blockCOM_x - r * Math.cos(alphaWant);
+				repPointY=blockCOM_y - r * Math.sin(alphaWant);
+
+				//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
+				//goalY = blockCOM_y + r * policy_y[block_x][block_y];
+
+				rho=lineDistance(mean_position_x, mean_position_y,repPointX,repPointY);
+			
+				theta = Math.atan2(mean_position_y - repPointY,mean_position_x - repPointX);
+				angdiff = alphaWant-theta;
+				if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
+				if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
+				
+				if(rho<rhoNot&&Math.abs(angdiff)>(1/8*Math.PI))
+				{
+					FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointX - mean_position_x);//change these lines
+					FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointY - mean_position_y);
+					rho=lineDistance(mean_position_x, mean_position_y,attPointX,attPointY);
+					FattX = zeta*(mean_position_x - attPointX)/rho;//change these lines
+					FattY = zeta*(mean_position_y - attPointY)/rho;
+
+					goalX = mean_position_x - Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
+					goalY = mean_position_y - Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));
+					max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
+					max_desired_var_y = max_desired_var_x;
+				}else
+				{
+					goalX = blockCOM_x - r * policy_x[block_x][block_y];//change these lines
+					goalY = blockCOM_y - r * policy_y[block_x][block_y];
+					max_desired_var_x = 5;//numrobots * robotrad * .20; //was 1.91
+					max_desired_var_y = max_desired_var_x;
+				}
+				
+			
 		}
 	$("canvas").drawArc({ //draw the average position
 		strokeStyle: "red",
