@@ -3,17 +3,23 @@
 %%%%%%%%% and gets the result and draw the gradients. 
 success = false;
 webcamShot = true;
-if webcamShot
-    cam = webcam(1);
-end
+
 t0 = tic;
 results3= [];
 %while success == false
-
- originalImage = snapshot(cam);
- original = imcrop(originalImage,[345 60 1110 860]);
- img = imcrop(originalImage,[345 60 1110 860]);
-
+if webcamShot
+    cam = webcam(1);
+    originalImage = snapshot(cam);
+    if (ispc)  
+        original = imcrop(originalImage,[50 10 500 400]);
+        img = imcrop(originalImage,[50 10 500 400]);
+    else 
+        original = imcrop(originalImage,[345 60 1110 860]);
+        img = imcrop(originalImage,[345 60 1110 860]);
+    end 
+else
+    img = imread('Obstacle.jpeg');
+end
 
 I = rgb2hsv(img);
 
