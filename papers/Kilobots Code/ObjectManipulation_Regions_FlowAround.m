@@ -324,8 +324,10 @@ if ~VarCont & ~NumRobotCont
 %     end
 %% Flow Around Goal Algorithm
     alphaWant=atan2(movesX(indOY,indOX),movesY(indOY,indOX));
+
     repPointX=ObjectCentroidX/scale;
     repPointY=ObjectCentroidY/scale;
+
     theta = atan2((M(1,2)/scale - repPointY),(M(1,1)/scale - repPointX));
     angdiff = alphaWant-theta;
     rho=sqrt((M(1,1)/scale-repPointX)^2 + (M(1,2)/scale-repPointY)^2);
@@ -338,6 +340,7 @@ if ~VarCont & ~NumRobotCont
     
     if ((rho<rhoNot) && (abs(angdiff)<pi*5/8))
         epsilon = 0.2 * scale;
+
         %disp('In Flow Control Goal System')
         FrepX=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointX-M(1,1)/scale);
         FrepY=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointY-M(1,2)/scale);
@@ -348,12 +351,25 @@ if ~VarCont & ~NumRobotCont
         FattX=zeta*(M(1,1)-attPointX)/rho;
         FattY=zeta*(M(1,2)-attPointY)/rho;
         
-         currgoalX=M(1,1)+cos(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
-         currgoalY=M(1,2)+sin(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
+         currgoalX=M(1,1)/scale*scale+cos(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
+         currgoalY=M(1,2)/scale*scale+sin(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
+        
+%         FrepX=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointX-M(1,1)/scale);
+%         FrepY=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointY-M(1,2)/scale);
+%         
+%         attPointX=ObjectCentroidX/scale - r * cos(alphaWant+pi);
+%         attPointY=ObjectCentroidY/scale - r * sin(alphaWant+pi);
+%         rho=sqrt((M(1,1)/scale-attPointX)^2 + (M(1,2)/scale-attPointY)^2);
+%         FattX=0; %zeta*(M(1,1)/scale-attPointX)/rho;
+%         FattY=0; %zeta*(M(1,2)/scale-attPointY)/rho;
+%         
+%          currgoalX=M(1,1)+cos(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
+%          currgoalY=M(1,2)+sin(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
+
          lineLength = 1000;
 angle = atan2((-FrepY-FattY),(-FattX-FrepX));
-x(1) = M(1,1);
-y(1) = M(1,2);
+x(1) = M(1,1)/scale*scale;
+y(1) = M(1,2)/scale*scale;
 x(2) = x(1) + lineLength * cos(angle);
 y(2) = y(1) + lineLength * sin(angle);
 hold on; % Don't blow away the image.
@@ -398,8 +414,7 @@ epsilon = 1*scale;
     DY = zeros(size(movesX));
     for i = 1:s(2)
         for j = 1:s(1)
-            X(i,j) = i;
-            Y(i,j) = j;
+            
             thetaD = atan2(j - repPointY,i - repPointX);
             angdiffD = alphaWant-thetaD;
             rhoD=sqrt((i-repPointX)^2 + (j-repPointY)^2);
@@ -409,6 +424,9 @@ epsilon = 1*scale;
     if(angdiffD < -pi) 
         angdiffD = angdiffD + 2*pi;
     end
+
+    if ((rhoD<rhoNot) && (abs(angdiffD)<pi*5/8))
+
         FrepX=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointX-i);
         FrepY=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointY-j);
         
@@ -420,11 +438,18 @@ epsilon = 1*scale;
         
         plot(attPointX *scale, attPointY*scale,'o','Markersize',16,'color','blue','linewidth',3);
         plot(repPointX*scale , repPointY*scale,'o','Markersize',16,'color','cyan','linewidth',3);
+
+        X(i,j) = i;
+        Y(i,j) = j;
+
         DX(i,j)=cos(atan2((-FrepY-FattY),(-FattX-FrepX)));
         DY(i,j)=sin(atan2((-FrepY-FattY),(-FattX-FrepX)));
+            end
         end
     end
-    hq=quiver(X*scale,Y*scale,DX,DY,'color',[0,0,0]);
+
+     hq=quiver(X*scale,Y*scale,DX,DY,'color','cyan');%[0,0,0.5]); 
+
     end
 %     set(hq,'linewidth',2);
 %         drawnow
@@ -432,12 +457,13 @@ epsilon = 1*scale;
        
 end
     
-    plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
-    plot(currgoalX , currgoalY,'*','Markersize',16,'color','yellow','linewidth',3);
+    plot(M(1,1),M(1,2),'*','Markersize',16,'color','red', 'linewidth',0.5);
+    plot(currgoalX , currgoalY,'*','Markersize',16,'color','yellow','linewidth',0.5);
     plot(goalX*scale , goalY*scale,'*','Markersize',16,'color','green','linewidth',3);
     plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','cyan','linewidth',3);
     circle(goalX*scale, goalY*scale,goalSize*scale);
     circle(ObjectCentroidX, ObjectCentroidY,ObjectRadius);
+
     for i = 1:size(corners)
         txt = int2str(i);
         text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
