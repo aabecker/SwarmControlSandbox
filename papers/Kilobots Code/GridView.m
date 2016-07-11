@@ -38,7 +38,7 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
 goalX = 4;
 goalY = 4;
 s = size(BW);
-scale = 30;
+scale = floor(s(2)/numberOfSquares);
 sizeOfMap = floor(s/scale);
 map = zeros(sizeOfMap(1),sizeOfMap(2));
 

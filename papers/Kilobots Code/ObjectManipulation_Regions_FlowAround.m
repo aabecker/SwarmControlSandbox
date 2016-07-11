@@ -6,17 +6,24 @@
 clear all
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(1);
+cam = webcam(2);
 Relay=0;
 
 VarCont = false;
 flowDebug = true;
 
-goalX = 6;
-goalY = 5;
-
 success = false;
 again = true;
+
+if (ispc==1)  
+    goalX = 2.5;
+    goalY = 3;
+    goalSize = 2;
+else 
+    goalX = 6;
+    goalY = 5;
+    goalSize = 4;
+end 
 % %%% First finding value iteration and creating the map:
 % originalImage = snapshot(cam);
 % img = imcrop(originalImage,[345 60 1110 850]);
@@ -34,7 +41,7 @@ load('ThresholdMaps','transferRegion','mainRegion');
 % figure(2),imshow(transferRegion(:,:,2));
 % figure(3),imshow(mainRegion);
 if (ispc==1)  
-    a = arduino('Com4','uno');
+    a = arduino('Com5','uno');
 else 
     a = arduino('/dev/tty.usbmodem1421','uno');
 end 
@@ -77,7 +84,7 @@ else
     originalImage = imcrop(rgbIm,[345 60 1110 850]);
 end 
  s = size(originalImage);
- scale = 30;
+ scale = floor( size(originalImage,2)/size(mainRegion,2));
  epsilon = 1* scale;
  sizeOfMap = floor(s/scale);
  imshow(originalImage);
@@ -126,10 +133,14 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
 [B,L] = bwboundaries(BW, 'noholes');
 
 
-stat = regionprops(L,'Centroid','Area','PixelIdxList');
+stat = regionprops(L,'Centroid','Area','PixelIdxList','MajorAxisLength','MinorAxisLength');
 
 [maxValue,index] = max([stat.Area]);
 centroids = cat(1, stat.Centroid);
+lengthsMajor = cat(1,stat.MajorAxisLength);
+lengthsMinor = cat(1,stat.MinorAxisLength);
+
+ObjectRadius = mean([lengthsMajor(index) lengthsMinor(index)],2)/2;
 ObjectCentroidX = centroids(index,1);
 ObjectCentroidY = centroids(index,2);
 hold on
@@ -312,10 +323,11 @@ if ~VarCont & ~NumRobotCont
 %         end
 %     end
 %% Flow Around Goal Algorithm
-    r = 2.5;
     alphaWant=atan2(movesX(indOY,indOX),movesY(indOY,indOX));
-    repPointX=ObjectCentroidX/scale;% - r * cos(alphaWant+pi);
-    repPointY=ObjectCentroidY/scale;% - r * sin(alphaWant+pi);
+
+    repPointX=ObjectCentroidX/scale;
+    repPointY=ObjectCentroidY/scale;
+
     theta = atan2((M(1,2)/scale - repPointY),(M(1,1)/scale - repPointX));
     angdiff = alphaWant-theta;
     rho=sqrt((M(1,1)/scale-repPointX)^2 + (M(1,2)/scale-repPointY)^2);
@@ -328,15 +340,16 @@ if ~VarCont & ~NumRobotCont
     
     if ((rho<rhoNot) && (abs(angdiff)<pi*5/8))
         epsilon = 0.2 * scale;
-        disp('In Flow Around Goal Type')
+
+        %disp('In Flow Control Goal System')
         FrepX=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointX-M(1,1)/scale);
         FrepY=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(repPointY-M(1,2)/scale);
         
-        attPointX=ObjectCentroidX/scale - r * cos(alphaWant);
-        attPointY=ObjectCentroidY/scale - r * sin(alphaWant);
-        rho=sqrt((M(1,1)/scale-attPointX)^2 + (M(1,2)/scale-attPointY)^2);
-        FattX=zeta*(M(1,1)/scale-attPointX)/rho;
-        FattY=zeta*(M(1,2)/scale-attPointY)/rho;
+        attPointX=ObjectCentroidX/scale - ObjectRadius/scale * cos(alphaWant);
+        attPointY=ObjectCentroidY/scale - ObjectRadius/scale * sin(alphaWant);
+        rho=sqrt((M(1,1)-attPointX)^2 + (M(1,2)-attPointY)^2);
+        FattX=zeta*(M(1,1)-attPointX)/rho;
+        FattY=zeta*(M(1,2)-attPointY)/rho;
         
          currgoalX=M(1,1)/scale*scale+cos(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
          currgoalY=M(1,2)/scale*scale+sin(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
@@ -374,9 +387,7 @@ epsilon = 1*scale;
         else
             r = 2.5;
         end
-
-        
-        
+      
         currgoalX = ObjectCentroidX - r*scale * movesY(indOY,indOX);
         currgoalY = ObjectCentroidY - r*scale * movesX(indOY,indOX);
 %         if M(1,1) > ObjectCentroidX- r*scale+ep || M(1,1) < ObjectCentroidX-r*scale-ep
@@ -413,26 +424,32 @@ epsilon = 1*scale;
     if(angdiffD < -pi) 
         angdiffD = angdiffD + 2*pi;
     end
+
     if ((rhoD<rhoNot) && (abs(angdiffD)<pi*5/8))
+
         FrepX=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointX-i);
         FrepY=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointY-j);
         
-        attPointX=ObjectCentroidX/scale - r * cos(alphaWant);
-        attPointY=ObjectCentroidY/scale - r * sin(alphaWant);
+        attPointX=ObjectCentroidX/scale - ObjectRadius/scale * cos(alphaWant);
+        attPointY=ObjectCentroidY/scale - ObjectRadius/scale * sin(alphaWant);
         rhoD=sqrt((i-attPointX)^2 + (j-attPointY)^2);
         FattX=zeta*(i-attPointX)/rhoD;
         FattY=zeta*(j-attPointY)/rhoD;
         
-        plot(attPointX *scale, attPointY*scale,'*','Markersize',16,'color','blue','linewidth',3);
-        plot(repPointX*scale , repPointY*scale,'*','Markersize',16,'color','black','linewidth',3);
+        plot(attPointX *scale, attPointY*scale,'o','Markersize',16,'color','blue','linewidth',3);
+        plot(repPointX*scale , repPointY*scale,'o','Markersize',16,'color','cyan','linewidth',3);
+
         X(i,j) = i;
         Y(i,j) = j;
+
         DX(i,j)=cos(atan2((-FrepY-FattY),(-FattX-FrepX)));
         DY(i,j)=sin(atan2((-FrepY-FattY),(-FattX-FrepX)));
             end
         end
     end
+
      hq=quiver(X*scale,Y*scale,DX,DY,'color','cyan');%[0,0,0.5]); 
+
     end
 %     set(hq,'linewidth',2);
 %         drawnow
@@ -443,8 +460,10 @@ end
     plot(M(1,1),M(1,2),'*','Markersize',16,'color','red', 'linewidth',0.5);
     plot(currgoalX , currgoalY,'*','Markersize',16,'color','yellow','linewidth',0.5);
     plot(goalX*scale , goalY*scale,'*','Markersize',16,'color','green','linewidth',3);
-    plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
-    circle(goalX*scale, goalY*scale,4*scale);
+    plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','cyan','linewidth',3);
+    circle(goalX*scale, goalY*scale,goalSize*scale);
+    circle(ObjectCentroidX, ObjectCentroidY,ObjectRadius);
+
     for i = 1:size(corners)
         txt = int2str(i);
         text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')

@@ -3,6 +3,7 @@
 %%% kilobots for compeleting a block pushing experiment.
 %%% By Shiva Shahrokhi Dec 2015, Jan 2016
 
+clear all
 
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
@@ -57,7 +58,7 @@ again = true;
 load('Map2', 'movesX', 'movesY','corners');
 
 if (ispc)  
-    a = arduino('Com4','uno');
+    a = arduino('COM5','Uno');
 else 
     a = arduino('/dev/tty.usbmodem1421','uno');
 end 
