@@ -8,8 +8,8 @@ clear all
 
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-webcam = false;
-relay = false;
+webcamShot = true;
+relay = true;
 success = false;
 first = true;
 delayTime = 10;
@@ -33,10 +33,10 @@ RELAY7 = 6;
 %southwest
 RELAY8 = 4;
 
-if webcam
-    cam = webcam(1);
+if webcamShot
+    cam = webcam(2);
 else
-    rgbIm = imread('test2.png');
+    rgbIm = imread('colortest.png');
     figure
     imshow(rgbIm)
 end
@@ -65,48 +65,58 @@ minVar = 11000; %was 12000
 t0 = tic;
 
 while success == false
-    success = true;
     if relay
         if again== true
             relayOn(a,0);
-    %         writeDigitalPin(a,RELAY3,0);
-    %         writeDigitalPin(a, RELAY8,0);
-    %         writeDigitalPin(a,RELAY5,0);
-    %         writeDigitalPin(a,RELAY7,0);
             pause (delayTime);
+            rgbIm = snapshot(cam);
         end 
     end
     
     %% Read in a webcam snapshot.
-    if webcam
+    if webcamShot
+        pause (5);
         rgbIm = snapshot(cam);
     end
     
     %% crop to have just the table view.
-    if webcam
+    if webcamShot
         if (ispc)  
             originalImage = imcrop(rgbIm,[50 10 500 400]);
+             imwrite(originalImage,'colortest.png');
+%             success=true;
         else 
             originalImage = imcrop(rgbIm,[345 60 1110 860]);
                      imwrite(originalImage,'test.png');
         end 
     else
         originalImage = rgbIm;
+        success = true;
     end
     
     I2 = rgb2hsv(originalImage);
-    
     % Define thresholds for channel 1 based on histogram settings
-    channel1Min2 = 0.902;
-    channel1Max2 = 0.938;
+    channel1Min2 = 0.910;
+    channel1Max2 = 0.937;
 
     % Define thresholds for channel 2 based on histogram settings
-    channel2Min2 = 0.205;
-    channel2Max2 = 1.000;
+    channel2Min2 = 0.420;
+    channel2Max2 = 0.794;
 
     % Define thresholds for channel 3 based on histogram settings
-    channel3Min2 = 0.795;
-    channel3Max2 = 1.000;
+    channel3Min2 = 0.678;
+    channel3Max2 = 0.916;
+%     % Define thresholds for channel 1 based on histogram settings
+%     channel1Min2 = 0.902;
+%     channel1Max2 = 0.938;
+% 
+%     % Define thresholds for channel 2 based on histogram settings
+%     channel2Min2 = 0.205;
+%     channel2Max2 = 1.000;
+% 
+%     % Define thresholds for channel 3 based on histogram settings
+%     channel3Min2 = 0.795;
+%     channel3Max2 = 1.000;
 
     % Create mask based on chosen histogram thresholds
     BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
@@ -115,15 +125,16 @@ while success == false
     
     % make HSV scale.
     I = rgb2hsv(originalImage);
-    % Define thresholds for channel 1 based on histogram settings
+
+    %Define thresholds for channel 1 based on histogram settings
     channel1Min = 0.065;
     channel1Max = 0.567;
 
-    % Define thresholds for channel 2 based on histogram settings
+    %Define thresholds for channel 2 based on histogram settings
     channel2Min = 0.288;
     channel2Max = 1.000;
 
-    % Define thresholds for channel 3 based on histogram settings
+    %Define thresholds for channel 3 based on histogram settings
     channel3Min = 0.400;
     channel3Max = 1.000;
 
@@ -159,9 +170,24 @@ while success == false
     plot(ObjectCentroidX,ObjectCentroidY,'*','Markersize',16,'color','blue','linewidth',3);
     t = (-01:.01:1)*100;
     line(ObjectCentroidX+t*sin(ObjectOrientation*pi/180+pi/2),ObjectCentroidY+t*cos(ObjectOrientation*pi/180+pi/2) , 'Color', 'black','linewidth',3);
-    plot(ObjectCentroidX + cos(ObjectOrientation*pi/180)* ObjectLength,ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength ,'v','Markersize',16,'color','white','linewidth',3);
-    plot(ObjectCentroidX - cos(ObjectOrientation*pi/180)* ObjectLength,ObjectCentroidY + sin(ObjectOrientation*pi/180)* ObjectLength ,'^','Markersize',16,'color',[0.75 0 0.75],'linewidth',3);
     
+    point1X = ObjectCentroidX - cos(ObjectOrientation*pi/180)* ObjectLength/2.3;
+    point1Y = ObjectCentroidY + sin(ObjectOrientation*pi/180)* ObjectLength/2.3;
+    point2X = ObjectCentroidX + cos(ObjectOrientation*pi/180)* ObjectLength/2.3;
+    point2Y = ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength/2.3;
+    if dist2points(ObjectCentroidX,0,point1X,point1Y)<dist2points(ObjectCentroidX,0,point2X,point2Y)
+        topPointX = point1X;
+        topPointY = point1Y;
+        botPointX = point2X;
+        botPointY = point2Y;
+    else
+        botPointX = point1X;
+        botPointY = point1Y;
+        topPointX = point2X;
+        topPointY = point2Y;
+    end
+    plot(botPointX,botPointY,'v','Markersize',16,'color','white','linewidth',3);
+    plot(topPointX,topPointY,'^','Markersize',16,'color',[0.75 0 0.75],'linewidth',3);
     %% threshold the image to remove shadows (and only show dark parts of kilobots)
     if ispc
         [centers, radii] = imfindcircles(BW,[4 6],'ObjectPolarity','bright','Sensitivity',0.97); 
@@ -175,7 +201,9 @@ while success == false
     V = var(centers);
     %Covariance
     C = cov(centers);
-    
+    goalAngle=120;
+    line(ObjectCentroidX+t*sin(goalAngle*pi/180+pi/2),ObjectCentroidY+t*cos(goalAngle*pi/180+pi/2) , 'Color', 'green','linewidth',3);
+   
     [s, l] = size(centers);
     h = viscircles(centers,radii,'EdgeColor','b');
     if s > 5 
@@ -198,13 +226,14 @@ while success == false
             VarCont = false;
         end
         if ~VarCont
-            %% Determine No,n-Variance Control Goal
-            if (ObjectOrientation+90)>3
-                currgoalX = ObjectCentroidX - cos(ObjectOrientation*pi/180)*ObjectLength/2.3 ;
-                currgoalY = ObjectCentroidY + sin(ObjectOrientation*pi/180)* ObjectLength/2.3;
-            elseif (ObjectOrientation+90)<-3
-                currgoalX = ObjectCentroidX + cos(ObjectOrientation*pi/180)*ObjectLength/2.3 ;
-                currgoalY = ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength/2.3;
+            %% Determine Non-Variance Control Goal
+            fromCenter=1;
+            if (((ObjectOrientation+goalAngle)>3 && M(1,1)>ObjectCentroidX)||((ObjectOrientation+goalAngle)<-3 && M(1,1)<ObjectCentroidX))
+                currgoalX = topPointX;
+                currgoalY = topPointY;
+            elseif (((ObjectOrientation+goalAngle)<-3 && M(1,1)>ObjectCentroidX)||((ObjectOrientation+goalAngle)>3 && M(1,1)<ObjectCentroidX))
+                currgoalX = botPointX;
+                currgoalY = botPointX;
             else
                 currgoalX = ObjectCentroidX;
                 currgoalY = ObjectCentroidY;
