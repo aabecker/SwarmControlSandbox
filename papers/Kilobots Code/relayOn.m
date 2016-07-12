@@ -1,4 +1,10 @@
 function relayOn(a,which)
+% RELAYON uses an existing arduino connection to turn on the lights
+%   RELAYON(a,which)
+%
+%       which = the relay number you would like to turn on
+%       a = an existing arduino connection
+
 % We have 8 Relays.
 %west
 RELAY1 = 9;
