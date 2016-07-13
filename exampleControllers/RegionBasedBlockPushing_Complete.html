@@ -311,6 +311,13 @@ var mostRobotRegion = null; //for adjacent regionsf
 var robotMain = null; //what map are the most robots in?
 var robotCornerCount = null;
 var DrawForce_DebugMode = true;
+
+var max_desired_var_x = null;//numrobots * robotrad * max_desired_var_x_constant; //was 1.91
+var min_desired_var_x = null; //was .663
+var max_desired_var_y = max_desired_var_x;
+var min_desired_var_y = min_desired_var_x;
+var max_desired_var_x_constant = .5; 
+var min_desired_var_x_constant = .2;
     //determines variance corner based on regions
 function findRegionBasedVar(regionMain, objRegion, robotMain, mostRobotRegion) {
     var corner;
@@ -549,8 +556,8 @@ function init()
     //create an object to move
 	if(!MDP_DebugMode && !Gradient_DebugMode){
 		bodyDef.type = b2Body.b2_dynamicBody;
-		fixDef.density = 10.0;
-		fixDef.friction = 0.5;
+		fixDef.density = 6.0;
+		fixDef.friction = 0.3;
     fixDef.restitution = 0.2;  //bouncing value
     bodyDef.position.Set(7,17.5);
     bodyDef.userData = 'moveable';
@@ -593,9 +600,9 @@ function init()
 	{
 		numrobots = 0;
 	}
-	fixDef.density = 10.0;
+	fixDef.density = 8.0;
 	fixDef.friction = 3;
-	fixDef.restitution = .1; //bouncing value
+	fixDef.restitution = .2; //bouncing value
 	fixDef.isSensor = false;
 	var m_Robot = new Array();
 	var rowLength = Math.floor(5/(2*robotrad));
@@ -1138,7 +1145,7 @@ function init()
 			for (var i = 0; i < numrobots; ++i) {
 				var pos_x = Math.floor(m_Robot[i].GetPosition().x);
 				var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-				console.log("POS " + pos_x + " " + pos_y);
+				//console.log("POS " + pos_x + " " + pos_y);
 				var pos = mainMaps[regionNum][pos_x][pos_y];
 				if (pos == 1) {
 					sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
@@ -1151,7 +1158,7 @@ function init()
 			for (var i = 0; i < numrobots; ++i) {
 				var pos_x = Math.floor(m_Robot[i].GetPosition().x);
 				var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-				console.log("POS "+pos_x +" " + pos_y);
+				//console.log("POS "+pos_x +" " + pos_y);
 				var pos = transferMaps[regionNum][pos_x][pos_y];
 				if (pos == 1) {
 					sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
@@ -1161,10 +1168,10 @@ function init()
 			}
 		}
 
-		var max_desired_var_x = numrobots * robotrad * .6;//numrobots * robotrad * .20; //was 1.91
-		var min_desired_var_x = numrobots * robotrad * .2; //was .663
-		var max_desired_var_y = max_desired_var_x;
-		var min_desired_var_y = min_desired_var_x;
+		max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
+		min_desired_var_x = numrobots * robotrad * min_desired_var_x_constant; //was .663
+		max_desired_var_y = max_desired_var_x;
+		min_desired_var_y = min_desired_var_x;
 
 		var var_x = sum2_x / numrobots;
 		var var_y = sum2_y / numrobots;
@@ -1261,8 +1268,9 @@ function init()
 		        }
 		    }
 		    console.log("robotCornerCount " + robotCornerCount);
-		    if (robotCornerCount > minRobotCount) {
-		        robotVar = true;
+		    if (robotCornerCount > minRobotCount || robotCornerCount == regionRobotCount) {
+		        console.log("gets out of corner var");
+		        robotVar = false;
 		    }
 
 		}
@@ -1333,7 +1341,7 @@ function init()
 				}
 				var cornerCali = findRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);//finds corner based on regions
 				IndexMinDist = cornerCali;
-				console.log("flagVar cornerCali: " + cornerCali);
+				//console.log("flagVar cornerCali: " + cornerCali);
 				goalX = CornerValuesX[IndexMinDist];
 				goalY = CornerValuesY[IndexMinDist];
 				
@@ -1371,7 +1379,7 @@ function init()
 					FattY = zeta*(mean_position_y - attPointY)/rho;
 					goalX = mean_position_x - 1.25*Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
 					goalY = mean_position_y - 1.25*Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));
-					max_desired_var_x = numrobots * robotrad * .6;//numrobots * robotrad * .20; //was 1.91
+					max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
 					max_desired_var_y = max_desired_var_x;
 					goalAngle = 2/16*Math.PI;
 				}else if(!robotVar)
@@ -1380,7 +1388,7 @@ function init()
 					//goalY = blockCOM_y - r * policy_y[block_x][block_y];
 					goalX = mean_position_x + 1.25*Math.cos(Math.atan2(blockCOM_y - r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x - r * policy_x[block_x][block_y]-mean_position_x));
 					goalY = mean_position_y + 1.25*Math.sin(Math.atan2(blockCOM_y - r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x - r * policy_x[block_x][block_y]-mean_position_x));
-					max_desired_var_x = numrobots * robotrad * .6;//numrobots * robotrad * .20; //was 1.91
+					max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
 					max_desired_var_y = max_desired_var_x;
 					goalAngle = 2/8*Math.PI;
 				}
@@ -1432,7 +1440,7 @@ function init()
 			}*/
 		}
 
-		console.log("elapsedTime " + elapsedTimeSec);
+		//console.log("elapsedTime " + elapsedTimeSec);
 		if (elapsedTimeSec > 600) { //runtime error
 		    var state = JSON.parse(localStorage.getItem("test"));
 		    //alert(JSON.stringify(state));
