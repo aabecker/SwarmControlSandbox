@@ -236,29 +236,31 @@ while success == false
             VarCont = false;
         end
         if ~VarCont
-            %% Determine Non-Variance Control Goal w/ 3 Degree Tolerance
-            goal1X = ObjectCentroidX - cos(goalAngle*pi/180)* ObjectLength/2.3;
-            goal1Y = ObjectCentroidY + sin(goalAngle*pi/180)* ObjectLength/2.3;
-            goal2X = ObjectCentroidX + cos(goalAngle*pi/180)* ObjectLength/2.3;
-            goal2Y = ObjectCentroidY - sin(goalAngle*pi/180)* ObjectLength/2.3;
+            %% Determine Non-Variance Control Goal w/ 5 Degree Tolerance
+            if ObjectOrientation>goalAngle+5||ObjectOrientation<goalAngle-5
+                goal1X = ObjectCentroidX - cos(goalAngle*pi/180)* ObjectLength/2.3;
+                goal1Y = ObjectCentroidY + sin(goalAngle*pi/180)* ObjectLength/2.3;
+                goal2X = ObjectCentroidX + cos(goalAngle*pi/180)* ObjectLength/2.3;
+                goal2Y = ObjectCentroidY - sin(goalAngle*pi/180)* ObjectLength/2.3;
 
-            if goal1Y<goal2Y
-                topGoalX = goal1X;
-                topGoalY = goal1Y;
-                botGoalX = goal2X;
-                botGoalY = goal2Y;
-            else
-                botGoalX = goal1X;
-                botGoalY = goal1Y;
-                topGoalX = goal2X;
-                topGoalY = goal2Y;
-            end
-            if (topGoalX>topPointX && M(1)<(M(2)-offset)/slope)||(topGoalX<topPointX && M(1)>(M(2)-offset)/slope)
-                currgoalX = topPointX;
-                currgoalY = topPointY;
-            elseif (topGoalX<topPointX && M(1)<(M(2)-offset)/slope)||(topGoalX>topPointX && M(1)>(M(2)-offset)/slope)
-                currgoalX = botPointX;
-                currgoalY = botPointY;
+                if goal1Y<goal2Y
+                    topGoalX = goal1X;
+                    topGoalY = goal1Y;
+                    botGoalX = goal2X;
+                    botGoalY = goal2Y;
+                else
+                    botGoalX = goal1X;
+                    botGoalY = goal1Y;
+                    topGoalX = goal2X;
+                    topGoalY = goal2Y;
+                end
+                if (topGoalX>topPointX && M(1)<(M(2)-offset)/slope)||(topGoalX<topPointX && M(1)>(M(2)-offset)/slope)
+                    currgoalX = topPointX;
+                    currgoalY = topPointY;
+                else
+                    currgoalX = botPointX;
+                    currgoalY = botPointY;
+                end
             else
                 VarCont = true;
             end
