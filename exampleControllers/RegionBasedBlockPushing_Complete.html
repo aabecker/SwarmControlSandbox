@@ -317,7 +317,7 @@ var min_desired_var_x = null; //was .663
 var max_desired_var_y = max_desired_var_x;
 var min_desired_var_y = min_desired_var_x;
 var max_desired_var_x_constant = .5; 
-var min_desired_var_x_constant = .2;
+var min_desired_var_x_constant = .1;
     //determines variance corner based on regions
 function findRegionBasedVar(regionMain, objRegion, robotMain, mostRobotRegion) {
     var corner;
@@ -602,7 +602,7 @@ function init()
 	}
 	fixDef.density = 8.0;
 	fixDef.friction = 3;
-	fixDef.restitution = .2; //bouncing value
+	fixDef.restitution = .5; //bouncing value
 	fixDef.isSensor = false;
 	var m_Robot = new Array();
 	var rowLength = Math.floor(5/(2*robotrad));
@@ -793,6 +793,7 @@ function init()
 		var brownianImpulse = new b2Vec2(0,0);
 		var mag = 0;
 		var ang = 0;
+		var vary = 25;
 		for(var i =0; i<m_Robot.length; i++)
 		{
 			mag = vary * Math.random();
@@ -1353,7 +1354,7 @@ function init()
 			{
 				var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
 				if (COMdist2swarm < 1.5) {
-				    var r = 0.1;
+				    var r = 0.8;
 				}else var r = 0.8;
 				
 				alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
