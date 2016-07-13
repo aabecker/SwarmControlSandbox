@@ -109,7 +109,7 @@ moves[8] = [0, 0];
 
 var zeta = 1;
 var eta = 7.5;
-var rhoNot = 3; //radius for flow around
+var rhoNot = 5; //radius for flow around was 3 
 var rho = 0;
 var alphaWant = 0;
 
@@ -301,7 +301,7 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 var mainMaps = new Array();
 var transferMaps = new Array();
     //controls for simulation tests
-var testRobots = false;
+var testRobots = true;
 var testNoise = false;
 var TestShapes = false;
 
@@ -316,7 +316,7 @@ var max_desired_var_x = null;//numrobots * robotrad * max_desired_var_x_constant
 var min_desired_var_x = null; //was .663
 var max_desired_var_y = max_desired_var_x;
 var min_desired_var_y = min_desired_var_x;
-var max_desired_var_x_constant = .5; 
+var max_desired_var_x_constant = .3; 
 var min_desired_var_x_constant = .1;
     //determines variance corner based on regions
 function findRegionBasedVar(regionMain, objRegion, robotMain, mostRobotRegion) {
@@ -556,7 +556,7 @@ function init()
     //create an object to move
 	if(!MDP_DebugMode && !Gradient_DebugMode){
 		bodyDef.type = b2Body.b2_dynamicBody;
-		fixDef.density = 6.0;
+		fixDef.density = 8.0;
 		fixDef.friction = 0.3;
     fixDef.restitution = 0.2;  //bouncing value
     bodyDef.position.Set(7,17.5);
@@ -600,7 +600,7 @@ function init()
 	{
 		numrobots = 0;
 	}
-	fixDef.density = 8.0;
+	fixDef.density = 10.0;
 	fixDef.friction = 3;
 	fixDef.restitution = .5; //bouncing value
 	fixDef.isSensor = false;
@@ -793,7 +793,7 @@ function init()
 		var brownianImpulse = new b2Vec2(0,0);
 		var mag = 0;
 		var ang = 0;
-		var vary = 25;
+		var vary = 20; //was 25
 		for(var i =0; i<m_Robot.length; i++)
 		{
 			mag = vary * Math.random();
@@ -1416,8 +1416,8 @@ function init()
 				width: 3 * 30*Math.sqrt(max_desired_var_x), height: 3 * 30*Math.sqrt(max_desired_var_y),
 				rotate: angle2
 			}).restoreCanvas();
-			var Kgain = 10;
-			var Kderivative = 1;
+			var Kgain = 6; //faster=bigger
+			var Kderivative = 1; //smaller=faster
 			var sum_velocity_x = 0;
 			var sum_velocity_y = 0;
 			for(var i = 0; i < numrobots; ++i) {
