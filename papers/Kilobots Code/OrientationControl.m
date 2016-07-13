@@ -9,7 +9,7 @@ clear all
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
 webcamShot = true;
-relay = true;
+relay = false;
 success = false;
 first = true;
 delayTime = 10;
@@ -93,36 +93,26 @@ while success == false
         originalImage = rgbIm;
         success = true;
     end
-    
+    %% Threshold for Object
     I2 = rgb2hsv(originalImage);
+    
     % Define thresholds for channel 1 based on histogram settings
-    channel1Min2 = 0.910;
-    channel1Max2 = 0.937;
+    channel1Min2 = 0.862;
+    channel1Max2 = 0.945;
 
     % Define thresholds for channel 2 based on histogram settings
-    channel2Min2 = 0.420;
-    channel2Max2 = 0.794;
+    channel2Min2 = 0.272;
+    channel2Max2 = 1.000;
 
     % Define thresholds for channel 3 based on histogram settings
-    channel3Min2 = 0.678;
-    channel3Max2 = 0.916;
-%     % Define thresholds for channel 1 based on histogram settings
-%     channel1Min2 = 0.902;
-%     channel1Max2 = 0.938;
-% 
-%     % Define thresholds for channel 2 based on histogram settings
-%     channel2Min2 = 0.205;
-%     channel2Max2 = 1.000;
-% 
-%     % Define thresholds for channel 3 based on histogram settings
-%     channel3Min2 = 0.795;
-%     channel3Max2 = 1.000;
+    channel3Min2 = 0.000;
+    channel3Max2 = 1.000;
 
     % Create mask based on chosen histogram thresholds
     BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
         (I2(:,:,2) >= channel2Min2 ) & (I2(:,:,2) <= channel2Max2) & ...
         (I2(:,:,3) >= channel3Min2 ) & (I2(:,:,3) <= channel3Max2);
-    
+    %% Threshold for Robots
     % make HSV scale.
     I = rgb2hsv(originalImage);
 
@@ -152,9 +142,16 @@ while success == false
     majorLength = cat(1, stat.MajorAxisLength);
     ObjectCentroidX = centroids(index,1);
     ObjectCentroidY = centroids(index,2);
-    ObjectOrientation = orientations(index);
+    ObjectOrientation = orientations(index)
     ObjectLength = majorLength(index);
     imshow(originalImage);
+    while (ObjectOrientation>90||ObjectOrientation<=-90)
+        if ObjectOrientation>90
+            ObjectOrientation=ObjectOrientation-180;
+        elseif ObjectOrientation<=-90
+            ObjectOrientation=ObjectOrientation+180;
+        end
+    end
     hold on
     for i = 1:size(corners)
         txt = int2str(i);
@@ -175,7 +172,10 @@ while success == false
     point1Y = ObjectCentroidY + sin(ObjectOrientation*pi/180)* ObjectLength/2.3;
     point2X = ObjectCentroidX + cos(ObjectOrientation*pi/180)* ObjectLength/2.3;
     point2Y = ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength/2.3;
-    if dist2points(ObjectCentroidX,0,point1X,point1Y)<dist2points(ObjectCentroidX,0,point2X,point2Y)
+    
+    slope = (point2Y-point1Y)/(point2X-point1X);
+    offset = point1Y - slope*point1X;
+    if point1Y<point2Y
         topPointX = point1X;
         topPointY = point1Y;
         botPointX = point2X;
@@ -186,6 +186,7 @@ while success == false
         topPointX = point2X;
         topPointY = point2Y;
     end
+    
     plot(botPointX,botPointY,'v','Markersize',16,'color','white','linewidth',3);
     plot(topPointX,topPointY,'^','Markersize',16,'color',[0.75 0 0.75],'linewidth',3);
     %% threshold the image to remove shadows (and only show dark parts of kilobots)
@@ -201,7 +202,16 @@ while success == false
     V = var(centers);
     %Covariance
     C = cov(centers);
-    goalAngle=120;
+    %% Create Goal Angle
+    goalAngle=-60;
+    while (goalAngle>90||goalAngle<=-90)
+        if goalAngle>90
+            goalAngle=goalAngle-180;
+        elseif goalAngle<=-90
+            goalAngle=goalAngle+180;
+        end
+    end
+    
     line(ObjectCentroidX+t*sin(goalAngle*pi/180+pi/2),ObjectCentroidY+t*cos(goalAngle*pi/180+pi/2) , 'Color', 'green','linewidth',3);
    
     [s, l] = size(centers);
@@ -226,19 +236,34 @@ while success == false
             VarCont = false;
         end
         if ~VarCont
-            %% Determine Non-Variance Control Goal
-            fromCenter=1;
-            if (((ObjectOrientation+goalAngle)>3 && M(1,1)>ObjectCentroidX)||((ObjectOrientation+goalAngle)<-3 && M(1,1)<ObjectCentroidX))
+            %% Determine Non-Variance Control Goal w/ 3 Degree Tolerance
+            goal1X = ObjectCentroidX - cos(goalAngle*pi/180)* ObjectLength/2.3;
+            goal1Y = ObjectCentroidY + sin(goalAngle*pi/180)* ObjectLength/2.3;
+            goal2X = ObjectCentroidX + cos(goalAngle*pi/180)* ObjectLength/2.3;
+            goal2Y = ObjectCentroidY - sin(goalAngle*pi/180)* ObjectLength/2.3;
+
+            if goal1Y<goal2Y
+                topGoalX = goal1X;
+                topGoalY = goal1Y;
+                botGoalX = goal2X;
+                botGoalY = goal2Y;
+            else
+                botGoalX = goal1X;
+                botGoalY = goal1Y;
+                topGoalX = goal2X;
+                topGoalY = goal2Y;
+            end
+            if (topGoalX>topPointX && M(1)<(M(2)-offset)/slope)||(topGoalX<topPointX && M(1)>(M(2)-offset)/slope)
                 currgoalX = topPointX;
                 currgoalY = topPointY;
-            elseif (((ObjectOrientation+goalAngle)<-3 && M(1,1)>ObjectCentroidX)||((ObjectOrientation+goalAngle)>3 && M(1,1)<ObjectCentroidX))
+            elseif (topGoalX<topPointX && M(1)<(M(2)-offset)/slope)||(topGoalX>topPointX && M(1)>(M(2)-offset)/slope)
                 currgoalX = botPointX;
-                currgoalY = botPointX;
+                currgoalY = botPointY;
             else
-                currgoalX = ObjectCentroidX;
-                currgoalY = ObjectCentroidY;
+                VarCont = true;
             end
         end
+        
         plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
         plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
 
@@ -331,11 +356,11 @@ while success == false
 %         end
 %         end
         save('TorqueResultC03rd', 'drawTime');
-        if (toc(t0) > 300 && relay)
-            success = true;
-
-            figure
-            plot(drawTime(:,2),drawTime(:,1));
-        end
+%         if (toc(t0) > 300 && relay)
+%             success = true;
+% 
+%             figure
+%             plot(drawTime(:,2),drawTime(:,1));
+%         end
     end
 end
