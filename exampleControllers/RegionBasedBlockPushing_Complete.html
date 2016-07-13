@@ -301,7 +301,7 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 var mainMaps = new Array();
 var transferMaps = new Array();
     //controls for simulation tests
-var testRobots = true;
+var testRobots = false;
 var testNoise = false;
 var TestShapes = false;
 
@@ -571,8 +571,8 @@ function init()
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.13; //for SwarmControl.net, we used 0.2;
-	var numrobots = 200;//Math.floor(20/(4*robotrad*robotrad));
-	var totalRobots = 200;	//for regions calculations
+	var numrobots = 100;//Math.floor(20/(4*robotrad*robotrad));
+	var totalRobots = 100;	//for regions calculations
 	var vary = .5; //was .5 / 1
 	if (testRobots||testNoise) {//getting values to run simulations
 	    var inputTest = JSON.parse(localStorage.getItem("test"));
