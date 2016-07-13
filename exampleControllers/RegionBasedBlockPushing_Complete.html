@@ -586,10 +586,6 @@ function init()
 	    }
 	}
 
-	var max_desired_var_x = numrobots * robotrad * .6;//numrobots * robotrad * .20; //was 1.91
-	var min_desired_var_x = numrobots * robotrad * .25; //was .663
-	var max_desired_var_y = max_desired_var_x;
-	var min_desired_var_y = min_desired_var_x;
 	var CornerValuesX = [1, 19, 19, 1, 1, 100]; //variance corners
 	var CornerValuesY = [19, 19, 7, 13, 1, 100];
 	var CornerValuesD = [51, 41, 30, 24, 17, 100];
@@ -1165,6 +1161,11 @@ function init()
 			}
 		}
 
+		var max_desired_var_x = numrobots * robotrad * .6;//numrobots * robotrad * .20; //was 1.91
+		var min_desired_var_x = numrobots * robotrad * .2; //was .663
+		var max_desired_var_y = max_desired_var_x;
+		var min_desired_var_y = min_desired_var_x;
+
 		var var_x = sum2_x / numrobots;
 		var var_y = sum2_y / numrobots;
 		var diffeq = Math.sqrt( (var_x-var_y)*(var_x-var_y)/4 + cov_xy*cov_xy);
@@ -1370,7 +1371,7 @@ function init()
 					FattY = zeta*(mean_position_y - attPointY)/rho;
 					goalX = mean_position_x - 1.25*Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
 					goalY = mean_position_y - 1.25*Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));
-					max_desired_var_x = numrobots * robotrad * .8;//numrobots * robotrad * .20; //was 1.91
+					max_desired_var_x = numrobots * robotrad * .6;//numrobots * robotrad * .20; //was 1.91
 					max_desired_var_y = max_desired_var_x;
 					goalAngle = 2/16*Math.PI;
 				}else if(!robotVar)
@@ -1379,7 +1380,7 @@ function init()
 					//goalY = blockCOM_y - r * policy_y[block_x][block_y];
 					goalX = mean_position_x + 1.25*Math.cos(Math.atan2(blockCOM_y - r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x - r * policy_x[block_x][block_y]-mean_position_x));
 					goalY = mean_position_y + 1.25*Math.sin(Math.atan2(blockCOM_y - r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x - r * policy_x[block_x][block_y]-mean_position_x));
-					max_desired_var_x = numrobots * robotrad * .8;//numrobots * robotrad * .20; //was 1.91
+					max_desired_var_x = numrobots * robotrad * .6;//numrobots * robotrad * .20; //was 1.91
 					max_desired_var_y = max_desired_var_x;
 					goalAngle = 2/8*Math.PI;
 				}
