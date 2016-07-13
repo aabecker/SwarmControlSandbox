@@ -8,9 +8,9 @@ clear all
 
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-webcam1 = false;
-relay = false;
-inDebug = true;
+webcam1 = true;
+relay = true;
+inDebug = false;
 success = false;
 first = true;
 delayTime = 10;
@@ -56,8 +56,8 @@ if relay
 end
 minDis = 10000;
 corInd = 0;
-maxVar = 12000; %was 16000
-minVar = 11000; %was 12000
+maxVar = 38000; %was 16000
+minVar = 37000; %was 12000
 t0 = tic;
 while success == false
     if inDebug
@@ -161,7 +161,7 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
     [B,L] = bwboundaries(BW2, 'noholes');
     stat = regionprops(L,'Centroid','Orientation','MajorAxisLength', 'Area');
     [maxValue,index] = max([stat.Area]);
-    area = cat(1,stat.Area)
+    area = cat(1,stat.Area);
     centroids = cat(1, stat.Centroid);
     orientations = cat(1, stat.Orientation);
     majorLength = cat(1, stat.MajorAxisLength);
@@ -253,7 +253,7 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
       VarCont = false;
    end
    if ~VarCont
-       CL =-1/4;
+       CL =1/2;
        currgoalX = ObjectCentroidX + cos(ObjectOrientation*pi/180)*ObjectLength * CL;
        currgoalY = ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength*CL;
    end
@@ -357,9 +357,10 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
 %             end
 %         end
 %         end
-    save('TorqueResultC03rd', 'drawTime');
+    save('PureTorqueEndPoint1st', 'drawTime');
     if (toc(t0) > 300 && relay)
         success = true;
+        
         
         figure
         plot(drawTime(:,2),drawTime(:,1));

@@ -143,6 +143,7 @@ lengthsMinor = cat(1,stat.MinorAxisLength);
 ObjectRadius = mean([lengthsMajor(index) lengthsMinor(index)],2)/2;
 ObjectCentroidX = centroids(index,1);
 ObjectCentroidY = centroids(index,2);
+BW(stat(index).PixelIdxList)=0;
 hold on
 plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
 hold off
@@ -184,7 +185,7 @@ if(position==0)
 end
 
 %plot(corners,'*','Markersize',16,'color','green','linewidth',3); 
-BW(stat(index).PixelIdxList)=0;
+
 
   %threshold the image to remove shadows (and only show dark parts of kilobots)
   if ispc
@@ -224,6 +225,7 @@ BW(stat(index).PixelIdxList)=0;
     V = var(cenArray);
     %Covariance
     C = cov(cenArray);
+    
 %C = cov(centers);
     
     h = viscircles(centers,radii,'EdgeColor','b');
@@ -338,7 +340,7 @@ if ~VarCont & ~NumRobotCont
         angdiff = angdiff + 2*pi;
     end
     
-    if ((rho<rhoNot) && (abs(angdiff)<pi*2/8))
+    if ((rho<rhoNot) && (abs(angdiff)<pi*4/8))
         epsilon = 0.2 * scale;
 
         %disp('In Flow Control Goal System')
@@ -425,7 +427,7 @@ epsilon = 1*scale;
         angdiffD = angdiffD + 2*pi;
     end
 
-    if ((rhoD<rhoNot) && (abs(angdiffD)<pi*2/8))
+    if ((rhoD<rhoNot) && (abs(angdiffD)<pi*4/8))
 
         FrepX=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointX-i);
         FrepY=eta*((rhoD^(-1))-(rhoNot^(-1)))*(rhoD^(-1))^2*(repPointY-j);
