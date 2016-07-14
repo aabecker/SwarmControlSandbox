@@ -6,7 +6,7 @@
 function HandCov()
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(2);
+cam = webcam(1);
 global q goalX
 % this is the mean y goal
 goalYM = 434;
@@ -72,14 +72,14 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
 
 stat = regionprops(L,'Centroid','Area','PixelIdxList');
 
-[maxValue,index] = max([stat.Area]);
-centroids = cat(1, stat.Centroid);
-ObjectCentroidX = centroids(index,1);
-ObjectCentroidY = centroids(index,2);
-plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
+% [maxValue,index] = max([stat.Area]);
+% centroids = cat(1, stat.Centroid);
+% ObjectCentroidX = centroids(index,1);
+% ObjectCentroidY = centroids(index,2);
+% plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
     [centers, radii] = imfindcircles(BW,[10 19],'ObjectPolarity','bright','Sensitivity',0.92 );
     
-    % %Mean
+    %Mean
     M = mean(centers);
     %Variance
     V = var(centers);
@@ -93,7 +93,7 @@ plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','line
     
     if isnan(M)== false 
         
-    if s > 85 
+    if s >5 
     hold on
     
     plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red');
@@ -146,5 +146,6 @@ function  sqWave_callback_fcn(src,evt, goal1x, goal2x,t0) %#ok<DEFNU>
 
 
 end
-
 end
+
+
