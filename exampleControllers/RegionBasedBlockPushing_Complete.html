@@ -53,6 +53,8 @@ var mapYSize = 20;
 var mapScale = 40;
 var goalX = 5;
 var goalY = 18;
+var distX = 5;
+var distY = 18;
 var m_controlState = ROBOT_INPUT.ROBOT_IDLE;
 
 var blockCOM_x = 0;
@@ -1350,51 +1352,53 @@ function init()
 				//goalY = mean_position_y + Math.sin(Math.atan2(CornerValuesY[IndexMinDist]-mean_position_y,CornerValuesX[IndexMinDist]-mean_position_x));
 				goalAngle = 2/8*Math.PI;
 			}
-			if(!flagVar)
-			{
-				var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-				if (COMdist2swarm < 1.5) {
-				    var r = 0.8;
-				}else var r = 0.8;
-				
+			if(!flagVar){
 				alphaWant = Math.atan2(policy_y[block_x][block_y],policy_x[block_x][block_y]);
-				
+					
 				attPointX=blockCOM_x - r * Math.cos(alphaWant+Math.PI);
 				attPointY=blockCOM_y - r * Math.sin(alphaWant+Math.PI);
 				repPointX=blockCOM_x;
 				repPointY=blockCOM_y;
-
-				rho=lineDistance(mean_position_x, mean_position_y,repPointX,repPointY);
-			
-				theta = Math.atan2(mean_position_y - repPointY,mean_position_x - repPointX);
-				angdiff = alphaWant-theta;
-				if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
-				if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
-				var CGoal = 1;
 				
-				if((rho<rhoNot&&Math.abs(angdiff)>(goalAngle))&&!robotVar)
+				if (!(elapsedTimeSec%1))
 				{
-
-					FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointX - mean_position_x);//change these lines
-					FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointY - mean_position_y);
-					rho=lineDistance(mean_position_x, mean_position_y,attPointX,attPointY);
-					FattX = zeta*(mean_position_x - attPointX)/rho;//change these lines
-					FattY = zeta*(mean_position_y - attPointY)/rho;
-					goalX = mean_position_x - CGoal*Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
-					goalY = mean_position_y - CGoal*Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));
-					max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
-					max_desired_var_y = max_desired_var_x;
-					goalAngle = 2/16*Math.PI;
-				}else if(!robotVar)
-				{
-					//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-					//goalY = blockCOM_y + r * policy_y[block_x][block_y];
-					goalX = mean_position_x + CGoal*Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x + r * policy_x[block_x][block_y]-mean_position_x));
-					goalY = mean_position_y + CGoal*Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x + r * policy_x[block_x][block_y]-mean_position_x));
-					max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
-					max_desired_var_y = max_desired_var_x;
-					goalAngle = 1/16*Math.PI;
+					var r = 0.8;
+					
+					rho=lineDistance(mean_position_x, mean_position_y,repPointX,repPointY);
+				
+					theta = Math.atan2(mean_position_y - repPointY,mean_position_x - repPointX);
+					angdiff = alphaWant-theta;
+					if(angdiff > Math.PI) {angdiff = angdiff - 2*Math.PI};
+					if(angdiff < -Math.PI) {angdiff = angdiff + 2*Math.PI};
+					var CGoal = 1;
+					
+					if((rho<rhoNot&&Math.abs(angdiff)>(goalAngle))&&!robotVar)
+					{
+						FrepX = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointX - mean_position_x);//change these lines
+						FrepY = eta*((1/rho)-(1/rhoNot))*(1/rho)*(1/rho)*(repPointY - mean_position_y);
+						rho=lineDistance(mean_position_x, mean_position_y,attPointX,attPointY);
+						FattX = zeta*(mean_position_x - attPointX)/rho;//change these lines
+						FattY = zeta*(mean_position_y - attPointY)/rho;
+						
+						distX = -CGoal*Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX))
+						distY = -CGoal*Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX))
+						
+						max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
+						max_desired_var_y = max_desired_var_x;
+						goalAngle = 2/16*Math.PI;
+					}else if(!robotVar)
+					{
+						//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
+						//goalY = blockCOM_y + r * policy_y[block_x][block_y];
+						distX = CGoal*Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x + r * policy_x[block_x][block_y]-mean_position_x));
+						distY = CGoal*Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x + r * policy_x[block_x][block_y]-mean_position_x));
+						max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
+						max_desired_var_y = max_desired_var_x;
+						goalAngle = 1/16*Math.PI;
+					}
 				}
+				goalX = mean_position_x + distX;
+				goalY = mean_position_y + distY;
 			}
 			$("canvas").drawArc({ //draw the average position
 				strokeStyle: "red",
@@ -1466,8 +1470,6 @@ function init()
 		if (DrawForce_DebugMode) {
 		    for (var i = 0 ; i < mapXSize; i++) {
 		        for (var j = 0 ; j < mapYSize; j++) {
-		            alphaWant = Math.atan2(policy_y[block_x][block_y], policy_x[block_x][block_y]);
-
 		            rho = lineDistance((i + 0.5), (j + 0.5), attPointX, attPointY);
 		            FattX = zeta * ((i + 0.5) - attPointX) / rho;//change these lines
 		            FattY = zeta * ((j + 0.5) - attPointY) / rho;
