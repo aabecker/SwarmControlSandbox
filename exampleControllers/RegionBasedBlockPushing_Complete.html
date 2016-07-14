@@ -416,7 +416,7 @@ function init()
         if (testRobots) {
             test = {
                 currentRun: 0,
-                test: {
+                test: {//50,75,100,125,150
                     //runs: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, ],
                     runs: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, ],
                     outcomes: []
@@ -574,7 +574,7 @@ function init()
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.15; //for SwarmControl.net, we used 0.2;
-	var numrobots = 100;//Math.floor(20/(4*robotrad*robotrad));
+	var numrobots = 10o;//Math.floor(20/(4*robotrad*robotrad));
 	var totalRobots = 100;	//for regions calculations
 	var vary = .5; //was .5 / 1
 	if (testRobots||testNoise) {//getting values to run simulations
