@@ -1053,7 +1053,7 @@ function init()
 		if (isNaN(block_y)) {
 		    var state = JSON.parse(localStorage.getItem("test"));
 		    //alert(JSON.stringify(state));
-		    state.test.outcomes[state.currentRun] = "NaN";
+		    state.test.outcomes[state.currentRun] = blockCOM_y+" NaN";
 		    state.currentRun++;
 		    console.log("currentRun++ isNAN");
 		    localStorage.setItem("test", JSON.stringify(state));
@@ -1370,7 +1370,7 @@ function init()
 			    } else if ((elapsedTimeSec > 1200) && testing) { //runtime error
 			        var state = JSON.parse(localStorage.getItem("test"));
 			        //alert(JSON.stringify(state));
-			        state.test.outcomes[state.currentRun] = state.test.runs[state.currentRun] + "run time error";
+			        state.test.outcomes[state.currentRun] = state.test.runs[state.currentRun] + " run time error";
 			        localStorage.setItem("test", JSON.stringify(state));
 			        hasLoggedData = true;
 			        location.reload(true);
