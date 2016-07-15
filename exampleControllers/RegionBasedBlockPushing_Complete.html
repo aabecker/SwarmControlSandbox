@@ -460,7 +460,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         regionMain = true;
         var robotVar = false;
         var minRobotCount = null;
-        var windowStopped = false;
         //////////////////////
         var b2Vec2 = Box2D.Common.Math.b2Vec2
         , b2AABB = Box2D.Collision.b2AABB
@@ -723,8 +722,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 var inputTest = JSON.parse(localStorage.getItem("test"));
                 if (inputTest.currentRun >= 50) {
                     window.close();
-                    console.log("window stopped");
-                    windowStopped = true;
                 } else {
                     var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
                     if (testRobots) {
@@ -997,12 +994,11 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             if (isNaN(block_y)) {
                 var state = JSON.parse(localStorage.getItem("test"));
                 //alert(JSON.stringify(state));
-                state.test.outcomes[state.currentRun] = blockCOM_y + " NaN";
-                state.currentRun++;
-                console.log("currentRun++ isNAN");
-                localStorage.setItem("test", JSON.stringify(state));
+                state.test.outcomes[state.currentRun] = "blockCOM_y: " + blockCOM_y + " NaN";
                 hasLoggedData = true;
                 location.reload(true);
+                state.currentRun++;
+                localStorage.setItem("test", JSON.stringify(state));
             }
             ////////////switching regions
             if (regionMain) {
@@ -1292,26 +1288,23 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 }
                 string = "Time = " + elapsedTimeSec + "s<br>inside # " + inside;
                 $('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-                if (!windowStopped) {
-                    if (goalRecieved && !hasLoggedData && testing) { //stores game time
-                        var state = JSON.parse(localStorage.getItem("test"));
-                        // alert(JSON.stringify(state));
-                        state.test.outcomes[state.currentRun] = elapsedTimeSec;
-                        localStorage.setItem("test", JSON.stringify(state));
-                        hasLoggedData = true;
-                        location.reload(true);
-                        state.currentRun++;
-                        console.log("currentRun++ goalreceived");
-                    } else if ((elapsedTimeSec > 1200) && testing) { //runtime error
-                        var state = JSON.parse(localStorage.getItem("test"));
-                        //alert(JSON.stringify(state));
-                        state.test.outcomes[state.currentRun] = state.test.runs[state.currentRun] + " run time error";
-                        localStorage.setItem("test", JSON.stringify(state));
-                        hasLoggedData = true;
-                        location.reload(true);
-                        state.currentRun++;
-                        console.log("currentRun++ elapsedtime");
-                    }
+                if (goalRecieved && !hasLoggedData && testing) { //stores game time
+                    var state = JSON.parse(localStorage.getItem("test"));
+                    // alert(JSON.stringify(state));
+                    state.test.outcomes[state.currentRun] = elapsedTimeSec;
+                    hasLoggedData = true;
+                    location.reload(true);
+                    state.currentRun++;
+                    localStorage.setItem("test", JSON.stringify(state));
+
+                } if ((elapsedTimeSec > 1200) && testing) { //runtime error
+                    var state = JSON.parse(localStorage.getItem("test"));
+                    //alert(JSON.stringify(state));
+                    state.test.outcomes[state.currentRun] = "robots: " +state.test.runs[state.currentRun] + " run time error";
+                    hasLoggedData = true;
+                    location.reload(true);
+                    state.currentRun++;
+                    localStorage.setItem("test", JSON.stringify(state));
                 }
                 $("canvas").drawArc({ //draw the average position
                     strokeStyle: "red",
