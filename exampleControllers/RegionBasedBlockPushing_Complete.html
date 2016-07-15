@@ -157,7 +157,6 @@ function BFS(x, y )
 		if(map[x-1][y] > dist +1)
 		{
 			map[x-1][y] = dist+1;
-			//console.log("with " + x-1 + " and " + y + " We have : " + map[x-1][y]);
 			BFS(x-1, y);
 		}
 	}
@@ -166,7 +165,6 @@ function BFS(x, y )
 		if(map[x][y+1] > dist +1)
 		{
 			map[x][y+1] = dist+1;
-			//console.log("with " + x + " and " + y +1+ " We have : " + map[x][y+1]);
 			BFS(x, y+1);
 		}
 	}
@@ -175,7 +173,6 @@ function BFS(x, y )
 		if(map[x][y-1] > dist +1)
 		{
 			map[x][y-1] = dist+1;
-			//console.log("with " + x + " and " + y-1 + " We have : " + map[x][y-1]);
 			BFS(x, y-1);
 		}
 	}
@@ -184,11 +181,9 @@ function BFS(x, y )
 		if(map[x+1][y] > dist +1)
 		{
 			map[x+1][y] = dist+1;
-			//console.log("with " + x+1 + " and " + y + " We have : " + map[x+1][y]);
 			BFS(x+1, y);
 		}
 	}
-	//console.log(JSON.stringify(map));
 }
 
 
@@ -303,8 +298,8 @@ function calcPointsCirc( cx,cy, rad, dashLength)
 var mainMaps = new Array();
 var transferMaps = new Array();
     //controls for simulation tests
-var testing = false;
-var testRobots = false;
+var testing = true;
+var testRobots = true;
 var testNoise = false;
 var TestShapes = false;
 
@@ -417,8 +412,7 @@ function init()
             test = {
                 currentRun: 0,
                 test: {//50,75,100,125,150
-                    //runs: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, ],
-                    runs: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, ],
+                    runs: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75,75, 75,75, 75,75, 75,75, 75,75,100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 125,125, 125,125, 125,125, 125,125, 125,125,150,150,150,150,150,150,150,150,150,150 ],
                     outcomes: []
                 }
             }
@@ -433,8 +427,6 @@ function init()
         }
         localStorage.setItem("test", JSON.stringify(test));
     }
-    
-
     ///////////////creating the main Regions
     mainMaps[0] = new Array(); //creating 3D array
     mainMaps[1] = new Array();
@@ -574,17 +566,15 @@ function init()
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.15; //for SwarmControl.net, we used 0.2;
-	var numrobots = 10o;//Math.floor(20/(4*robotrad*robotrad));
+	var numrobots = 100;//Math.floor(20/(4*robotrad*robotrad));
 	var totalRobots = 100;	//for regions calculations
 	var vary = .5; //was .5 / 1
 	if (testRobots||testNoise) {//getting values to run simulations
 	    var inputTest = JSON.parse(localStorage.getItem("test"));
-	    //console.log("input " + inputTest.currentRun + " " + inputTest.test.runs[0]);
-	    if (inputTest.test.runs[inputTest.currentRun] == null) {
+	    if (inputTest.test.runs[inputTest.currentRun] >=50) {
 	        window.stop();
 	    } else {
 	        var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
-	       // console.log("value " + value);
 	        if (testRobots) {
 	            numrobots = value; //getting value for robots
 	            totalRobots = value;
@@ -620,8 +610,6 @@ function init()
 		m_Robot[i].m_angularDamping = 1; //was 1, we used 10 on SwarmControl
 		m_Robot[i].m_linearDamping = 1;
 	}
-
-
 	window.requestAnimFrame = (function()
 	{
 		return window.requestAnimationFrame ||
@@ -633,10 +621,7 @@ function init()
 			window.setTimeout(callback, 1000 / 60);
 		};
 	})();
-
-
 	///////////////////////////////////
-
 	var infinity = mapXSize * mapYSize;
 	var mazeSize = 15;
 	var mazeTopY = 13;
@@ -645,7 +630,6 @@ function init()
 	var goalPositionY = 3;
 	var goalPositionXDraw = 16.5;
 	var goalPositionYDraw = 3.5;
-
 	//giving -100 to boundaries
 
 	if(ifBFS)
@@ -720,7 +704,6 @@ function init()
 			}
 
 		}
-
         map_MDP[goalPositionX][goalPositionY] = 100;
 		map_R[goalPositionX][goalPositionY] = 100;
 
@@ -740,13 +723,7 @@ function init()
 				}
 			}
 			iteration++;
-		//console.log(iteration);
 		}
-
-		//map = map/100;
-		//map = Math.ceil(map);
-		//console.log(JSON.stringify(map));
-
 		ifMDP = false;
 	}
 
@@ -972,7 +949,6 @@ function init()
 				{
 					var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
 					var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
-					//console.log(X);
 					var pos = b.GetPosition();
 					var color = 'green';
 					if(b.GetUserData() == 'obstacle')
@@ -1052,11 +1028,6 @@ function init()
 			goalStartTime = day.getTime();
 		}
 		var elapsedTimeSec = (day.getTime()- overall_time )/1000;
-		//string = "Time = "+ elapsedTimeSec +"s<br>Algorithm II  is making robots (blue discs) push a block to the goal</strong>";
-		//$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-
-	    //log time into localStorage
-
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// CONTROLLER
@@ -1092,7 +1063,6 @@ function init()
 		if (!regionMain) {
 			var blockPosition = transferMaps[regionNum][block_x][block_y];
 		}
-		//console.log("REGION " + regionMain + " NUM: " + regionNum + " POS " + blockPosition);
 		if (blockPosition == 0) {
 			if (regionMain) {//if it's in the main region
 				regionMain = false; //switch to transfer regions
@@ -1113,8 +1083,6 @@ function init()
 				}
 			}
 		}
-		//console.log("test " + mainMaps[2][1][1]);
-			//calculate mean and cov for robots only in that region
 		numrobots = totalRobots;
 		var regionRobotCount = 0;
 		if (regionMain) {
@@ -1142,7 +1110,7 @@ function init()
 			}
 		}
 		numrobots = regionRobotCount;
-		console.log("regionRobotCount " + regionRobotCount);
+		//console.log("regionRobotCount " + regionRobotCount);
 		var mean_position_x = sum_position_x / numrobots;
 		var mean_position_y = sum_position_y / numrobots;
 			//calculating cov
@@ -1150,7 +1118,6 @@ function init()
 			for (var i = 0; i < numrobots; ++i) {
 				var pos_x = Math.floor(m_Robot[i].GetPosition().x);
 				var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-				//console.log("POS " + pos_x + " " + pos_y);
 				var pos = mainMaps[regionNum][pos_x][pos_y];
 				if (pos == 1) {
 					sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
@@ -1163,7 +1130,6 @@ function init()
 			for (var i = 0; i < numrobots; ++i) {
 				var pos_x = Math.floor(m_Robot[i].GetPosition().x);
 				var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-				//console.log("POS "+pos_x +" " + pos_y);
 				var pos = transferMaps[regionNum][pos_x][pos_y];
 				if (pos == 1) {
 					sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
@@ -1172,7 +1138,6 @@ function init()
 				}
 			}
 		}
-
 		max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
 		min_desired_var_x = numrobots * robotrad * min_desired_var_x_constant; //was .663
 		max_desired_var_y = max_desired_var_x;
@@ -1189,14 +1154,13 @@ function init()
 		var index_x = Math.floor(mean_position_x);
 		var index_y = Math.floor(mean_position_y);
 
-			//finds the adjacent region with the most robots
+		//finds the adjacent region with the most robots
 		var count1 = 0;
 		var count2 = 0;
 		var adjCount = 0;
 
 		var adj1 = findAdjRegion(regionMain, regionNum, 0); //grabs the regions
 		var adj2 = findAdjRegion(regionMain, regionNum, 1);
-		//console.log("adj1: " + adj1 + " adj2: " + adj2);
 		if (adj2 == null) {
 			if (regionRobotCount>adj1){
 				robotMain = regionMain;
@@ -1207,7 +1171,6 @@ function init()
 			}
 		} else { //counts robots in each adjacent region
 			for (i = 0; i < totalRobots; i++) {
-			   // console.log("starts counting");
 				var pos_x = Math.floor(m_Robot[i].GetPosition().x);
 				var pos_y = Math.floor(m_Robot[i].GetPosition().y);
 				if (regionMain) {
@@ -1231,7 +1194,6 @@ function init()
 					}
 				}
 			}
-		   // console.log("Counting robots in region: " + count1 + " " + count2);
 			if ((regionRobotCount>count1)&&(regionRobotCount>count2)) { //if regionNum has the most robots
 				robotMain=regionMain;
 				mostRobotRegion=regionNum;
@@ -1243,8 +1205,6 @@ function init()
 				mostRobotRegion=adj2;
 			}
 		}
-		//console.log("mostRobotRegion: " + mostRobotRegion);
-		//console.log("robotMain: " + robotMain);
 		if (totalRobots == 10) {
 		    minRobotCount = 4;
 		} else if (totalRobots == 20) {
@@ -1278,7 +1238,6 @@ function init()
 
 		}
 			////////////////////////////////
-
 		if(!goalRecieved){
 			$("canvas").drawEllipse({
 				strokeStyle: "red",
@@ -1339,15 +1298,10 @@ function init()
 				}
 				if(   CornerValuesD[IndexMinDist] <  map[block_x][block_y]  && IndexMinDist>0 )
 				{
-					//console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
-					IndexMinDist = IndexMinDist-1;
+				    IndexMinDist = IndexMinDist - 1;
 				}
 				var cornerCali = findRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);//finds corner based on regions
 				IndexMinDist = cornerCali;
-				//console.log("flagVar cornerCali: " + cornerCali);
-				//goalX = CornerValuesX[IndexMinDist];
-				//goalY = CornerValuesY[IndexMinDist];
-				
 				goalX = mean_position_x + Math.cos(Math.atan2(CornerValuesY[IndexMinDist]-mean_position_y,CornerValuesX[IndexMinDist]-mean_position_x));
 				goalY = mean_position_y + Math.sin(Math.atan2(CornerValuesY[IndexMinDist]-mean_position_y,CornerValuesX[IndexMinDist]-mean_position_x));
 			}
@@ -1378,8 +1332,6 @@ function init()
 						rho=lineDistance(mean_position_x, mean_position_y,attPointX,attPointY);
 						FattX = zeta*(mean_position_x - attPointX)/rho;//change these lines
 						FattY = zeta*(mean_position_y - attPointY)/rho;
-						//goalX =  mean_position_x-CGoal*Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
-						//goalY =  mean_position_y-CGoal*Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));
 						distX =  -CGoal*Math.cos(Math.atan2(FattY+FrepY,FattX+FrepX));
 						distY =  -CGoal*Math.sin(Math.atan2(FattY+FrepY,FattX+FrepX));
 						max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
@@ -1389,8 +1341,6 @@ function init()
 						if (COMdist2swarm < 1.5) {
 							var r = 0.1;
 						}else var r = 0.8;
-						//goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-						//goalY = blockCOM_y + r * policy_y[block_x][block_y];
 						distX = CGoal*Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x + r * policy_x[block_x][block_y]-mean_position_x));
 						distY = CGoal*Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y]-mean_position_y,blockCOM_x + r * policy_x[block_x][block_y]-mean_position_x));
 						max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
@@ -1439,20 +1389,9 @@ function init()
 			m_ControlInputY = Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
 			m_ControlInputX = Kgain*(goalX - mean_position_x) + Kderivative*(0-mean_velocity_x) ;
 			m_controlState = ROBOT_INPUT.ROBOT_PROP;
-			/*for (var i = 0 ; i < CornerValuesX.length ; i++){	
-				$("canvas").drawArc(
-				{
-					strokeStyle: "lightblue",
-					strokeWidth: 1,
-					fillStyle: "pink",
-					x: CornerValuesX[i] * mapScale, y: CornerValuesY[i] * mapScale,
-					radius: radius * mapScale
-				}).restoreCanvas();
-			}*/
 		}
 
-		//console.log("elapsedTime " + elapsedTimeSec);
-		if ((elapsedTimeSec > 600) && testing) { //runtime error
+		if ((elapsedTimeSec > 1800) && testing) { //runtime error
 		    var state = JSON.parse(localStorage.getItem("test"));
 		    //alert(JSON.stringify(state));
 		    state.test.outcomes[state.currentRun] = "run time error";
@@ -1461,7 +1400,6 @@ function init()
 		    hasLoggedData = true;
 		    location.reload(true);
 		}
-
 		if (goalRecieved && !hasLoggedData) { //stores game time
 		    var state = JSON.parse(localStorage.getItem("test"));
 		    // alert(JSON.stringify(state));
@@ -1506,8 +1444,6 @@ function init()
 		    }
 		}
 		if (firstloop){firstloop=false;}
-	//console.log(elapsedTimeSec + " " + mean_position_y + " " + goalY + " " + mean_position_x + " " + goalX );
-	//console.log(elapsedTimeSec + " " + var_x );
 	}; //end update
 };
 </script>
