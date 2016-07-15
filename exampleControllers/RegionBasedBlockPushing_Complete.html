@@ -487,6 +487,7 @@ function init()
     regionMain = true;
     var robotVar = false;
     var minRobotCount = null;
+    var windowStopped = false;
     //////////////////////
 	var b2Vec2 = Box2D.Common.Math.b2Vec2
 	, b2AABB = Box2D.Collision.b2AABB
@@ -569,10 +570,12 @@ function init()
 	var numrobots = 100;//Math.floor(20/(4*robotrad*robotrad));
 	var totalRobots = 100;	//for regions calculations
 	var vary = .5; //was .5 / 1
-	if (testRobots||testNoise) {//getting values to run simulations
+	if (testing) {//getting values to run simulations
 	    var inputTest = JSON.parse(localStorage.getItem("test"));
-	    if (inputTest.test.runs[inputTest.currentRun] >=50) {
+	    if (inputTest.currentRun>10) {
 	        window.stop();
+	        console.log("window stopped");
+	        windowStopped = true;
 	    } else {
 	        var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
 	        if (testRobots) {
@@ -1052,6 +1055,7 @@ function init()
 		    //alert(JSON.stringify(state));
 		    state.test.outcomes[state.currentRun] = "NaN";
 		    state.currentRun++;
+		    console.log("currentRun++ isNAN");
 		    localStorage.setItem("test", JSON.stringify(state));
 		    hasLoggedData = true;
 		    location.reload(true);
@@ -1351,9 +1355,29 @@ function init()
 				goalX = mean_position_x + distX;
 				goalY = mean_position_y + distY;
 			}
-			string = "Time = "+ (day.getTime()-goalStartTime)/1000 +"s<br>inside # "+ inside;
+			string = "Time = "+ elapsedTimeSec +"s<br>inside # "+ inside;
 			$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-			
+			if (!windowStopped) {
+			    if (goalRecieved && !hasLoggedData) { //stores game time
+			        var state = JSON.parse(localStorage.getItem("test"));
+			        // alert(JSON.stringify(state));
+			        state.test.outcomes[state.currentRun] = elapsedTimeSec;
+			        state.currentRun++;
+			        console.log("currentRun++ goalreceived");
+			        localStorage.setItem("test", JSON.stringify(state));
+			        hasLoggedData = true;
+			        location.reload(true);
+			    } else if ((elapsedTimeSec > 10) && testing) { //runtime error
+			        var state = JSON.parse(localStorage.getItem("test"));
+			        //alert(JSON.stringify(state));
+			        state.test.outcomes[state.currentRun] = state.test.runs[state.currentRun] + "run time error";
+			        state.currentRun++;
+			        console.log("currentRun++ elapsedtime");
+			        localStorage.setItem("test", JSON.stringify(state));
+			        hasLoggedData = true;
+			        location.reload(true);
+			    }
+			}
 			$("canvas").drawArc({ //draw the average position
 				strokeStyle: "red",
 				strokeWidth: 5,
@@ -1391,24 +1415,6 @@ function init()
 			m_controlState = ROBOT_INPUT.ROBOT_PROP;
 		}
 
-		if ((elapsedTimeSec > 1800) && testing) { //runtime error
-		    var state = JSON.parse(localStorage.getItem("test"));
-		    //alert(JSON.stringify(state));
-		    state.test.outcomes[state.currentRun] = "run time error";
-		    state.currentRun++;
-		    localStorage.setItem("test", JSON.stringify(state));
-		    hasLoggedData = true;
-		    location.reload(true);
-		}
-		if (goalRecieved && !hasLoggedData) { //stores game time
-		    var state = JSON.parse(localStorage.getItem("test"));
-		    // alert(JSON.stringify(state));
-		    state.test.outcomes[state.currentRun] = elapsedTimeSec;
-		    state.currentRun++;
-		    localStorage.setItem("test", JSON.stringify(state));
-		    hasLoggedData = true;
-		    location.reload(true);
-		}
 		if (DrawForce_DebugMode) {
 		    for (var i = 0 ; i < mapXSize; i++) {
 		        for (var j = 0 ; j < mapYSize; j++) {
