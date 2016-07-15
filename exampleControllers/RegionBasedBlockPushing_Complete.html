@@ -569,25 +569,6 @@ function init()
 	var robotrad = 0.15; //for SwarmControl.net, we used 0.2;
 	var numrobots = 100;//Math.floor(20/(4*robotrad*robotrad));
 	var totalRobots = 100;	//for regions calculations
-	var vary = .5; //was .5 / 1
-	if (testing) {//getting values to run simulations
-	    var inputTest = JSON.parse(localStorage.getItem("test"));
-	    if (inputTest.currentRun>=50) {
-	        window.close();
-	        console.log("window stopped");
-	        windowStopped = true;
-	    } else {
-	        var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
-	        if (testRobots) {
-	            numrobots = value; //getting value for robots
-	            totalRobots = value;
-	        } else if (testNoise) {
-	            vary = value; //getting value for brownian noise
-	            numrobots = 100; //getting value for robots
-	            totalRobots = 100;
-            }
-	    }
-	}
 
 	var CornerValuesX = [1, 19, 19, 1, 1, 100]; //variance corners
 	var CornerValuesY = [19, 19, 7, 13, 1, 100];
@@ -777,6 +758,24 @@ function init()
 		var mag = 0;
 		var ang = 0;
 		var vary = 20; //was 25
+		if (testing) {//getting values to run simulations
+		    var inputTest = JSON.parse(localStorage.getItem("test"));
+		    if (inputTest.currentRun >= 50) {
+		        window.close();
+		        console.log("window stopped");
+		        windowStopped = true;
+		    } else {
+		        var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
+		        if (testRobots) {
+		            numrobots = value; //getting value for robots
+		            totalRobots = value;
+		        } else if (testNoise) {
+		            vary = value; //getting value for brownian noise
+		            numrobots = 100; //getting value for robots
+		            totalRobots = 100;
+		        }
+		    }
+		}
 		for(var i =0; i<m_Robot.length; i++)
 		{
 			mag = vary * Math.random();
