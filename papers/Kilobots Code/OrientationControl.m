@@ -15,24 +15,6 @@ first = true;
 delayTime = 10;
 load('EmptyMap', 'corners');
 
-% We have 8 Relays.
-%west
-RELAY1 = 9;
-% northwest
-RELAY2 = 8;
-%north
-RELAY3 = 5;
-% northeast
-RELAY4 = 2;
-%east
-RELAY5 = 7;
-%southeast
-RELAY6 = 3;
-%south
-RELAY7 = 6;
-%southwest
-RELAY8 = 4;
-
 if webcamShot
     cam = webcam(2);
 else
@@ -221,13 +203,6 @@ while success == false
         if (V > maxVar)
             VarCont = true;
             epsilon = bigEpsilon;
-%             for i = 1:size(corners)
-%                 dist = sqrt((M(1,1)/scale - corners(i,1)) * (M(1,1)/scale - corners(i,1)) + (M(1,2)/scale- corners(i,2)) * (M(1,2)/scale- corners(i,2)));
-%                 if minDis > dist
-%                     minDis = dist;
-%                     corInd = i;
-%                 end   
-%             end
             corInd = 1;
             currgoalX = (corners(corInd,1))*scale;
             currgoalY = (corners(corInd,2))*scale;
@@ -238,10 +213,10 @@ while success == false
         if ~VarCont
             %% Determine Non-Variance Control Goal w/ 5 Degree Tolerance
             if ObjectOrientation>goalAngle+5||ObjectOrientation<goalAngle-5
-                goal1X = ObjectCentroidX - cos(goalAngle*pi/180)* ObjectLength/2.3;
-                goal1Y = ObjectCentroidY + sin(goalAngle*pi/180)* ObjectLength/2.3;
-                goal2X = ObjectCentroidX + cos(goalAngle*pi/180)* ObjectLength/2.3;
-                goal2Y = ObjectCentroidY - sin(goalAngle*pi/180)* ObjectLength/2.3;
+                goal1X = ObjectCentroidX - cos(goalAngle*pi/180)* ObjectLength/3;
+                goal1Y = ObjectCentroidY + sin(goalAngle*pi/180)* ObjectLength/3;
+                goal2X = ObjectCentroidX + cos(goalAngle*pi/180)* ObjectLength/3;
+                goal2Y = ObjectCentroidY - sin(goalAngle*pi/180)* ObjectLength/3;
 
                 if goal1Y<goal2Y
                     topGoalX = goal1X;
@@ -253,7 +228,26 @@ while success == false
                     botGoalY = goal1Y;
                     topGoalX = goal2X;
                     topGoalY = goal2Y;
+                end          
+                angdiffTop = ObjectOrientation*pi/180-atan2((M(2) - topGoalY),(M(1) - topGoalX));
+                angdiffBot = ObjectOrientation*pi/180-atan2((M(2) - botGoalY),(M(1) - botGoalX));
+                if(angdiffTop > pi) 
+                    angdiff = angdiff - 2*pi;
                 end
+
+                if(angdiffTop < -pi) 
+                    angdiff = angdiff + 2*pi;
+                end
+                if(angdiffBot > pi) 
+                    angdiff = angdiff - 2*pi;
+                end
+
+                if(angdiffBot < -pi) 
+                    angdiff = angdiff + 2*pi;
+                end
+                if 
+                [ currgoalX,currgoalY ] = FlowForce(M(1),M(2),ObjectCentroidX,ObjectCentroidY,topGoalX,topGoalY)
+                [ currgoalX,currgoalY ] = FlowForce(M(1),M(2),ObjectCentroidX,ObjectCentroidY,botGoalX,botGoalY)
                 if (topGoalX>topPointX && M(1)<(M(2)-offset)/slope)||(topGoalX<topPointX && M(1)>(M(2)-offset)/slope)
                     currgoalX = topPointX;
                     currgoalY = topPointY;
@@ -261,6 +255,7 @@ while success == false
                     currgoalX = botPointX;
                     currgoalY = botPointY;
                 end
+                
             else
                 VarCont = true;
             end
