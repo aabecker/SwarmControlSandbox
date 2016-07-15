@@ -721,7 +721,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
                 if (inputTest.currentRun >= 50) {
-                    window.close();
+                    window.stop();
                 } else {
                     var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
                     if (testRobots) {
