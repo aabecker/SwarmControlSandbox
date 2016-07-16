@@ -1282,26 +1282,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 }
                 string = "Time = " + elapsedTimeSec + "s<br>inside # " + inside;
                 $('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-                console.log(goalRecieved);
-                if (goalRecieved && !hasLoggedData && testing) { //stores game time
-                    console.log("enters goal loop");
-                    var state = JSON.parse(localStorage.getItem("test"));
-                    // alert(JSON.stringify(state));
-                    state.test.outcomes[state.currentRun] = elapsedTimeSec;
-                    hasLoggedData = true;
-                    location.reload(true);
-                    state.currentRun++;
-                    localStorage.setItem("test", JSON.stringify(state));
-                }
-                if ((elapsedTimeSec > 1200) && testing) { //runtime error
-                    var state = JSON.parse(localStorage.getItem("test"));
-                    //alert(JSON.stringify(state));
-                    state.test.outcomes[state.currentRun] = "robots: " +state.test.runs[state.currentRun] + " run time error";
-                    hasLoggedData = true;
-                    location.reload(true);
-                    state.currentRun++;
-                    localStorage.setItem("test", JSON.stringify(state));
-                }
+                
                 $("canvas").drawArc({ //draw the average position
                     strokeStyle: "red",
                     strokeWidth: 5,
@@ -1337,6 +1318,26 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 m_ControlInputY = Kgain * (goalY - mean_position_y) + Kderivative * (0 - mean_velocity_y);
                 m_ControlInputX = Kgain * (goalX - mean_position_x) + Kderivative * (0 - mean_velocity_x);
                 m_controlState = ROBOT_INPUT.ROBOT_PROP;
+            }
+            console.log(goalRecieved);
+            if (goalRecieved && !hasLoggedData && testing) { //stores game time
+                console.log("enters goal loop");
+                var state = JSON.parse(localStorage.getItem("test"));
+                // alert(JSON.stringify(state));
+                state.test.outcomes[state.currentRun] = elapsedTimeSec;
+                hasLoggedData = true;
+                location.reload(true);
+                state.currentRun++;
+                localStorage.setItem("test", JSON.stringify(state));
+            }
+            if ((elapsedTimeSec > 1200) && testing) { //runtime error
+                var state = JSON.parse(localStorage.getItem("test"));
+                //alert(JSON.stringify(state));
+                state.test.outcomes[state.currentRun] = "robots: " + state.test.runs[state.currentRun] + " run time error";
+                hasLoggedData = true;
+                location.reload(true);
+                state.currentRun++;
+                localStorage.setItem("test", JSON.stringify(state));
             }
 
             if (DrawForce_DebugMode) {
