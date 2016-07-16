@@ -289,7 +289,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var max_desired_var_y = max_desired_var_x;
     var min_desired_var_y = min_desired_var_x;
     var max_desired_var_x_constant = .5;
-    var min_desired_var_x_constant = .2;
+    var min_desired_var_x_constant = .3;
     //determines variance corner based on regions
     function findRegionBasedVar(regionMain, objRegion, robotMain, mostRobotRegion) {
         var corner;
@@ -720,7 +720,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             var vary = 20; //was 25
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
-                if (inputTest.currentRun >= 50) {
+                if ((inputTest.currentRun) >= 50) {
                     window.stop();
                 } else {
                     var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
@@ -1054,7 +1054,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 }
             }
             numrobots = regionRobotCount;
-            //console.log("regionRobotCount " + regionRobotCount);
             var mean_position_x = sum_position_x / numrobots;
             var mean_position_y = sum_position_y / numrobots;
             //calculating cov
@@ -1159,9 +1158,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             }
             if (robotVar) {
                 var cornerCali = findRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);
-                console.log(regionMain + " " + regionNum + " " + robotMain + " " + mostRobotRegion);
                 IndexMinDist = cornerCali;
-                console.log("robotVarcorner: " + cornerCali);
                 goalX = CornerValuesX[IndexMinDist];
                 goalY = CornerValuesY[IndexMinDist];
                 robotCornerCount = 0;
@@ -1169,14 +1166,12 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     var robot2CornerDistX = CornerValuesX[IndexMinDist] - m_Robot[i].GetPosition().x;
                     var robot2CornerDistY = CornerValuesY[IndexMinDist] - m_Robot[i].GetPosition().y;
                     var normalizedDist = Math.sqrt(Math.pow(robot2CornerDistX, 2) + Math.pow(robot2CornerDistY, 2));
-                    console.log("normalizedDist " + normalizedDist);
                     if (normalizedDist < 4) {
                         robotCornerCount++; //counts robots in corner
                     }
                 }
-                console.log("robotCornerCount " + robotCornerCount);
                 if (robotCornerCount => minRobotCount || robotCornerCount == regionRobotCount) {
-                    console.log("gets out of corner var");
+                   // console.log("gets out of corner var");
                     robotVar = false;
                 }
 
@@ -1209,7 +1204,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
 
                 if (wroteFinish == false) {
                     timeFinished = elapsedTimeSec;
-                    console.log(elapsedTimeSec + " " + numrobots);
                     wroteFinish = true;
                 }
                 m_controlState = ROBOT_INPUT.ROBOT_IDLE;
@@ -1288,7 +1282,9 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 }
                 string = "Time = " + elapsedTimeSec + "s<br>inside # " + inside;
                 $('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
+                console.log(goalRecieved);
                 if (goalRecieved && !hasLoggedData && testing) { //stores game time
+                    console.log("enters goal loop");
                     var state = JSON.parse(localStorage.getItem("test"));
                     // alert(JSON.stringify(state));
                     state.test.outcomes[state.currentRun] = elapsedTimeSec;
@@ -1296,8 +1292,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     location.reload(true);
                     state.currentRun++;
                     localStorage.setItem("test", JSON.stringify(state));
-
-                } if ((elapsedTimeSec > 1200) && testing) { //runtime error
+                }
+                if ((elapsedTimeSec > 1200) && testing) { //runtime error
                     var state = JSON.parse(localStorage.getItem("test"));
                     //alert(JSON.stringify(state));
                     state.test.outcomes[state.currentRun] = "robots: " +state.test.runs[state.currentRun] + " run time error";
