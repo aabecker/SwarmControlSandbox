@@ -420,11 +420,10 @@ function makeHexagon(world, x, y, userData) {
         // create block
         // This defines a hexagon in CCW order.
         // http://blog.sethladd.com/2011/09/box2d-and-polygons-for-javascript.html
-        var phys = window.phys;
         var bodyDef = new Box2D.Dynamics.b2BodyDef;
-        bodyDef.type = Box2D.Dynamics.b2Body;
+        bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
         bodyDef.userData = userData;
-        bodyDef.position.Set(x,y);        
+        bodyDef.position.Set(x,y);
 
         var fixDef = new Box2D.Dynamics.b2FixtureDef();
         fixDef.density = 6.0;
@@ -432,22 +431,22 @@ function makeHexagon(world, x, y, userData) {
         fixDef.restitution = 0.2;  //bouncing value
         fixDef.isSensor = false;
 
-        var Mpoints = [     {x: 1, y: 0}, 
-                            {x: 1/2, y: Math.sqrt(3)/2}, 
+        var Mpoints = [     {x: 1, y: 0},
+                            {x: 1/2, y: Math.sqrt(3)/2},
                             {x: -1/2, y:Math.sqrt(3)/2},
-                            {x: -1, y:0}, 
-                            {x: -1/2, y: -Math.sqrt(3)/2}, 
+                            {x: -1, y:0},
+                            {x: -1/2, y: -Math.sqrt(3)/2},
                             {x: 1/2, y:-Math.sqrt(3)/2} ];
-        var points = [];
-        for ( var i = 0; i < Mpoints.length; i++) {
-            points.push( new Box2D.Common.Math.b2Vec2(2*Mpoints[i].x, 2*Mpoints[i].y) );
-        }
+        var points = Mpoints.map( function _makeVecBased( pt ) {
+          return new Box2D.Common.Math.b2Vec2(2*pt.x, 2*pt.y);
+        });
+
         fixDef.shape = new Box2D.Collision.Shapes.b2PolygonShape();
         fixDef.shape.SetAsArray(points, points.length);
 
         bodyDef.userData = 'moveable';
         var body = world.CreateBody(bodyDef);
-        body.CreateFixture(fixDef);        
+        body.CreateFixture(fixDef);
         body.m_angularDamping = 1;
         body.m_linearDamping = 1;
         return body;
@@ -631,7 +630,7 @@ function init()
         //catch (Exception){
         //    console.log("broken");
         //}
-       
+
     }
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
@@ -1021,15 +1020,16 @@ function init()
 					var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
 					var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
 					var pos = b.GetPosition();
-					var color = 'green';
-					if(b.GetUserData() == 'obstacle')
-						color = 'brown';
-					if(b.GetUserData() == 'moveable')
-					{
-						color = 'black';
+          if(b.GetUserData() == 'rectangle_ground') {
+              var color = 'green';
+          } else if(b.GetUserData() == 'obstacle') {
+            var color = 'brown';
+          } else if(b.GetUserData() == 'moveable') {
+						var color = 'black';
 						blockCOM_x = pos.x;
 						blockCOM_y = pos.y;
 					}
+
 					$("canvas").rotateCanvas({
 						x: pos.x * mapScale, y: pos.y * mapScale,
 						rotate: angle
@@ -1419,7 +1419,7 @@ function init()
 			}
 			string = "Time = "+ elapsedTimeSec +"s<br>inside # "+ inside;
 			$('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-			
+
 			$("canvas").drawArc({ //draw the average position
 				strokeStyle: "red",
 				strokeWidth: 5,
