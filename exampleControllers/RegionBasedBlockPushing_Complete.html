@@ -1394,8 +1394,11 @@ function init()
 			}
 			m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
 		}
+		var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+		//console.log("MEAN "+mean_position_x + " B " +blockCOM_x +" MEAN " + mean_position_y + " BLCOMY "+ blockCOM_y);
+		console.log("block: " + block_difference);
 		if (!goalRecieved) {
-		    if (timer_var) {
+		    if (timer_var && !(block_difference>4)) {
 		        min_desired_var_x = .1;
 		        min_desired_var_y = min_desired_var_x;
 		        console.log("MIN VARR :" + min_desired_var_x);
