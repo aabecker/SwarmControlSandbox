@@ -1024,7 +1024,7 @@ function init()
 					var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
 					var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
           if(userData == 'moveable') {
-						var color = 'cyan';
+						var color = 'black';
 						blockCOM_x = pos.x;
 						blockCOM_y = pos.y;
 
@@ -1064,7 +1064,6 @@ function init()
 					})
 					.restoreCanvas();
 
-          /*
           if(MDP_DebugMode || Gradient_DebugMode_MDP){
 						for(var i = 0 ; i < 20; i++)
 						{
@@ -1085,7 +1084,6 @@ function init()
 						}
 						$("canvas").restoreCanvas();
 					}
-          */
 				}
 			}
 		}
