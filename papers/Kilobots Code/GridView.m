@@ -4,13 +4,13 @@
 clear all
 
 success = false;
-webcamShot = true;
+webcamShot = false;
 
 t0 = tic;
 results3= [];
 %while success == false
 if webcamShot
-    cam = webcam(1);
+    cam = webcam(2);
     originalImage = snapshot(cam);
     if (ispc)  
         original = imcrop(originalImage,[50 10 500 400]);
@@ -21,7 +21,7 @@ if webcamShot
         img = imcrop(originalImage,[345 60 1110 860]);
     end 
 else
-    img = imread('Obstacle.jpeg');
+    img = imread('PC.jpeg');
 end
 
 I = rgb2hsv(img);

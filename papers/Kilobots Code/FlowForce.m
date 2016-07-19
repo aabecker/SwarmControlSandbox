@@ -15,13 +15,17 @@ function [ currgoalX,currgoalY ] = FlowForce(RobotMeanX,RobotMeanY,AttPointX,Att
     rhoNot=7.5;
 
     rho=dist2points(RepPointX,RepPointY,RobotMeanX,RobotMeanY);
-    FrepX=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(RepPointX-RobotMeanX);
-    FrepY=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(RepPointY-RobotMeanY);
-
+    if (rho<rhoNot)
+        FrepX=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(RepPointX-RobotMeanX);
+        FrepY=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(RepPointY-RobotMeanY);
+    else 
+       FrepX=0;%
+       FrepY=0;%
+    end
     rho=dist2points(AttPointX,AttPointY,RobotMeanX,RobotMeanY);
     FattX=zeta*(RobotMeanX-AttPointX)/rho;
     FattY=zeta*(RobotMeanY-AttPointY)/rho;
         
-    currgoalX=RobotMeanX+cos(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
-    currgoalY=RobotMeanY+sin(atan2((-FrepY-FattY),(-FattX-FrepX)))*scale;
+    currgoalX=cos(atan2((-FrepY-FattY),(-FattX-FrepX)));
+    currgoalY=sin(atan2((-FrepY-FattY),(-FattX-FrepX)));
 end

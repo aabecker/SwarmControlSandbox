@@ -7,7 +7,7 @@ success = false;
 webcamShot = true;
 obstacles = [];
 if webcamShot
-    cam = webcam(1);
+    cam = webcam(2);
 
 end
 t0 = tic;
@@ -25,34 +25,23 @@ if webcamShot
          rgbIm = imcrop(originalImage,[345 60 1110 860]);
      end 
 else 
-    rgbIm = imread('Obstacle.jpeg');
+    rgbIm = imread('PC.jpeg');
 end
 
 
     I = rgb2hsv(rgbIm);
     
-% % Define thresholds for channel 1 based on histogram settings
-% channel1Min = 0.902;
-% channel1Max = 0.938;
-% 
-% % Define thresholds for channel 2 based on histogram settings
-% channel2Min = 0.205;
-% channel2Max = 1.000;
-% 
-% % Define thresholds for channel 3 based on histogram settings
-% channel3Min = 0.795;
-% channel3Max = 1.000;
-% Define thresholds for channel 1 based on histogram settings
-channel1Min = 0.866;
-channel1Max = 0.950;
+    % Define thresholds for channel 1 based on histogram settings
+    channel1Min = 0.862;
+    channel1Max = 0.945;
 
-% Define thresholds for channel 2 based on histogram settings
-channel2Min = 0.353;
-channel2Max = 1.000;
+    % Define thresholds for channel 2 based on histogram settings
+    channel2Min = 0.272;
+    channel2Max = 1.000;
 
-% Define thresholds for channel 3 based on histogram settings
-channel3Min = 0.802;
-channel3Max = 1.000;
+    % Define thresholds for channel 3 based on histogram settings
+    channel3Min = 0.000;
+    channel3Max = 1.000;
 
 % Create mask based on chosen histogram thresholds
 BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
