@@ -989,46 +989,67 @@ function init()
 			}
 		}
 
+    function _drawRobot( x, y, angle,radius ) {
+      $("canvas").rotateCanvas(
+      {
+        x: x * mapScale, y: y * mapScale,
+        rotate: angle
+      })
+      .drawArc(
+      {
+        strokeStyle: "lightblue",
+        strokeWidth: 1,
+        fillStyle: "blue",
+        x: x * mapScale, y: y * mapScale,
+        radius: radius * mapScale
+      })
+      .restoreCanvas();
+    }
+
 		//draw robots and obstacles
 		for (b = world.GetBodyList() ; b; b = b.GetNext())
 		{
 			var angle = b.GetAngle()*(180/Math.PI);
+      var userData = b.GetUserData();
+      var pos = b.GetPosition();
 			for(f = b.GetFixtureList(); f; f = f.GetNext())
 			{
-				if (b.GetUserData() == 'robot')
+				if ( userData == 'robot')
 				{
 					var radius = f.GetShape().GetRadius();
-					var pos = b.GetPosition();
-					$("canvas")
-					.rotateCanvas(
-					{
-						x: pos.x * mapScale, y: pos.y * mapScale,
-						rotate: angle
-					})
-					.drawArc(
-					{
-						strokeStyle: "lightblue",
-						strokeWidth: 1,
-						fillStyle: "blue",
-						x: pos.x * mapScale, y: pos.y * mapScale,
-						radius: radius * mapScale
-					})
-					.restoreCanvas();
+          _drawRobot( pos.x, pos.y, angle, radius );
 				}
-				else if (b.GetUserData() == 'obstacle' || b.GetUserData() == 'moveable' || b.GetUserData() == 'rectangle_ground')
+				else if (userData == 'obstacle' || userData  == 'moveable' || userData == 'rectangle_ground')
 				{
 					var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
 					var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
-					var pos = b.GetPosition();
-          if(b.GetUserData() == 'rectangle_ground') {
-              var color = 'green';
-          } else if(b.GetUserData() == 'obstacle') {
-            var color = 'brown';
-          } else if(b.GetUserData() == 'moveable') {
-						var color = 'black';
+          if(userData == 'moveable') {
+						var color = 'cyan';
 						blockCOM_x = pos.x;
 						blockCOM_y = pos.y;
-					}
+
+            //continue;
+            $("canvas")
+            .rotateCanvas({
+  						x: pos.x * mapScale, y: pos.y * mapScale,
+  						rotate: angle
+  					})
+            .drawPolygon({
+               fillStyle: color,
+               x: pos.x * mapScale, y: pos.y * mapScale,
+               radius: 2*mapScale,
+               sides: 6,
+               rotate: angle || 0
+            })
+  					.restoreCanvas();
+            continue;
+
+
+					} else if(userData == 'rectangle_ground') {
+              var color = 'green';
+          } else if(userData == 'obstacle') {
+            var color = 'brown';
+          }
 
 					$("canvas").rotateCanvas({
 						x: pos.x * mapScale, y: pos.y * mapScale,
@@ -1042,9 +1063,12 @@ function init()
 						cornerRadius: 0
 					})
 					.restoreCanvas();
-					if(MDP_DebugMode || Gradient_DebugMode_MDP){
+
+          /*
+          if(MDP_DebugMode || Gradient_DebugMode_MDP){
 						for(var i = 0 ; i < 20; i++)
 						{
+              break;
 							$("canvas").drawLine(
 							{
 								strokeStyle: 'gray',
@@ -1061,6 +1085,7 @@ function init()
 						}
 						$("canvas").restoreCanvas();
 					}
+          */
 				}
 			}
 		}
