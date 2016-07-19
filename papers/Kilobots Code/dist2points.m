@@ -1,4 +1,4 @@
-function [ distance ] = dist2points( x1,y1,x2,y2)
+function [ distance ] = dist2points(x1,y1,x2,y2)
 % DIST2POINTS calculates distance between two points
 %   DIST2POINTS(x1,y1,x2,y2)
 %       x1,y1 = start points
