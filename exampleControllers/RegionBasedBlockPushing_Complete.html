@@ -314,8 +314,8 @@ var max_desired_var_x = null;//numrobots * robotrad * max_desired_var_x_constant
 var min_desired_var_x = null; //was .663
 var max_desired_var_y = max_desired_var_x;
 var min_desired_var_y = min_desired_var_x;
-var max_desired_var_x_constant = .5;
-var min_desired_var_x_constant = .2;
+var max_desired_var_x_constant = .55;
+var min_desired_var_x_constant = .3;
     //determines variance corner based on regions
 function findRegionBasedVar(regionMain, objRegion, robotMain, mostRobotRegion) {
     var corner;
@@ -427,16 +427,16 @@ function makeHexagon(world, x, y, userData) {
 
         var fixDef = new Box2D.Dynamics.b2FixtureDef();
         fixDef.density = 6.0;
-        fixDef.friction = 0.2;
+        fixDef.friction = 0.8;
         fixDef.restitution = 0.2;  //bouncing value
         fixDef.isSensor = false;
-
-        var Mpoints = [     {x: 1, y: 0},
-                            {x: 1/2, y: Math.sqrt(3)/2},
-                            {x: -1/2, y:Math.sqrt(3)/2},
-                            {x: -1, y:0},
-                            {x: -1/2, y: -Math.sqrt(3)/2},
-                            {x: 1/2, y:-Math.sqrt(3)/2} ];
+        scale = 0.75;
+        var Mpoints = [     {x: 1*scale, y: 0},
+                            {x: 1/2*scale, y: Math.sqrt(3)/2*scale},
+                            {x: -1/2*scale, y:Math.sqrt(3)/2*scale},
+                            {x: -1*scale, y:0},
+                            {x: -1/2*scale, y: -Math.sqrt(3)/2*scale},
+                            {x: 1/2*scale, y:-Math.sqrt(3)/2*scale} ];
         var points = Mpoints.map( function _makeVecBased( pt ) {
           return new Box2D.Common.Math.b2Vec2(2*pt.x, 2*pt.y);
         });
@@ -1037,7 +1037,7 @@ function init()
             .drawPolygon({
                fillStyle: color,
                x: pos.x * mapScale, y: pos.y * mapScale,
-               radius: 2*mapScale,
+               radius: 1.5*mapScale,
                sides: 6,
                rotate: angle || 0
             })
