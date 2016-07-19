@@ -1,6 +1,8 @@
-%%%%%%%%% By Shiva Shahrokhi June 2016: This code takes a snapshot of the
-%%%%%%%%% webcam, then process it to find obstacles, gives that map to MDP
-%%%%%%%%% and gets the result and draw the gradients and regions. 
+%%%%%%%%% By Shiva Shahrokhi and Lillian Lin Summer 2016: This code takes a 
+%%%%%%%%% snapshot from the webcam, then processes it to find obstacles and
+%%%%%%%%% regions. It then gives that map to MDP and gets the result to 
+%%%%%%%%% draw the gradients and regions.
+close all
 clear all
 
 success = false;
@@ -28,7 +30,7 @@ else
     rgbIm = imread('PC.jpeg');
 end
 
-
+%% Obstacle Thresholds
     I = rgb2hsv(rgbIm);
     
     % Define thresholds for channel 1 based on histogram settings
@@ -47,7 +49,8 @@ end
 BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
     (I(:,:,2) >= channel2Min ) & (I(:,:,2) <= channel2Max) & ...
     (I(:,:,3) >= channel3Min ) & (I(:,:,3) <= channel3Max);
-%finding Object Orientation
+
+%% finding Obstacles
     [B,L] = bwboundaries(BW, 'noholes');
     stat = regionprops(L,'Centroid','Orientation','MajorAxisLength', 'Area');
     area = cat(1,stat.Area);
@@ -61,7 +64,7 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
            obstacles = [obstacles; i];
        end
     end
-    
+%% finding Object Orientation    
     xlim = get(gca,'XLim');
     ylim = get(gca,'YLim');
     slope=zeros(size(obstacles));
@@ -86,18 +89,6 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
        line([xlim(1) xlim(2)],[slope(i)*xlim(1)+offset(i) slope(i)*xlim(2)+offset(i)])
        line([xlim(1) xlim(2)],[(-1/slope(i))*xlim(1)+Tangent_offset(i) (-1/slope(i))*xlim(2)+Tangent_offset(i)])
    end
-%% Intersection Prediction Code   
-%    intersect = [];
-%    for i=1:size(slope,1)
-%       for j=i+1:size(slope,1)
-%           if ((offset(j)-offset(i))/(slope(i)-slope(j))>xlim(1) && (offset(j)-offset(i))/(slope(i)-slope(j))<xlim(2))
-%               if (offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)>ylim(1) && (offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)<ylim(2)
-%                   intersect = [[intersect]; [(offset(j)-offset(i))/(slope(i)-slope(j)),(offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i)]];
-%                   plot((offset(j)-offset(i))/(slope(i)-slope(j)),(offset(j)-offset(i))/(slope(i)-slope(j))*slope(i)+offset(i),'*','color','red');
-%               end
-%           end
-%       end
-%    end
 hold off
 %% Map Creation
 goalX = 4;
@@ -211,17 +202,9 @@ for i= 1:sizeOfMap(1)-1
                 if BW(i*scale+k, j*scale+l,1) > 0
                     if ~found
                         found = true;
-                        results3 = [results3, j i  toc(t0)];
-%                         img(i*scale:i*scale+scale,j*scale:j*scale+scale,1) = 255;  % Change the red value for the first pixel
-%                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
-%                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 0;
-                    
+                        results3 = [results3, j i  toc(t0)];  
                     else
                         map(i,j) = 1; %%% points the obstacles.
-%                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,1) = 0;  % Change the red value for the first pixel
-%                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,2) = 0;    % Change the green value for the first pixel
-%                     img(i*scale:i*scale+scale,j*scale:j*scale+scale,3) = 255;    % Change the blue value for the first pixel
-%                 
                     end
                 end
             end
@@ -229,56 +212,6 @@ for i= 1:sizeOfMap(1)-1
     end
 end
 
-
-% I2 = rgb2hsv(original);
-% % % Define thresholds for channel 1 based on histogram settings
-% % channel1Min = 0.184;
-% % channel1Max = 0.423;
-% % 
-% % % Define thresholds for channel 2 based on histogram settings
-% % channel2Min = 0.184;
-% % channel2Max = 0.753;
-% % 
-% % % Define thresholds for channel 3 based on histogram settings
-% % channel3Min = 0.400;
-% % channel3Max = 1.000;
-% 
-% % Define thresholds for channel 1 based on histogram settings
-% channel1Min2 = 0.065;
-% channel1Max2 = 0.567;
-% 
-% % Define thresholds for channel 2 based on histogram settings
-% channel2Min2 = 0.288;
-% channel2Max2 = 1.000;
-% 
-% % Define thresholds for channel 3 based on histogram settings
-% channel3Min2 = 0.400;
-% channel3Max2 = 1.000;
-% 
-% % Create mask based on chosen histogram thresholds
-% BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
-%     (I2(:,:,2) >= channel2Min2 ) & (I2(:,:,2) <= channel2Max2) & ...
-%     (I2(:,:,3) >= channel3Min2 ) & (I2(:,:,3) <= channel3Max2);
-% 
-% %threshold the image to remove shadows (and only show dark parts of kilobots)
-%     [centers, radii] = imfindcircles(BW2,[10 19],'ObjectPolarity','bright','Sensitivity',0.92 );
-%     
-%     % %Mean
-%     M = mean(centers);
-%     %Variance
-%     V = var(centers);
-%     %Covariance
-%     C = cov(centers);
-%     imshow(original);
-%      h = viscircles(centers,radii,'EdgeColor','b');
-%     [s, l] = size(centers);
-%     plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
-%     plot_gaussian_ellipsoid(M,C);
-% % Convert RGB image to chosen color space
-% 
-% 
-% end
-% % 
 for j = 2:sizeOfMap(2)-1
     for i = 2:sizeOfMap(1)-1
         if map(i,j) ~=1 
@@ -290,19 +223,12 @@ for j = 2:sizeOfMap(2)-1
     end
 end
 save('ThresholdMaps','transferRegion','mainRegion');
-%imwrite(img,'Obstacle.jpeg');
-%[probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
-%save('Map3', 'movesX', 'movesY','corners');
-%save('EmptyMap', 'corners');
 
+%% Gradient Code
+[probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
+save('MapDebug', 'movesX', 'movesY','corners');
 
-% [X,Y] = meshgrid(1:size(map,2),1:size(map,1));
-%  hold on; hq=quiver(X*scale,Y*scale,movesY,movesX,0.5,'color',[0,0,0]); hold off
-% set(hq,'linewidth',2);
-% hold on
-% for i= 1: size(corners)
-%     plot(corners(i,1)*scale , corners(i,2)*scale,'*','Markersize',16,'color','red', 'linewidth',3);
-% end
+%% (*turns off the camera*)
 if webcamShot
-clear('cam'); % (*turns off the camera*)
+clear('cam'); 
 end

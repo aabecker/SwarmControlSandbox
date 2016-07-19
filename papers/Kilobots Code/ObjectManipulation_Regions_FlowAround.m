@@ -7,9 +7,9 @@ clear all
 
 %% Setup End Goal Position
 if (ispc==1)  
-    goalX = 2.5;
-    goalY = 3;
-    goalSize = 2;
+    goalX = 5;
+    goalY = 5;
+    goalSize = 4;
 else 
     goalX = 5;
     goalY = 5;
@@ -299,15 +299,14 @@ while success == false
                         end
                     end
                 end
-                hq=quiver(X*scale,Y*scale,DX,DY,'color','cyan');%[0,0,0.5]); 
+                hq=quiver(X*scale,Y*scale,DX,DY,'color',[0 0.8 1]);%[0,0,0.5]); 
             end
         end
 
-        plot(attPointX *scale, attPointY*scale,'o','Markersize',16,'color','blue','linewidth',3);
-        plot(repPointX*scale , repPointY*scale,'o','Markersize',16,'color','cyan','linewidth',3);
+        plot(attPointX*scale, attPointY*scale,'o','Markersize',16,'color','blue','linewidth',3);
+        plot(repPointX*scale, repPointY*scale,'o','Markersize',16,'color','cyan','linewidth',3);
         plot(M(1,1),M(1,2),'*','Markersize',16,'color','red', 'linewidth',0.5);
         plot(currgoalX , currgoalY,'*','Markersize',16,'color','yellow','linewidth',0.5);
-        plot(goalX*scale , goalY*scale,'*','Markersize',16,'color','green','linewidth',3);
         plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','cyan','linewidth',3);
         circle(goalX*scale, goalY*scale,goalSize*scale);
         circle(ObjectCentroidX, ObjectCentroidY,ObjectRadius);
