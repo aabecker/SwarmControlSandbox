@@ -18,51 +18,49 @@ end
 
 %% Load maps from RegionCode.m and GridView
 load('MapDebug', 'movesX', 'movesY','corners');
-load('ThresholdMaps','transferRegion','mainRegion');
+load('ThresholdMaps','transferRegion','mainRegion'); 
 
+
+%% Define webcam
+webcamShot = true;
+
+if webcamShot
+    cam = webcam(2);
+    %% Using Arduino for our lamps, this is how we define arduino in Matlab:
+    if (ispc==1)  
+        a = arduino('Com5','uno');
+    else 
+        a = arduino('/dev/tty.usbmodem1421','uno');
+    end 
+end
 %% Initalize Variables
-%Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
-%is the default webcam.
-cam = webcam(1);
 Relay=0;
-
 VarCont = false;
 flowDebug = true;
-
 success = false;
 again = true;
-
-% figure
 counter = 1;
 c = 0;
 meanControl=false;
-
 %Flow Around Variables
 rhoNot=7.5;
-
 %1 is main regions, 0 is transfer regions
 regionID=1;
 regionNum=3;
 %load regions
 currentRegionMap=mainRegion(:,:,regionNum); %init map
 
-%% Using Arduino for our lamps, this is how we define arduino in Matlab:
-if (ispc==1)  
-    a = arduino('Com5','uno');
-else 
-    a = arduino('/dev/tty.usbmodem1421','uno');
-end 
-
-while success == false
-    if (again == true)
-        relayOn(a,0);
-        pause (10);
-    end 
-    % Read in a webcam snapshot.
-    % rgbIm = snapshot(cam);
-    % pause(3);
-    rgbIm = snapshot(cam);
-
+while success == false  
+    %% Read in a webcam snapshot.
+    if webcamShot
+        if (again == true)
+            relayOn(a,0);
+            pause (10);
+        end 
+        rgbIm = snapshot(cam);
+    else
+        rgbIm = imread('PC.jpeg');
+    end
 %% crop to have just the table view.
     if (ispc== 1)  
         originalImage = imcrop(rgbIm,[50 10 500 400]);
@@ -258,7 +256,9 @@ while success == false
             if ((rho<rhoNot) && (abs(angdiff)<pi*4/8))
                 epsilon = 0.2 * scale;
 
-                [ currgoalX,currgoalY ] = FlowForce(M(1,1)/scale,M(1,2)/scale,attPointX,attPointY,repPointX,repPointY) 
+                [ currgoalX,currgoalY ] = FlowForce(M(1,1)/scale,M(1,2)/scale,attPointX,attPointY,repPointX,repPointY) ;
+                currgoalX=M(1,1)+currgoalX*scale;
+                currgoalY=M(1,2)+currgoalY*scale;
             else 
             %% Old Goal Algorithm 
                 epsilon = 1*scale;
@@ -289,13 +289,13 @@ while success == false
                             angdiffD = angdiffD + 2*pi;
                         end
                         if ((rhoD<rhoNot) && (abs(angdiffD)<pi*4/8))
-                            [ currgoalX,currgoalY ] = FlowForce(i,j,attPointX,attPointY,repPointX,repPointY)
+                            [ DX(i,j),DY(i,j) ] = FlowForce(i,j,attPointX,attPointY,repPointX,repPointY);
 
                             X(i,j) = i;
                             Y(i,j) = j;
 
-                            DX(i,j)=DX(i,j)-i;
-                            DY(i,j)=DY(i,j)-j;
+                            DX(i,j)=DX(i,j);
+                            DY(i,j)=DY(i,j);
                         end
                     end
                 end
