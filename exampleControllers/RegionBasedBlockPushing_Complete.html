@@ -1340,28 +1340,23 @@ function init()
 		    timer = 0;
 		    start_timer = true; //starts timer
 		    stop_timer = false;
-		    console.log("TIMER STARTED");
 		}
 		if (start_timer) {
 		    timer = elapsedTimeSec; //gets starting point
-		    console.log("GETS PREV POS");
 		    prev_mean_position_x = mean_position_x; //get previous pos
 		    prev_mean_position_y = mean_position_y;
 		    start_timer = false;
 		}
-		if ((elapsedTimeSec - timer) > 10) {
-		    console.log("10 seconds passed");
+		if ((elapsedTimeSec - timer) > 20) {
 		    var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
 		    var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
-		    console.log("differences " + mean_difference_x + " " + mean_difference_y);
-		    if (mean_difference_x < 2 || mean_difference_y < 2) {
+		    if (mean_difference_x < .1 || mean_difference_y < .1) {
 		        flagVar = true;
-		        //timer_var = true;
+		        timer_var = true;
 		        stop_timer = true;
-		        console.log("mean's stuck -> flagVar");
 		    } else {
 		        stop_timer = true; //stops timer
-		        //timer_var = false;
+		        timer_var = false; 
 		    }
 		}
 
@@ -1400,11 +1395,17 @@ function init()
 			m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
 		}
 		if (!goalRecieved) {
-		    //if (timer_var) {
-		    //    min_desired_var_x = .1;
-		    //    min_desired_var_y = min_desired_var_x;
-		    //    console.log("MIN VARR :" + min_desired_var_x);
-            //}
+		    if (timer_var) {
+		        min_desired_var_x = .1;
+		        min_desired_var_y = min_desired_var_x;
+		        console.log("MIN VARR :" + min_desired_var_x);
+		    } else {
+		        max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
+		        min_desired_var_x = numrobots * robotrad * min_desired_var_x_constant; //was .663
+		        max_desired_var_y = max_desired_var_x;
+		        min_desired_var_y = min_desired_var_x;
+            }
+    
 			if(var_x < min_desired_var_x && var_y < min_desired_var_y)
 			{
 				flagVar = false;
