@@ -535,6 +535,13 @@ function init()
     var robotVar = false;
     var minRobotCount = null;
     var windowStopped = false;
+    //variables for getting mean unstuck
+    var prev_mean_position_x = 0; //previous mean positions of the block
+    var prev_mean_position_y = 0;
+    var start_timer = false; //starts timer for how long mean has been stuck
+    var stop_timer = true;//stops timer for how long mean has been stuck
+    var timer = 0;
+    var timer_var = false;
     //////////////////////
 	var b2Vec2 = Box2D.Common.Math.b2Vec2
 	, b2AABB = Box2D.Collision.b2AABB
@@ -1326,7 +1333,39 @@ function init()
 		    }
 
 		}
-			////////////////////////////////
+	    //for init- prev mean pos, start_timer=false, stop_timer=true; var timer=0;
+	    //for global var prev_mean pos
+	    //variance control if the mean stays in the same place 
+		if (stop_timer) {
+		    timer = 0;
+		    start_timer = true; //starts timer
+		    stop_timer = false;
+		    console.log("TIMER STARTED");
+		}
+		if (start_timer) {
+		    timer = elapsedTimeSec; //gets starting point
+		    console.log("GETS PREV POS");
+		    prev_mean_position_x = mean_position_x; //get previous pos
+		    prev_mean_position_y = mean_position_y;
+		    start_timer = false;
+		}
+		if ((elapsedTimeSec - timer) > 10) {
+		    console.log("10 seconds passed");
+		    var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
+		    var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
+		    console.log("differences " + mean_difference_x + " " + mean_difference_y);
+		    if (mean_difference_x < 2 || mean_difference_y < 2) {
+		        flagVar = true;
+		        //timer_var = true;
+		        stop_timer = true;
+		        console.log("mean's stuck -> flagVar");
+		    } else {
+		        stop_timer = true; //stops timer
+		        //timer_var = false;
+		    }
+		}
+
+		////////////////////////////////
 		if(!goalRecieved){
 			$("canvas").drawEllipse({
 				strokeStyle: "red",
@@ -1360,7 +1399,12 @@ function init()
 			}
 			m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
 		}
-		if(!goalRecieved){
+		if (!goalRecieved) {
+		    //if (timer_var) {
+		    //    min_desired_var_x = .1;
+		    //    min_desired_var_y = min_desired_var_x;
+		    //    console.log("MIN VARR :" + min_desired_var_x);
+            //}
 			if(var_x < min_desired_var_x && var_y < min_desired_var_y)
 			{
 				flagVar = false;
