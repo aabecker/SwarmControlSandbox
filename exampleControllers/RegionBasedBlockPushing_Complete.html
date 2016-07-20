@@ -1344,12 +1344,12 @@ function init()
 		}
 		if (start_timer) {
 		    timer = elapsedTimeSec; //gets starting point
-		    prev_block_mean_difference = Math.floor(lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
+		    prev_block_mean_difference = (lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
 		    var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
 		    start_timer = false;
 		}
 		if ((elapsedTimeSec - timer) > 10) {
-		    var block_mean_difference = Math.floor(lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
+		    var block_mean_difference = (lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
 		    if ((block_difference<4) && (Math.abs(block_mean_difference-prev_block_mean_difference)<.1)) {
 		        flagVar = true;
 		        timer_var = true;
