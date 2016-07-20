@@ -459,7 +459,7 @@ function init()
             test = {
                 currentRun: 0,
                 test: {//50,75,100,125,150
-                    runs: [ 75,75, 75,75, 75,75, 75,75, 75,75,100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 125,125, 125,125, 125,125, 125,125, 125,125,150,150,150,150,150,150,150,150,150,150 ],
+                    runs: [75,75, 75,75, 75,75, 75,75, 75,75,100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 125,125, 125,125, 125,125, 125,125, 125,125,150,150,150,150,150,150,150,150,150,150 ],
                     outcomes: []
                 }
             }
@@ -474,6 +474,19 @@ function init()
         }
         localStorage.setItem("test", JSON.stringify(test));
     }
+    if (testing) {//getting values to run simulations
+        var inputTest = JSON.parse(localStorage.getItem("test"));
+        var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
+        if (testRobots) {
+            var numrobots = value; //getting value for robots
+            var totalRobots = value;
+        } else if (testNoise) {
+            vary = value; //getting value for brownian noise
+            var numrobots = 100; //getting value for robots
+            var totalRobots = 100;
+        }
+    }
+    
     ///////////////creating the main Regions
     mainMaps[0] = new Array(); //creating 3D array
     mainMaps[1] = new Array();
@@ -642,8 +655,8 @@ function init()
 	//create the robots
 	bodyDef.type = b2Body.b2_dynamicBody;
 	var robotrad = 0.15; //for SwarmControl.net, we used 0.2;
-	var numrobots = 100;//Math.floor(20/(4*robotrad*robotrad));
-	var totalRobots = 100;	//for regions calculations
+	//var numrobots = 100;//Math.floor(20/(4*robotrad*robotrad));
+	//var totalRobots = 100;	//for regions calculations
 
 	var CornerValuesX = [1, 19, 19, 1, 1, 100]; //variance corners
 	var CornerValuesY = [19, 19, 7, 13, 1, 100];
@@ -660,6 +673,7 @@ function init()
 	var rowLength = Math.floor(5/(2*robotrad));
 	fixDef.shape = new b2CircleShape(robotrad);
 
+	console.log(numrobots);
 	for(var i = 0; i < numrobots; ++i)
 	{
 		bodyDef.userData = 'robot';
