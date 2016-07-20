@@ -1350,7 +1350,7 @@ function init()
 		}
 		if ((elapsedTimeSec - timer) > 10) {
 		    var block_mean_difference = (lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
-		    if ((block_difference < 4) && (Math.abs(block_mean_difference - prev_block_mean_difference) < .1)) {
+		    if ((block_difference<4) && (Math.abs(block_mean_difference-prev_block_mean_difference)<.1)) {
 		        flagVar = true;
 		        timer_var = true;
 		        stop_timer = true;
@@ -1359,8 +1359,6 @@ function init()
 		        timer_var = false; 
 		    }
 		}
-
-		console.log(timer_var);
 
 		////////////////////////////////
 		if(!goalRecieved){
