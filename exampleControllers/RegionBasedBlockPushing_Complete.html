@@ -459,7 +459,7 @@ function init()
             test = {
                 currentRun: 0,
                 test: {//50,75,100,125,150
-                    runs: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75,75, 75,75, 75,75, 75,75, 75,75,100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 125,125, 125,125, 125,125, 125,125, 125,125,150,150,150,150,150,150,150,150,150,150 ],
+                    runs: [75,75, 75,75, 75,75, 75,75, 75,75,100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 125,125, 125,125, 125,125, 125,125, 125,125,150,150,150,150,150,150,150,150,150,150 ],
                     outcomes: []
                 }
             }
@@ -1346,11 +1346,17 @@ function init()
 		    timer = elapsedTimeSec; //gets starting point
 		    prev_block_mean_difference = (lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
 		    var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+		    prev_mean_position_x = mean_position_x; //get previous pos
+		    prev_mean_position_y = mean_position_y;
+
 		    start_timer = false;
 		}
 		if ((elapsedTimeSec - timer) > 10) {
+		    var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
+		    var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
+		    var mean_difference = Math.sqrt((mean_difference_x) ^ 2 + (mean_difference_y) ^ 2);
 		    var block_mean_difference = (lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
-		    if ((block_difference<4) && (Math.abs(block_mean_difference-prev_block_mean_difference)<.1)) {
+		    if ((mean_difference<.2)&&(block_difference<4) && (Math.abs(block_mean_difference-prev_block_mean_difference)<.1)) {
 		        flagVar = true;
 		        timer_var = true;
 		        stop_timer = true;
@@ -1359,7 +1365,7 @@ function init()
 		        timer_var = false; 
 		    }
 		}
-
+		console.log(timer_var);
 		////////////////////////////////
 		if(!goalRecieved){
 			$("canvas").drawEllipse({
