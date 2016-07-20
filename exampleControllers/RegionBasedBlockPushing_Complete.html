@@ -1345,7 +1345,6 @@ function init()
 		if (start_timer) {
 		    timer = elapsedTimeSec; //gets starting point
 		    prev_block_mean_difference = (lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
-		    var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
 		    prev_mean_position_x = mean_position_x; //get previous pos
 		    prev_mean_position_y = mean_position_y;
 
@@ -1356,6 +1355,8 @@ function init()
 		    var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
 		    var mean_difference = Math.sqrt((mean_difference_x) ^ 2 + (mean_difference_y) ^ 2);
 		    var block_mean_difference = (lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
+		    var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+		    console.log(mean_difference + " " + block_difference + " " + Math.abs(block_mean_difference - prev_block_mean_difference));
 		    if ((mean_difference<.2)&&(block_difference<4) && (Math.abs(block_mean_difference-prev_block_mean_difference)<.1)) {
 		        flagVar = true;
 		        timer_var = true;
