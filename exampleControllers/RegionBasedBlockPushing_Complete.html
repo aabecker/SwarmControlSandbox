@@ -1347,7 +1347,7 @@ function init()
 		    prev_mean_position_y = mean_position_y;
 		    start_timer = false;
 		}
-		if ((elapsedTimeSec - timer) > 20) {
+		if ((elapsedTimeSec - timer) > 10) {
 		    var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
 		    var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
 		    if (mean_difference_x < .1 || mean_difference_y < .1) {
@@ -1395,10 +1395,8 @@ function init()
 			m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
 		}
 		var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-		//console.log("MEAN "+mean_position_x + " B " +blockCOM_x +" MEAN " + mean_position_y + " BLCOMY "+ blockCOM_y);
-		console.log("block: " + block_difference);
 		if (!goalRecieved) {
-		    if (timer_var && !(block_difference>4)) {
+		    if (timer_var && (block_difference<4)) {
 		        min_desired_var_x = .1;
 		        min_desired_var_y = min_desired_var_x;
 		        console.log("MIN VARR :" + min_desired_var_x);
