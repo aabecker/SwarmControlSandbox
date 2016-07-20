@@ -459,7 +459,7 @@ function init()
             test = {
                 currentRun: 0,
                 test: {//50,75,100,125,150
-                    runs: [75,75, 75,75, 75,75, 75,75, 75,75,100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 125,125, 125,125, 125,125, 125,125, 125,125,150,150,150,150,150,150,150,150,150,150 ],
+                    runs: [ 75,75, 75,75, 75,75, 75,75, 75,75,100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 125,125, 125,125, 125,125, 125,125, 125,125,150,150,150,150,150,150,150,150,150,150 ],
                     outcomes: []
                 }
             }
@@ -658,7 +658,8 @@ function init()
 	fixDef.isSensor = false;
 	var m_Robot = new Array();
 	var rowLength = Math.floor(5/(2*robotrad));
-	fixDef.shape = new b2CircleShape(robotrad );
+	fixDef.shape = new b2CircleShape(robotrad);
+
 	for(var i = 0; i < numrobots; ++i)
 	{
 		bodyDef.userData = 'robot';
@@ -1335,8 +1336,7 @@ function init()
 		}
 	    //for init- prev mean pos, start_timer=false, stop_timer=true; var timer=0;
 	    //for global var prev_mean pos
-	    //variance control if the mean stays in the same place 
-		var prev_block_mean_difference = null;
+	    //variance control if the mean stays in the same place
 		if (stop_timer) {
 		    timer = 0;
 		    start_timer = true; //starts timer
@@ -1344,29 +1344,23 @@ function init()
 		}
 		if (start_timer) {
 		    timer = elapsedTimeSec; //gets starting point
-		    prev_block_mean_difference = (lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
 		    prev_mean_position_x = mean_position_x; //get previous pos
 		    prev_mean_position_y = mean_position_y;
-
 		    start_timer = false;
 		}
 		if ((elapsedTimeSec - timer) > 10) {
 		    var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
 		    var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
-		    var mean_difference = Math.sqrt((mean_difference_x) ^ 2 + (mean_difference_y) ^ 2);
-		    var block_mean_difference = (lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y));
-		    var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-		    console.log(mean_difference + " " + block_difference + " " + Math.abs(block_mean_difference - prev_block_mean_difference));
-		    if ((mean_difference<.2)&&(block_difference<4) && (Math.abs(block_mean_difference-prev_block_mean_difference)<.1)) {
+		    if (mean_difference_x < .1 || mean_difference_y < .1) {
 		        flagVar = true;
 		        timer_var = true;
 		        stop_timer = true;
 		    } else {
 		        stop_timer = true; //stops timer
-		        timer_var = false; 
+		        timer_var = false;
 		    }
 		}
-		console.log(timer_var);
+
 		////////////////////////////////
 		if(!goalRecieved){
 			$("canvas").drawEllipse({
@@ -1401,9 +1395,9 @@ function init()
 			}
 			m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
 		}
-		
+		var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
 		if (!goalRecieved) {
-		    if (timer_var) {
+		    if (timer_var && (block_difference<4)) {
 		        min_desired_var_x = .1;
 		        min_desired_var_y = min_desired_var_x;
 		        console.log("MIN VARR :" + min_desired_var_x);
@@ -1413,7 +1407,7 @@ function init()
 		        max_desired_var_y = max_desired_var_x;
 		        min_desired_var_y = min_desired_var_x;
             }
-    
+
 			if(var_x < min_desired_var_x && var_y < min_desired_var_y)
 			{
 				flagVar = false;
@@ -1597,3 +1591,4 @@ function init()
     }
 </style>
 </html>
+
