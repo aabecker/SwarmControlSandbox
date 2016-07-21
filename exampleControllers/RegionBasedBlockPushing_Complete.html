@@ -299,8 +299,8 @@ var mainMaps = new Array();
 var transferMaps = new Array();
     //controls for simulation tests
 var testing = true;
-var testRobots = true;
-var testNoise = false;
+var testRobots = false;
+var testNoise = true;
 var TestShapes = false;
 
 var regionNum = null; //to calculates object's region
@@ -459,7 +459,7 @@ function init()
             test = {
                 currentRun: 0,
                 test: {//50,75,100,125,150
-                    runs: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
+                    // runs: [75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
                     outcomes: []
                 }
             }
@@ -467,7 +467,7 @@ function init()
             test = {
                 currentRun: 0,
                 test: {
-                    runs: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, .1, .1, .1, .1, .1, .1, .1, .1, .1, .1, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, ],
+                    runs: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 40, 40, 40, 40, 40, 40, 40, 40, 40, 40 ],
                     outcomes: []
                 }
             }
@@ -481,7 +481,6 @@ function init()
             var numrobots = value; //getting value for robots
             var totalRobots = value;
         } else if (testNoise) {
-            vary = value; //getting value for brownian noise
             var numrobots = 100; //getting value for robots
             var totalRobots = 100;
         }
@@ -608,7 +607,7 @@ function init()
 
 	// maze
 	bodyDef.userData = 'obstacle';
-		fixDef.shape.SetAsBox(10, 0.5);//width, height
+	fixDef.shape.SetAsBox(10, 0.5);//width, height
     bodyDef.position.Set(15, width/4 / mapScale + 1.5); //TOP
     var bodyBottom = world.CreateBody(bodyDef);
     bodyBottom.CreateFixture(fixDef);
@@ -866,6 +865,7 @@ function init()
 		        }
 		    }
 		}
+		console.log("VARY " + vary);
 		for(var i =0; i<m_Robot.length; i++)
 		{
 			mag = vary * Math.random();
@@ -1355,6 +1355,7 @@ function init()
 		    timer = 0;
 		    start_timer = true; //starts timer
 		    stop_timer = false;
+		    flagVar = false;
 		}
 		if (start_timer) {
 		    timer = elapsedTimeSec; //gets starting point
@@ -1414,6 +1415,8 @@ function init()
 		    if (timer_var && (block_difference<4)) {
 		        min_desired_var_x = .1;
 		        min_desired_var_y = min_desired_var_x;
+		        max_desired_var_x = .2;
+		        max_desired_var_y = max_desired_var_x;
 		        console.log("MIN VARR :" + min_desired_var_x);
 		    } else {
 		        max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
