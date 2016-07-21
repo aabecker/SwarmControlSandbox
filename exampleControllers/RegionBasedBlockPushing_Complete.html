@@ -672,7 +672,6 @@ function init()
 	var rowLength = Math.floor(5/(2*robotrad));
 	fixDef.shape = new b2CircleShape(robotrad);
 
-	console.log(numrobots);
 	for(var i = 0; i < numrobots; ++i)
 	{
 		bodyDef.userData = 'robot';
@@ -865,7 +864,6 @@ function init()
 		        }
 		    }
 		}
-		console.log("VARY " + vary);
 		for(var i =0; i<m_Robot.length; i++)
 		{
 			mag = vary * Math.random();
@@ -1355,7 +1353,6 @@ function init()
 		    timer = 0;
 		    start_timer = true; //starts timer
 		    stop_timer = false;
-		    flagVar = false;
 		}
 		if (start_timer) {
 		    timer = elapsedTimeSec; //gets starting point
@@ -1366,16 +1363,22 @@ function init()
 		if ((elapsedTimeSec - timer) > 10) {
 		    var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
 		    var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
-		    if (mean_difference_x < .1 || mean_difference_y < .1) {
+            //var mean_difference=Math.sqrt(mean_difference_x^2+mean_difference_y^2);
+            var mean_difference = lineDistance(mean_difference_x, mean_difference_y,0,0);
+		    if (mean_difference<.1) {
 		        flagVar = true;
+
 		        timer_var = true;
 		        stop_timer = true;
+                console.log("FlagVar 1st: "+ flagVar)
 		    } else {
 		        stop_timer = true; //stops timer
 		        timer_var = false;
+                flagVar = false;
 		    }
 		}
 
+        //console.log(flagVar);
 		////////////////////////////////
 		if(!goalRecieved){
 			$("canvas").drawEllipse({
@@ -1411,13 +1414,15 @@ function init()
 			m_controlState  = ROBOT_INPUT.ROBOT_IDLE;
 		}
 		var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+        //console.log(block_difference);
+        //console.log(flagVar);
 		if (!goalRecieved) {
 		    if (timer_var && (block_difference<4)) {
 		        min_desired_var_x = .1;
 		        min_desired_var_y = min_desired_var_x;
-		        max_desired_var_x = .2;
-		        max_desired_var_y = max_desired_var_x;
-		        console.log("MIN VARR :" + min_desired_var_x);
+                console.log("FlagVar in here" + flagVar);
+		        //max_desired_var_x = .2;
+		        //max_desired_var_y = max_desired_var_x;
 		    } else {
 		        max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
 		        min_desired_var_x = numrobots * robotrad * min_desired_var_x_constant; //was .663
