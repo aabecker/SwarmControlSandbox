@@ -277,9 +277,9 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var testNoise = true;
     var TestShapes = false;
     var Circle = false;
-    var Square = true;
+    var Square = false;
     var Hexagon = false;
-    var Rect = false;
+    var shortRect = true;
     var longRect = false;
     var Triangle = false;
 
@@ -607,6 +607,32 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             bodyDef.userData = 'moveable';
             fixDef.shape = new b2PolygonShape;
             fixDef.shape.SetAsBox(1.0, 1.0);
+            var obst = world.CreateBody(bodyDef);
+            obst.CreateFixture(fixDef);
+            obst.m_angularDamping = 1;
+            obst.m_linearDamping = 1;
+        } else if (shortRect) {
+            bodyDef.type = b2Body.b2_dynamicBody;
+            fixDef.density = 8.0;
+            fixDef.friction = 0.3;
+            fixDef.restitution = 0.2;  //bouncing value
+            bodyDef.position.Set(7, 15.5);
+            bodyDef.userData = 'moveable';
+            fixDef.shape = new b2PolygonShape;
+            fixDef.shape.SetAsBox(.8, 2);
+            var obst = world.CreateBody(bodyDef);
+            obst.CreateFixture(fixDef);
+            obst.m_angularDamping = 1;
+            obst.m_linearDamping = 1;
+        } else if (longRect) {
+            bodyDef.type = b2Body.b2_dynamicBody;
+            fixDef.density = 8.0;
+            fixDef.friction = 0.3;
+            fixDef.restitution = 0.2;  //bouncing value
+            bodyDef.position.Set(7, 15.5);
+            bodyDef.userData = 'moveable';
+            fixDef.shape = new b2PolygonShape;
+            fixDef.shape.SetAsBox(.8, 3);
             var obst = world.CreateBody(bodyDef);
             obst.CreateFixture(fixDef);
             obst.m_angularDamping = 1;
@@ -1012,7 +1038,34 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                  cornerRadius: 0
                              }).restoreCanvas();
                             }
-
+                            else if (shortRect) {
+                                $("canvas")
+                              .rotateCanvas({
+                                  x: pos.x * mapScale, y: pos.y * mapScale,
+                                  rotate: angle
+                              })
+                             .drawRect({
+                                 fillStyle: color,
+                                 x: pos.x * mapScale, y: pos.y * mapScale,
+                                 width: X * mapScale,
+                                 height: Y * mapScale,
+                                 cornerRadius: 0
+                             }).restoreCanvas();
+                            }
+                            else if (longRect) {
+                                $("canvas")
+                              .rotateCanvas({
+                                  x: pos.x * mapScale, y: pos.y * mapScale,
+                                  rotate: angle
+                              })
+                             .drawRect({
+                                 fillStyle: color,
+                                 x: pos.x * mapScale, y: pos.y * mapScale,
+                                 width: X * mapScale,
+                                 height: Y * mapScale,
+                                 cornerRadius: 0
+                             }).restoreCanvas();
+                            }
                             continue;
 
 
