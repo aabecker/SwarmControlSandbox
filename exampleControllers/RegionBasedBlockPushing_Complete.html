@@ -279,7 +279,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var Circle = false;
     var Square = false;
     var Hexagon = false;
-    var shortRect = true;
+    var shortRect = false;
     var longRect = false;
     var Triangle = false;
 
@@ -606,7 +606,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             bodyDef.position.Set(7, 15.5);
             bodyDef.userData = 'moveable';
             fixDef.shape = new b2PolygonShape;
-            fixDef.shape.SetAsBox(1.0, 1.0);
+            fixDef.shape.SetAsBox(1.3, 1.3);
             var obst = world.CreateBody(bodyDef);
             obst.CreateFixture(fixDef);
             obst.m_angularDamping = 1;
