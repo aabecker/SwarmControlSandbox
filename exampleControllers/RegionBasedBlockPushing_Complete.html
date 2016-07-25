@@ -253,7 +253,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     //Begin Drawing Functions
     ///////////////////////////
 
-    function calcPointsCirc(cx, cy, rad, dashLength) {	//draw a dashed circle
+    function calcPointsCirc(cx, cy, rad, dashLength) {  //draw a dashed circle
         var n = rad / dashLength,
         alpha = Math.PI * 2 / n,
         pointObj = {},
@@ -654,12 +654,26 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             obst.CreateFixture(fixDef);
             obst.m_angularDamping = objAngularConst;
             obst.m_linearDamping = objLinearConst;
+        } else if (Circle){
+            bodyDef.type = b2Body.b2_dynamicBody;
+            fixDef.density = 8.0;
+            fixDef.friction = 0.3;
+            fixDef.restitution = 0.2;  //bouncing value
+            bodyDef.userData = 'moveable';
+            bodyDef.position.x = 7;
+            bodyDef.position.y = 15.5;
+            objectRad = 1.5;
+            fixDef.shape = new b2CircleShape(objectRad);
+            var obst = world.CreateBody(bodyDef);
+            obst.CreateFixture(fixDef);
+            obst.m_angularDamping = objAngularConst;
+            obst.m_linearDamping = objLinearConst; 
         }
         //create the robots
         bodyDef.type = b2Body.b2_dynamicBody;
         var robotrad = 0.15; //for SwarmControl.net, we used 0.2;
         //var numrobots = 100;//Math.floor(20/(4*robotrad*robotrad));
-        //var totalRobots = 100;	//for regions calculations
+        //var totalRobots = 100;    //for regions calculations
 
         var CornerValuesX = [1, 19, 19, 1, 1, 100]; //variance corners
         var CornerValuesY = [19, 19, 7, 13, 1, 100];
@@ -705,7 +719,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         var goalPositionYDraw = 3.5;
         //giving -100 to boundaries
 
-        if (ifBFS) {	//at the end, map[x][y] is the BFS distance to the goal
+        if (ifBFS) {    //at the end, map[x][y] is the BFS distance to the goal
             for (var i = 0 ; i < mapXSize; i++) {
                 map[i][0] = -1;
                 map[i][mapYSize - 1] = -1;
@@ -796,7 +810,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             ifMDP = false;
         }
 
-        if (ifGradient) {	//for each cell, calculate the gradient
+        if (ifGradient) {   //for each cell, calculate the gradient
             for (var i = 0 ; i < mapXSize; i++) {
                 for (var j = 0 ; j < mapYSize; j++) {
                     Gradient(i, j);
@@ -1019,8 +1033,16 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                         _drawRobot(pos.x, pos.y, angle, radius);
                     }
                     else if (userData == 'obstacle' || userData == 'moveable' || userData == 'rectangle_ground') {
-                        var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
-                        var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
+                        if (userData != 'moveable'){
+                            var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
+                            var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
+                        }
+                        else if(!Circle)
+                        {
+                            var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
+                            var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
+                        }
+                        
                         if (userData == 'moveable') {
                             var color = 'black';
                             blockCOM_x = pos.x;
@@ -1082,6 +1104,21 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                  height: Y * mapScale,
                                  cornerRadius: 0
                              }).restoreCanvas();
+                            }
+                            else if (Circle){
+                                var objRad = f.GetShape().GetRadius();
+
+                                $("canvas")
+                              .rotateCanvas({
+                                  x: pos.x * mapScale, y: pos.y * mapScale,
+                                  rotate: angle
+                              })
+                              .drawArc({
+                                strokeWidth: 1,
+                                fillStyle: color,
+                                x: pos.x * mapScale, y: pos.y * mapScale,
+                                radius: objRad * mapScale
+                              }).restoreCanvas();
                             }
                             continue;
 
