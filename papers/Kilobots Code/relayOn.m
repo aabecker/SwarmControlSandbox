@@ -95,7 +95,7 @@ RELAY8 = 4;
             writeDigitalPin(a,RELAY6,1);
             writeDigitalPin(a,RELAY7,1);
             writeDigitalPin(a,RELAY8,0);
-        otherwise
+        case 0
             writeDigitalPin(a,RELAY1,0);
             writeDigitalPin(a,RELAY2,0);
             writeDigitalPin(a,RELAY3,0);
@@ -104,6 +104,15 @@ RELAY8 = 4;
             writeDigitalPin(a,RELAY6,0);
             writeDigitalPin(a,RELAY7,0);
             writeDigitalPin(a,RELAY8,0);
+        otherwise
+            writeDigitalPin(a,RELAY1,1);
+            writeDigitalPin(a,RELAY2,1);
+            writeDigitalPin(a,RELAY3,1);
+            writeDigitalPin(a,RELAY4,1);
+            writeDigitalPin(a,RELAY5,1);
+            writeDigitalPin(a,RELAY6,1);
+            writeDigitalPin(a,RELAY7,1);
+            writeDigitalPin(a,RELAY8,1);
     end 
 end
 
