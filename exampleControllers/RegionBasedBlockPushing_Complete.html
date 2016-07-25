@@ -645,7 +645,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             bodyDef.userData = 'moveable';
             bodyDef.position.x = 7;
             bodyDef.position.y = 15.5;
-            objectRad = 1;
+            objectRad = 1.5;
             fixDef.shape = new b2CircleShape(objectRad);
             var obst = world.CreateBody(bodyDef);
             obst.CreateFixture(fixDef);
