@@ -15,8 +15,8 @@ goalXM = 600;
 
 
 %These are the goal covariance matrices.
-goalC1 = [12000 6000; 6000 12000];
-goalC2 = [12000 -6000; -6000 12000];
+goalC1 = [100 2000; 2000 100];
+goalC2 = [100 -2000; -2000 100];
 %Goal Covariances.
 goal1x = goalC1(1,2);
 goal2x = goalC2(1,2);
@@ -28,7 +28,7 @@ success = false;
 
 tHandle = timer('TimerFcn',...
     {@sqWave_callback_fcn, goal1x, goal2x,t0}, ...
-    'Period' , 200, 'TasksToExecute' , 4, 'ExecutionMode', 'fixedDelay');
+    'Period' , 100, 'TasksToExecute' , 8, 'ExecutionMode', 'fixedDelay');
  
 start(tHandle);
 
