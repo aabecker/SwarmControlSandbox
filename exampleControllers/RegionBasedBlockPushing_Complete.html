@@ -275,11 +275,12 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var testing = true; //tests parameters
     var testRobots = false; //changes number of robots
     var testNoise = false; //changes brownian noise
-    var testObj = false; //changes obj's angular/linear Const
+    var testObj = true; //changes obj's angular/linear Const
+
     var TestShapes = false; //tests shapes
     var Circle = false;
-    var Square = true;
-    var Hexagon = false;
+    var Square = false;
+    var Hexagon = true;
     var shortRect = false;
     var longRect = false;
     var Triangle = false;
@@ -430,8 +431,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         bodyDef.userData = 'moveable';
         var body = world.CreateBody(bodyDef);
         body.CreateFixture(fixDef);
-        body.m_angularDamping = 1;
-        body.m_linearDamping = 1;
+        body.m_angularDamping = objAngularConst;
+        body.m_linearDamping = objLinearConst;
         return body;
     }
     function init() {
@@ -457,7 +458,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+                        runs: [5,.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
                         outcomes: []
                     }
                 }
@@ -1380,7 +1381,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 minRobotCount = 4;
             } else if (totalRobots == 20) {
                 minRobotCount = 6;
-            } else minRobotCount = 10;
+            } else minRobotCount = 25;
             if (regionRobotCount < minRobotCount) {
                 robotVar = true;
             }
