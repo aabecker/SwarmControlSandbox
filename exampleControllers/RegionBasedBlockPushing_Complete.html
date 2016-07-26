@@ -458,7 +458,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [5,.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+                        runs: [.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
                         outcomes: []
                     }
                 }
@@ -541,7 +541,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         regionNum = 0;
         regionMain = true;
         var robotVar = false;
-        var minRobotCount = null;
+        var minRobotCount = 50;
         var windowStopped = false;
         //variables for getting mean unstuck
         var prev_mean_position_x = 0; //previous mean positions of the block
@@ -852,7 +852,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             var brownianImpulse = new b2Vec2(0, 0);
             var mag = 0;
             var ang = 0;
-            var vary = 5; //was 25
+            var vary = 35; //was 5
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
                 if (inputTest.currentRun >= 50) {
@@ -1377,17 +1377,16 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     mostRobotRegion = adj2;
                 }
             }
-            if (totalRobots == 10) {
-                minRobotCount = 4;
-            } else if (totalRobots == 20) {
-                minRobotCount = 6;
-            } else minRobotCount = 25;
+            
             if (regionRobotCount < minRobotCount) {
                 robotVar = true;
-            }
+             }
+            console.log("robotVar " + robotVar + " minRobotCount "+minRobotCount);
             if (robotVar) {
                 var cornerCali = findRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);
                 IndexMinDist = cornerCali;
+                //min_desired_var_x = .1;
+                //min_desired_var_y = min_desired_var_x;
                 goalX = CornerValuesX[IndexMinDist];
                 goalY = CornerValuesY[IndexMinDist];
                 robotCornerCount = 0;
@@ -1399,10 +1398,10 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                         robotCornerCount++; //counts robots in corner
                     }
                 }
-                if (robotCornerCount => minRobotCount || robotCornerCount == regionRobotCount) {
-                    robotVar = false;
-                }
+            }
 
+            if (robotCornerCount >= minRobotCount||timer_var) {
+                robotVar = false;
             }
             //for init- prev mean pos, start_timer=false, stop_timer=true; var timer=0;
             //for global var prev_mean pos
@@ -1473,12 +1472,12 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             //console.log(block_difference);
             //console.log(flagVar);
             if (!goalRecieved) {
-                if (timer_var && (block_difference < 4)) {
+                if (timer_var && (block_difference < 4)&&(!robotVar)) {
                     min_desired_var_x = .1;
                     min_desired_var_y = min_desired_var_x;
                     //max_desired_var_x = .2;
                     //max_desired_var_y = max_desired_var_x;
-                } else {
+                } else if(!robotVar){
                     max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
                     min_desired_var_x = numrobots * robotrad * min_desired_var_x_constant; //was .663
                     max_desired_var_y = max_desired_var_x;
@@ -1491,7 +1490,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 if (var_x > max_desired_var_x || var_y > max_desired_var_y) {
                     flagVar = true;
                 }
-                if (flagVar) {
+                if (flagVar && !robotVar) {
                     if (timer_var) {
                         var dist2corner = new Array(CornerValuesX.length);
                         var COMdist2corner = new Array(CornerValuesX.length);
@@ -1520,7 +1519,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     goalY = mean_position_y + Math.sin(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
 
                 }
-                if (!flagVar) {
+                if (!flagVar && !robotVar) {
                     var r = 0.8;
                     alphaWant = Math.atan2(policy_y[block_x][block_y], policy_x[block_x][block_y]);
 
@@ -1564,6 +1563,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     goalX = mean_position_x + distX;
                     goalY = mean_position_y + distY;
                 }
+
                 string = "Time = " + elapsedTimeSec + "s<br>inside # " + inside;
                 $('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
 
