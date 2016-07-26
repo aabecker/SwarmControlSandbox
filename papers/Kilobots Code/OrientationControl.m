@@ -8,7 +8,7 @@ clear all
 
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-webcamShot = true;
+webcamShot = false;
 relay = false;
 success = false;
 flowDebug = true;
@@ -46,6 +46,15 @@ corInd = 0;
 maxVar = 12000; %was 16000
 minVar = 11000; %was 12000
 t0 = tic;
+
+goalAngle=input('What angle would you like for the goal angle? ');
+while (goalAngle>90||goalAngle<=-90)
+    if goalAngle>90
+        goalAngle=goalAngle-180;
+    elseif goalAngle<=-90
+        goalAngle=goalAngle+180;
+    end
+end 
 
 while success == false
     if relay
@@ -129,7 +138,7 @@ while success == false
     majorLength = cat(1, stat.MajorAxisLength);
     ObjectCentroidX = centroids(index,1);
     ObjectCentroidY = centroids(index,2);
-    ObjectOrientation = orientations(index)
+    ObjectOrientation = orientations(index);
     ObjectLength = majorLength(index);
     imshow(originalImage);
     while (ObjectOrientation>90||ObjectOrientation<=-90)
@@ -203,14 +212,7 @@ while success == false
     %Covariance
     C = cov(centers);
     %% Create Goal Angle
-    goalAngle=-60;
-    while (goalAngle>90||goalAngle<=-90)
-        if goalAngle>90
-            goalAngle=goalAngle-180;
-        elseif goalAngle<=-90
-            goalAngle=goalAngle+180;
-        end
-    end 
+
     line(ObjectCentroidX+t*sin(goalAngle*pi/180+pi/2),ObjectCentroidY+t*cos(goalAngle*pi/180+pi/2) , 'Color', 'green','linewidth',3);
    
     [s, l] = size(centers);

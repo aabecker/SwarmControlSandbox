@@ -253,7 +253,7 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
       VarCont = false;
    end
    if ~VarCont
-       CL =1/2;
+       CL =1/4;
        currgoalX = ObjectCentroidX + cos(ObjectOrientation*pi/180)*ObjectLength * CL;
        currgoalY = ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength*CL;
    end
@@ -357,8 +357,8 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
 %             end
 %         end
 %         end
-    save('PureTorqueEndPoint1st', 'drawTime');
-    if (toc(t0) > 300 && relay)
+    save('July26CQuarter10min', 'drawTime');
+    if (toc(t0) > 600 && relay)
         success = true;
         
         
