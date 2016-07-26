@@ -275,14 +275,14 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var testing = true; //tests parameters
     var testRobots = true; //changes number of robots
     var testNoise = false; //changes brownian noise
-    var testObj = true; //changes obj's angular/linear Const
+    var testObj = false; //changes obj's angular/linear Const
 
     var TestShapes = false; //tests shapes
     var Circle = false;
     var Square = false;
-    var Hexagon = true;
+    var Hexagon = false;
     var shortRect = false;
-    var longRect = false;
+    var longRect = true;
     var Triangle = false;
 
     var regionNum = null; //to calculates object's region
@@ -651,7 +651,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             bodyDef.position.Set(7, 15.5);
             bodyDef.userData = 'moveable';
             fixDef.shape = new b2PolygonShape;
-            fixDef.shape.SetAsBox(.8, 3);
+            fixDef.shape.SetAsBox(.8, 2.2);
             var obst = world.CreateBody(bodyDef);
             obst.CreateFixture(fixDef);
             obst.m_angularDamping = objAngularConst;
@@ -1381,7 +1381,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             
             if (regionRobotCount < minRobotCount) {
                 robotVar = true;
-                minRobotCount =minRobotCount-5;
              }
             console.log("robotVar " + robotVar + " minRobotCount "+minRobotCount);
             if (robotVar) {
