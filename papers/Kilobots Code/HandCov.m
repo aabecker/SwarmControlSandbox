@@ -15,8 +15,8 @@ goalXM = 600;
 
 
 %These are the goal covariance matrices.
-goalC1 = [12000 -6000; -6000 12000];
-goalC2 = [12000 6000; 6000 12000];
+goalC1 = [12000 6000; 6000 12000];
+goalC2 = [12000 -6000; -6000 12000];
 %Goal Covariances.
 goal1x = goalC1(1,2);
 goal2x = goalC2(1,2);
@@ -101,12 +101,12 @@ stat = regionprops(L,'Centroid','Area','PixelIdxList');
     drawTime = [drawTime;newDot];
     %Current Mean and Covariance Ellipse
     plot_gaussian_ellipsoid(M,C);
-    disp('Goal: ');
-    disp(goalX);
-    disp('Current: ');
-    disp(C(1,2));
+%     disp('Goal: ');
+%     disp(goalX);
+%     disp('Current: ');
+%     disp(C(1,2));
     %Goal Mean and Covariance Ellipse
-    %plot_gaussian_ellipsoid2([M(1,1) M(1,2)],goalC);
+    plot_gaussian_ellipsoid2(M,goalC);
     %plot(centers(:,1),centers(:,2),'+','Markersize',16);
     %Goal X.
     %line([goalXM goalXM], ylim,'color','green','linewidth', 3.0);
