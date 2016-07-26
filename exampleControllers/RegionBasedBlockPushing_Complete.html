@@ -1381,6 +1381,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             
             if (regionRobotCount < minRobotCount) {
                 robotVar = true;
+                minRobotCount =minRobotCount-5;
              }
             console.log("robotVar " + robotVar + " minRobotCount "+minRobotCount);
             if (robotVar) {
