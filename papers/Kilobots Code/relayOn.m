@@ -4,6 +4,8 @@ function relayOn(a,which)
 %
 %       which = the relay number you would like to turn on
 %       a = an existing arduino connection
+%
+% By Lillian Lin Summer 2016
 
 % We have 8 Relays.
 %west

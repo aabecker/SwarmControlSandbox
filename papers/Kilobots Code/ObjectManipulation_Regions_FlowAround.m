@@ -1,20 +1,11 @@
-%%% Object Manipulation Experiment With Kilobots
-%%% In this code we want to use arduino and our vision system to control
-%%% kilobots for compeleting a block pushing experiment.
-%%% By Shiva Shahrokhi, Mable Wan and Lillian Lin Summer 2016
+%% Object Manipulation Experiment With Kilobots
+% In this code we use arduino and our vision system to controla swarm of
+% kilobots to push an object through a maze
+%           See also REIGONCODE, FLOWFORCE.
+% By Shiva Shahrokhi, Mable Wan and Lillian Lin Summer 2016
+
 close all
 clear all
-
-%% Setup End Goal Position
-if (ispc==1)  
-    goalX = 5;
-    goalY = 5;
-    goalSize = 4;
-else 
-    goalX = 5;
-    goalY = 5;
-    goalSize = 3.5;
-end 
 
 %% Load maps from RegionCode.m and GridView
 load('MapDebug', 'movesX', 'movesY','corners');
@@ -22,7 +13,7 @@ load('ThresholdMaps','transferRegion','mainRegion');
 
 
 %% Define webcam
-webcamShot = true;
+webcamShot = false;
 
 if webcamShot
     cam = webcam(2);
@@ -31,6 +22,16 @@ if webcamShot
         a = arduino('Com5','uno');
     else 
         a = arduino('/dev/tty.usbmodem1421','uno');
+    end 
+    %% Setup End Goal Position
+    if (ispc==1)  
+        goalX = 5;
+        goalY = 5;
+        goalSize = 4;
+    else 
+        goalX = 5;
+        goalY = 5;
+        goalSize = 3.5;
     end 
 end
 %% Initalize Variables
@@ -41,7 +42,6 @@ success = false;
 again = true;
 counter = 1;
 c = 0;
-meanControl=false;
 %Flow Around Variables
 rhoNot=7.5;
 %1 is main regions, 0 is transfer regions
@@ -60,6 +60,9 @@ while success == false
         rgbIm = snapshot(cam);
     else
         rgbIm = imread('PC.jpeg');
+        goalX = 5;
+        goalY = 5;
+        goalSize = 4;
     end
 %% crop to have just the table view.
     if (ispc== 1)  
@@ -314,11 +317,9 @@ while success == false
         for i = 1:size(corners)
             txt = int2str(i);
             text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
-            %plot( corners(i,1)* scale, corners(i,2)*scale,'*','Markersize',16,'color','red','linewidth',3);
         end
         %Current Mean and Covariance Ellipse
         plot_gaussian_ellipsoid(M,C);
-        %M(counter) = getframe();
         counter = counter+1;
 
         %% Title the Relay number lit up
@@ -331,15 +332,8 @@ while success == false
         end
 
         hold off
-        if (meanControl)
-            delayTime=10; %was 42
-            meanControl=false;
-        else 
-            delayTime=10; %was 14
-        end
-        %Mean Control activates Variance Control when the mean and goal are on
-        %top of each other for more than 5 times 
-
+        
+        %% Turn on Lights
         if M(1,1) > currgoalX+epsilon
             if M(1,2) > currgoalY + epsilon
                 Relay = 2;
@@ -354,7 +348,7 @@ while success == false
                 relayOn(a,Relay);
                 pause(delayTime);
             end
-        elseif M(1,1)  < currgoalX-epsilon   
+        elseif M(1,1) < currgoalX-epsilon   
             if M(1,2) > currgoalY + epsilon
                 Relay = 4;
                 relayOn(a,Relay);
