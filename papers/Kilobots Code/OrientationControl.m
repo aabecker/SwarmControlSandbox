@@ -10,11 +10,9 @@ clear all
 webcamShot = true;
 
 if webcamShot
-    cam = webcam(2);
+    cam = webcam(1);
 else
     rgbIm = imread('test.png');
-    figure
-    imshow(rgbIm)
 end
 
 %% initalize variables
@@ -37,18 +35,22 @@ minDis = 10000;
 corInd = 0;
 maxVar = 12000; %was 16000
 minVar = 11000; %was 12000
+version = 0;
 t0 = tic;
 
 if relay
     if (ispc)  
-        a = arduino('Com5','uno');
+        a = arduino('Com4','uno');
     else 
         a = arduino('/dev/tty.usbmodem1421','uno');
     end 
 end
 
 %% Create Goal Angle in Degrees
-goalAngle=input('What angle would you like for the goal angle? ');
+goalAngle=input('What angle would you like for the goal angle? (in degrees) ');
+if isempty(goalAngle)
+    goalAngle=30;
+end
 while (goalAngle>90||goalAngle<=-90)
     if goalAngle>90
         goalAngle=goalAngle-180;
@@ -56,8 +58,9 @@ while (goalAngle>90||goalAngle<=-90)
         goalAngle=goalAngle+180;
     end
 end 
-
+goalAngle=deg2rad(goalAngle);
 while success == false
+    success = true;
     if relay
         if again== true
             relayOn(a,0);
@@ -146,6 +149,7 @@ while success == false
             ObjectOrientation=ObjectOrientation+180;
         end
     end
+    ObjectOrientation=deg2rad(ObjectOrientation);
     hold on
     for i = 1:size(corners)
         txt = int2str(i);
@@ -160,17 +164,17 @@ while success == false
     %% Draw object
     plot(ObjectCentroidX,ObjectCentroidY,'*','Markersize',16,'color','blue','linewidth',3);
     t = (-01:.01:1)*100;
-    line(ObjectCentroidX+t*sin(ObjectOrientation*pi/180+pi/2),ObjectCentroidY+t*cos(ObjectOrientation*pi/180+pi/2) , 'Color', 'black','linewidth',3);
+    line(ObjectCentroidX+t*sin(ObjectOrientation+pi/2),ObjectCentroidY+t*cos(ObjectOrientation+pi/2) , 'Color', 'black','linewidth',3);
     
-    point1X = ObjectCentroidX - cos(ObjectOrientation*pi/180)* ObjectLength/2.3;
-    point1Y = ObjectCentroidY + sin(ObjectOrientation*pi/180)* ObjectLength/2.3;
-    point2X = ObjectCentroidX + cos(ObjectOrientation*pi/180)* ObjectLength/2.3;
-    point2Y = ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength/2.3;
+    point1X = ObjectCentroidX - cos(ObjectOrientation)* ObjectLength/2.3;
+    point1Y = ObjectCentroidY + sin(ObjectOrientation)* ObjectLength/2.3;
+    point2X = ObjectCentroidX + cos(ObjectOrientation)* ObjectLength/2.3;
+    point2Y = ObjectCentroidY - sin(ObjectOrientation)* ObjectLength/2.3;
     
-    goal1X = ObjectCentroidX - cos(ObjectOrientation*pi/180)* ObjectLength/3;
-    goal1Y = ObjectCentroidY + sin(ObjectOrientation*pi/180)* ObjectLength/3;
-    goal2X = ObjectCentroidX + cos(ObjectOrientation*pi/180)* ObjectLength/3;
-    goal2Y = ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength/3;
+    goal1X = ObjectCentroidX - cos(ObjectOrientation)* ObjectLength/3;
+    goal1Y = ObjectCentroidY + sin(ObjectOrientation)* ObjectLength/3;
+    goal2X = ObjectCentroidX + cos(ObjectOrientation)* ObjectLength/3;
+    goal2Y = ObjectCentroidY - sin(ObjectOrientation)* ObjectLength/3;
     
     slope = (point2Y-point1Y)/(point2X-point1X);
     offset = point1Y - slope*point1X;
@@ -183,6 +187,9 @@ while success == false
         topGoalY = goal1Y;
         botGoalX = goal2X;
         botGoalY = goal2Y;
+        
+        version = 1;
+        display('Version 1');
     else
         botPointX = point1X;
         botPointY = point1Y;
@@ -192,10 +199,33 @@ while success == false
         botGoalY = goal1Y;
         topGoalX = goal2X;
         topGoalY = goal2Y;
+        
+        version = 2;
+        display('Version 2');
     end
     
+    ideal1X = ObjectCentroidX - cos(goalAngle)* ObjectLength/2.3;
+    ideal1Y = ObjectCentroidY + sin(goalAngle)* ObjectLength/2.3;
+    ideal2X = ObjectCentroidX + cos(goalAngle)* ObjectLength/2.3;
+    ideal2Y = ObjectCentroidY - sin(goalAngle)* ObjectLength/2.3;
+    
+    if ideal1Y<ideal2Y
+        topIdealX = ideal1X;
+        topIdealY = ideal1Y;
+        botIdealX = ideal2X;
+        botIdealY = ideal2Y;
+    else
+        botIdealX = ideal1X;
+        botIdealY = ideal1Y;
+        topIdealX = ideal2X;
+        topIdealY = ideal2Y;
+    end
+    
+    plot(botIdealX,botIdealY,'v','Markersize',16,'color','green','linewidth',3);
+    plot(topIdealX,topIdealY,'^','Markersize',16,'color','green','linewidth',3);
     plot(botPointX,botPointY,'v','Markersize',16,'color','white','linewidth',3);
     plot(topPointX,topPointY,'^','Markersize',16,'color',[0.75 0 0.75],'linewidth',3);
+    
     %% threshold the image to remove shadows (and only show dark parts of kilobots)
     if ispc
         [centers, radii] = imfindcircles(BW,[4 6],'ObjectPolarity','bright','Sensitivity',0.97); 
@@ -210,7 +240,7 @@ while success == false
     %Covariance
     C = cov(centers);
     
-    line(ObjectCentroidX+t*sin(goalAngle*pi/180+pi/2),ObjectCentroidY+t*cos(goalAngle*pi/180+pi/2) , 'Color', 'green','linewidth',3);
+    line(ObjectCentroidX+t*sin(goalAngle+pi/2),ObjectCentroidY+t*cos(goalAngle+pi/2) , 'Color', 'green','linewidth',3);
    
     [s, l] = size(centers);
     h = viscircles(centers,radii,'EdgeColor','b');
@@ -229,9 +259,10 @@ while success == false
         end
         if ~VarCont
             %% Determine Non-Variance Control Goal w/ 5 Degree Tolerance
-            if ObjectOrientation>goalAngle+5||ObjectOrientation<goalAngle-5
-                angdiffTop = (ObjectOrientation+90)*pi/180-atan2((M(2) - topPointY/scale),(M(1) - topPointX/scale));
-                angdiffBot = (ObjectOrientation-90)*pi/180-atan2((M(2) - botPointY/scale),(M(1) - botPointX/scale));
+            if ObjectOrientation>goalAngle+(5*pi/180)||ObjectOrientation<goalAngle-(5*pi/180)
+                angdiffTop = ObjectOrientation+atan2((M(2)/scale - topPointY/scale),(M(1)/scale - topPointX/scale));
+                angdiffBot = ObjectOrientation+atan2((M(2)/scale - botPointY/scale),(M(1)/scale - botPointX/scale));
+                           
                 if(angdiffTop > pi) 
                     angdiffTop = angdiffTop - 2*pi;
                 end
@@ -246,15 +277,15 @@ while success == false
                 if(angdiffBot < -pi) 
                     angdiffBot = angdiffBot + 2*pi;
                 end
-                if abs(angdiffTop)>pi/2
+                if (version == 2 && abs(angdiffTop)<pi/2)||(version == 1 && abs(angdiffTop)>pi/2)
                     [currgoalX,currgoalY] = FlowForce(M(1)/scale,M(2)/scale,ObjectCentroidX/scale,ObjectCentroidY/scale,topPointX/scale,topPointY/scale);
                     currgoalX=M(1)+currgoalX*scale;
                     currgoalY=M(2)+currgoalY*scale;
-                elseif abs(angdiffBot)<pi/2
+                elseif (version == 2 && abs(angdiffBot)>pi/2)||(version == 1 && abs(angdiffBot)<pi/2)
                     [currgoalX,currgoalY] = FlowForce(M(1)/scale,M(2)/scale,ObjectCentroidX/scale,ObjectCentroidY/scale,botPointX/scale,botPointY/scale);
                     currgoalX=M(1)+currgoalX*scale;
                     currgoalY=M(2)+currgoalY*scale;
-                elseif (topGoalX>topPointX && M(1)<(M(2)-offset)/slope)||(topGoalX<topPointX && M(1)>(M(2)-offset)/slope)
+                elseif (topIdealX>topPointX && M(1)<(M(2)-offset)/slope)||(topIdealX<topPointX && M(1)>(M(2)-offset)/slope)
                     currgoalX = topPointX;
                     currgoalY = topPointY;
                 else
@@ -263,7 +294,9 @@ while success == false
                 end
                 
             else
-                VarCont = true;
+                corInd = 1;
+                currgoalX = (corners(corInd,1))*scale;
+                currgoalY = (corners(corInd,2))*scale;
             end
         end
         %%Draw Flow Around
@@ -274,8 +307,9 @@ while success == false
             DY = zeros(size(s));
             for i = 1:floor(scaledPic(2))
                 for j = 1:floor(scaledPic(1))
-                    angdiffTopD = (ObjectOrientation+90)*pi/180-atan2((j - topPointY/scale),(i - topPointX/scale));
-                    angdiffBotD = (ObjectOrientation-90)*pi/180-atan2((j - botPointY/scale),(i - botPointX/scale));
+                    angdiffTopD = ObjectOrientation+atan2((j - topPointY/scale),(i - topPointX/scale));
+                    angdiffBotD = ObjectOrientation+atan2((j - botPointY/scale),(i - botPointX/scale));
+                    
                     if(angdiffTopD > pi) 
                         angdiffTopD = angdiffTopD - 2*pi;
                     end
@@ -290,12 +324,13 @@ while success == false
                     if(angdiffBotD < -pi) 
                         angdiffBotD = angdiffBotD + 2*pi;
                     end 
-                    if abs(angdiffTopD)>pi/2
+
+                    if (version == 2 && abs(angdiffTopD)<pi/2)||(version == 1 && abs(angdiffTopD)>pi/2)
                         [DX(i,j),DY(i,j)] = FlowForce(i,j,ObjectCentroidX/scale,ObjectCentroidY/scale,topPointX/scale,topPointY/scale);
 
                         X(i,j) = i;
                         Y(i,j) = j;
-                    elseif abs(angdiffBotD)>pi/2
+                    elseif (version == 2 && abs(angdiffBotD)>pi/2)||(version == 1 && abs(angdiffBotD)<pi/2)
                         [DX(i,j),DY(i,j)] = FlowForce(i,j,ObjectCentroidX/scale,ObjectCentroidY/scale,botPointX/scale,botPointY/scale);
 
                         X(i,j) = i;
@@ -306,7 +341,6 @@ while success == false
             hq=quiver(X*scale,Y*scale,DX,DY,'color','cyan');%[0,0,0.5]); 
         end
         plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
-        plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
     
         plot_gaussian_ellipsoid(M,C);
         newDot = [ObjectOrientation, toc(t0)];
@@ -353,7 +387,6 @@ while success == false
                 relayOn(a,Relay);
                 pause(delayTime);
             else       
-                %VarCont = true;
                 again = true;
                 epsilon = smallEpsilon;
             end
