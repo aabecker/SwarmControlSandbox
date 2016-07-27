@@ -10,6 +10,8 @@ function [ currgoalX,currgoalY ] = FlowForce(RobotMeanX,RobotMeanY,AttPointX,Att
 %       eta and zeta are the ratio between the repulsive and attractive
 %       forces respectively.
 %       rhoNot is the area of effect for the repulsive fields
+%
+% By Lillian Lin Summer 2016
     eta=50;
     zeta=1;
     rhoNot=7.5;

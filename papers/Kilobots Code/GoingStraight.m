@@ -1,7 +1,9 @@
-%%% Going Straight With Kilobots.
-%%% In this code we want to use arduino and our vision system to control
-%%% kilobots for pushing a very long block to a randomized goal angle
-%%% By Shiva Shahrokhi and Lillian Lin June 2016
+%% Going Straight With Kilobots.
+% In this code we use arduino and our vision system to control a swarm of
+% kilobots to push a very long block in a straight line for as long as 
+% possible
+%           See also FLOWFORCE
+% By Shiva Shahrokhi and Lillian Lin July 2016
 
 clear all
 
@@ -17,7 +19,7 @@ else
     imshow(rgbIm)
 end
 
-%% initalize variables
+%% Initalize variables
 relay = false;
 success = false;
 flowDebug = true;

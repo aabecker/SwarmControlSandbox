@@ -1,7 +1,10 @@
-%%%%%%%%% By Shiva Shahrokhi and Lillian Lin Summer 2016: This code takes a 
-%%%%%%%%% snapshot from the webcam, then processes it to find obstacles and
-%%%%%%%%% regions. It then gives that map to MDP and gets the result to 
-%%%%%%%%% draw the gradients and regions.
+%% REIGONCODE -- preprocessing for block pushing expirament
+% This code takes a snapshot from the webcam, then processes it to find 
+% obstacles. From these obstacles, the corners, regions, and a map to MDP 
+% is calculated. It then draws the gradients, regions, and shows the grid
+% view to the user.
+%           See also OBJECTMANIPULATION_REGIONS_FLOWAROUND
+% By Shiva Shahrokhi and Lillian Lin Summer 2016
 close all
 clear all
 

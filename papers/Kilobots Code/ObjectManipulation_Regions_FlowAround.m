@@ -1,20 +1,11 @@
-%%% Object Manipulation Experiment With Kilobots
-%%% In this code we want to use arduino and our vision system to control
-%%% kilobots for compeleting a block pushing experiment.
-%%% By Shiva Shahrokhi, Mable Wan and Lillian Lin Summer 2016
+%% Object Manipulation Experiment With Kilobots
+% In this code we use arduino and our vision system to controla swarm of
+% kilobots to push an object through a maze
+%           See also REIGONCODE, FLOWFORCE.
+% By Shiva Shahrokhi, Mable Wan and Lillian Lin Summer 2016
+
 close all
 clear all
-
-%% Setup End Goal Position
-if (ispc==1)  
-    goalX = 5;
-    goalY = 5;
-    goalSize = 4;
-else 
-    goalX = 5;
-    goalY = 5;
-    goalSize = 3.5;
-end 
 
 %% Load maps from RegionCode.m and GridView
 load('MapDebug', 'movesX', 'movesY','corners');
@@ -31,6 +22,16 @@ if webcamShot
         a = arduino('Com5','uno');
     else 
         a = arduino('/dev/tty.usbmodem1421','uno');
+    end 
+    %% Setup End Goal Position
+    if (ispc==1)  
+        goalX = 5;
+        goalY = 5;
+        goalSize = 4;
+    else 
+        goalX = 5;
+        goalY = 5;
+        goalSize = 3.5;
     end 
 end
 %% Initalize Variables
@@ -59,6 +60,9 @@ while success == false
         rgbIm = snapshot(cam);
     else
         rgbIm = imread('PC.jpeg');
+        goalX = 5;
+        goalY = 5;
+        goalSize = 4;
     end
 %% crop to have just the table view.
     if (ispc== 1)  
