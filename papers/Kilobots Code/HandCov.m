@@ -123,7 +123,7 @@ stat = regionprops(L,'Centroid','Area','PixelIdxList');
         
         hold on 
         plot(drawTime(:,2), drawTime(:,1));
-        save('Cov','drawTime');
+        save('Cov3','drawTime');
         hold off
         
        clear('cam')
