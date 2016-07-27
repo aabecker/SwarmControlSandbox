@@ -1,20 +1,12 @@
 %%% Orientation Control With Kilobots.
 %%% In this code we want to use arduino and our vision system to control
-%%% kilobots for pushing a very long pivoted block in the fastest way we
-%%% could do that.
+%%% kilobots for pushing a very long block to a randomized goal angle
 %%% By Shiva Shahrokhi and Lillian Lin June 2016
 
 clear all
 
-%Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
-%is the default webcam.
-webcamShot = false;
-relay = false;
-success = false;
-flowDebug = true;
-first = true;
-delayTime = 10;
-load('EmptyMap', 'corners');
+%% Define webcam
+webcamShot = true;
 
 if webcamShot
     cam = webcam(2);
@@ -24,15 +16,28 @@ else
     imshow(rgbIm)
 end
 
+%% initalize variables
+relay = false;
+success = false;
+flowDebug = true;
+first = true;
+delayTime = 10;
+load('EmptyMap', 'corners');
+
 Relay=1;
 VarCont = false;
 frameCount = 1;
 again = true;
-
 bigEpsilon = 2 ;
 smallEpsilon = 1;
 epsilon = bigEpsilon;
 obstacles = [];
+minDis = 10000;
+corInd = 0;
+maxVar = 12000; %was 16000
+minVar = 11000; %was 12000
+t0 = tic;
+
 if relay
     if (ispc)  
         a = arduino('Com5','uno');
@@ -41,12 +46,7 @@ if relay
     end 
 end
 
-minDis = 10000;
-corInd = 0;
-maxVar = 12000; %was 16000
-minVar = 11000; %was 12000
-t0 = tic;
-
+%% Create Goal Angle in Degrees
 goalAngle=input('What angle would you like for the goal angle? ');
 while (goalAngle>90||goalAngle<=-90)
     if goalAngle>90
@@ -65,14 +65,11 @@ while success == false
         end 
     end
     
-    %% Read in a webcam snapshot.
     if webcamShot
+         %% Read in a webcam snapshot.
         pause (5);
         rgbIm = snapshot(cam);
-    end
-    
-    %% crop to have just the table view.
-    if webcamShot
+        %% crop to have just the table view.
         if (ispc)  
             originalImage = imcrop(rgbIm,[50 10 500 400]);
              imwrite(originalImage,'colortest.png');
@@ -83,7 +80,7 @@ while success == false
         end 
     else
         originalImage = rgbIm;
-        success = true;
+        success = true;     % Makes it only go through once if static image
     end
     
     scale = floor(size(originalImage,2)/30);
@@ -211,12 +208,12 @@ while success == false
     V = var(centers);
     %Covariance
     C = cov(centers);
-    %% Create Goal Angle
-
+    
     line(ObjectCentroidX+t*sin(goalAngle*pi/180+pi/2),ObjectCentroidY+t*cos(goalAngle*pi/180+pi/2) , 'Color', 'green','linewidth',3);
    
     [s, l] = size(centers);
     h = viscircles(centers,radii,'EdgeColor','b');
+    %% Variance Control
     if s > 5 
         again = false;    
         if (V > maxVar)
@@ -316,6 +313,7 @@ while success == false
         %M(frameCount)=getframe(gcf); 
         frameCount = frameCount +1;
         hold off
+        %% Turn on Lights
         if relay 
             if M(1,1) > currgoalX+epsilon
                 if M(1,2) > currgoalY + epsilon
@@ -398,7 +396,7 @@ while success == false
 %             end
 %         end
 %         end
-        save('TorqueResultC03rd', 'drawTime');
+%        save('TorqueResultC03rd', 'drawTime');
 %         if (toc(t0) > 300 && relay)
 %             success = true;
 % 
