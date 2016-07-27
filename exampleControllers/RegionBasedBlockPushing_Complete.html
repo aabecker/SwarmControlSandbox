@@ -273,16 +273,16 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var transferMaps = new Array();
     //controls for simulation tests
     var testing = true; //tests parameters
-    var testRobots = true; //changes number of robots
+    var testRobots = false; //changes number of robots
     var testNoise = false; //changes brownian noise
-    var testObj = false; //changes obj's angular/linear Const
+    var testObj = true; //changes obj's angular/linear Const
 
     var TestShapes = false; //tests shapes
     var Circle = false;
     var Square = false;
-    var Hexagon = false;
+    var Hexagon = true;
     var shortRect = false;
-    var longRect = true;
+    var longRect = false;
     var Triangle = false;
 
     var regionNum = null; //to calculates object's region
@@ -350,7 +350,55 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         }
         return corner;
     }
-
+    function minRegionBasedVar(regionMain, objRegion, robotMain, mostRobotRegion) {
+        var corner;
+        if (regionMain) { //if object is in a main region
+            if (robotMain) { //if most of the robots are in a main region
+                if (objRegion == 0) {
+                    corner = 1;
+                } else if (objRegion == 1) {
+                    corner = 2;
+                } else if (objRegion == 2) {
+                    corner = 4;
+                }
+            } else {//if most of the robots are in the adj obj region map
+                if (objRegion == 0) {
+                    corner = 1;
+                } else if (objRegion == 1) {
+                    if (mostRobotRegion == 0) {
+                        corner = 2;
+                    } else if (mostRobotRegion == 1) {
+                        corner = 3;
+                    }
+                } else if (objRegion == 2) {
+                    corner = 4;
+                }
+            }
+        } else if (!regionMain) {
+            if (!robotMain) { //if the most robots are in the same transfer region
+                if (objRegion == 0) {
+                    corner = 2;
+                } else if (objRegion == 1) {
+                    corner = 4;
+                }
+            } else {
+                if (objRegion == 0) {
+                    if (mostRobotRegion == 0) {
+                        corner = 1;
+                    } else if (mostRobotRegion == 1) {
+                        corner = 2;
+                    }
+                } else if (objRegion == 1) {
+                    if (mostRobotRegion == 1) {
+                        corner = 3;
+                    } else if (mostRobotRegion == 2) {
+                        corner = 4;
+                    }
+                }
+            }
+        }
+        return corner;
+    }
     //hardcodes adjacent regions to each region
     function findAdjRegion(regionMain, regionNum, x) {
         var adjRegions = new Array(2);
@@ -459,7 +507,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+                        runs: [.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5,2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
                         outcomes: []
                     }
                 }
@@ -853,7 +901,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             var brownianImpulse = new b2Vec2(0, 0);
             var mag = 0;
             var ang = 0;
-            var vary = 35; //was 5
+            var vary = 5; //was 5
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
                 if (inputTest.currentRun >= 50) {
@@ -1381,10 +1429,11 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             
             if (regionRobotCount < minRobotCount) {
                 robotVar = true;
-             }
-            console.log("robotVar " + robotVar + " minRobotCount "+minRobotCount);
+            }
+        
             if (robotVar) {
-                var cornerCali = findRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);
+                //console.log("robotMain "+robotMain+" mostrobotregion " + mostRobotRegion);
+                var cornerCali = minRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);
                 IndexMinDist = cornerCali;
                 //min_desired_var_x = .1;
                 //min_desired_var_y = min_desired_var_x;
@@ -1400,6 +1449,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     }
                 }
             }
+           // console.log("robotvar " + robotVar + "cornercali: " + cornerCali);
 
             if (robotCornerCount >= minRobotCount||timer_var) {
                 robotVar = false;
