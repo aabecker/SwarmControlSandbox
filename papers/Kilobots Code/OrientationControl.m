@@ -7,12 +7,12 @@
 clear all
 
 %% Define webcam
-webcamShot = true;
+webcamShot = false;
 
 if webcamShot
     cam = webcam(1);
 else
-    rgbIm = imread('test.png');
+    rgbIm = imread('colortest.png');
 end
 
 %% initalize variables
@@ -189,7 +189,6 @@ while success == false
         botGoalY = goal2Y;
         
         version = 1;
-        display('Version 1');
     else
         botPointX = point1X;
         botPointY = point1Y;
@@ -201,7 +200,6 @@ while success == false
         topGoalY = goal2Y;
         
         version = 2;
-        display('Version 2');
     end
     
     ideal1X = ObjectCentroidX - cos(goalAngle)* ObjectLength/2.3;
@@ -341,7 +339,7 @@ while success == false
             hq=quiver(X*scale,Y*scale,DX,DY,'color','cyan');%[0,0,0.5]); 
         end
         plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
-    
+        plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
         plot_gaussian_ellipsoid(M,C);
         newDot = [ObjectOrientation, toc(t0)];
         drawTime = [drawTime;newDot];
