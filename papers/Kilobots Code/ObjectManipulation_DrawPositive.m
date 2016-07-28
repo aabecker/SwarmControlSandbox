@@ -13,10 +13,10 @@ load('ThresholdMaps','transferRegion','mainRegion');
 
 
 %% Define webcam
-webcamShot = false;
-
+webcamShot = true;
+delayTime=10;
 if webcamShot
-    cam = webcam(2);
+    cam = webcam(1);
     %% Using Arduino for our lamps, this is how we define arduino in Matlab:
     if (ispc==1)  
         a = arduino('Com5','uno');
@@ -334,42 +334,44 @@ while success == false
         hold off
         
         %% Turn on Lights
-        if M(1,1) > currgoalX+epsilon
-            if M(1,2) > currgoalY + epsilon
-                Relay = 2;
-                relayOn(a,Relay);
-                pause(delayTime);
-            elseif M(1,2) < currgoalY - epsilon
-                Relay = 8;
-                relayOn(a,Relay);
-                pause(delayTime);
-            else
-                Relay = 1;
-                relayOn(a,Relay);
-                pause(delayTime);
-            end
-        elseif M(1,1) < currgoalX-epsilon   
-            if M(1,2) > currgoalY + epsilon
-                Relay = 4;
-                relayOn(a,Relay);
-                pause(delayTime);
-            elseif M(1,2) < currgoalY - epsilon
-                Relay = 6;
-                relayOn(a,Relay);
-                pause(delayTime);
-            else
-                Relay = 5;
-                relayOn(a,Relay);
-                pause(delayTime);
-            end     
-        elseif M(1,2) > currgoalY+epsilon  
-            Relay = 3;
-            relayOn(a,Relay);
+        relayOn(a,0);
             pause(delayTime);
-        elseif M(1,2) < currgoalY-epsilon
-            Relay=7;
-            relayOn(a,Relay);
-            pause(delayTime);
-        end
+%         if M(1,1) > currgoalX+epsilon
+%             if M(1,2) > currgoalY + epsilon
+%                 Relay = 2;
+%                 relayOn(a,Relay);
+%                 pause(delayTime);
+%             elseif M(1,2) < currgoalY - epsilon
+%                 Relay = 8;
+%                 relayOn(a,Relay);
+%                 pause(delayTime);
+%             else
+%                 Relay = 1;
+%                 relayOn(a,Relay);
+%                 pause(delayTime);
+%             end
+%         elseif M(1,1) < currgoalX-epsilon   
+%             if M(1,2) > currgoalY + epsilon
+%                 Relay = 4;
+%                 relayOn(a,Relay);
+%                 pause(delayTime);
+%             elseif M(1,2) < currgoalY - epsilon
+%                 Relay = 6;
+%                 relayOn(a,Relay);
+%                 pause(delayTime);
+%             else
+%                 Relay = 5;
+%                 relayOn(a,Relay);
+%                 pause(delayTime);
+%             end     
+%         elseif M(1,2) > currgoalY+epsilon  
+%             Relay = 3;
+%             relayOn(a,Relay);
+%             pause(delayTime);
+%         elseif M(1,2) < currgoalY-epsilon
+%             Relay=7;
+%             relayOn(a,Relay);
+%             pause(delayTime);
+%         end
     end
 end
