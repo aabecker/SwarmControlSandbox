@@ -1708,22 +1708,22 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     x: mean_position_x * mapScale, y: mean_position_y * mapScale,
                     radius: radius * mapScale
                 })
-                .drawEllipse({
-                    strokeStyle: "green",
-                    strokeWidth: 5,
-                    setLineDash: 6,
-                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                    width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
-                    rotate: angle2
-                })
-                .drawEllipse({
-                    strokeStyle: "green",
-                    strokeWidth: 5,
-                    setLineDash: 6,
-                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                    width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
-                    rotate: angle2
-                }).restoreCanvas();
+                //.drawEllipse({
+                //    strokeStyle: "green",
+                //    strokeWidth: 5,
+                //    setLineDash: 6,
+                //    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                //    width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
+                //    rotate: angle2
+                //})
+                //.drawEllipse({
+                //    strokeStyle: "green",
+                //    strokeWidth: 5,
+                //    setLineDash: 6,
+                //    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                //    width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
+                //    rotate: angle2
+                //}).restoreCanvas();
                 var Kgain = 10; //faster=bigger
                 var Kderivative = 1; //smaller=faster
                 var sum_velocity_x = 0;
