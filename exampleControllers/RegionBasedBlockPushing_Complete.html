@@ -272,7 +272,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var mainMaps = new Array();
     var transferMaps = new Array();
     //controls for simulation tests
-    var testing = true; //tests parameters
+    var testing = false; //tests parameters
     var testRobots = true; //changes number of robots
     var testNoise = false; //changes brownian noise
     var testObj = false; //changes obj's angular/linear Const
@@ -529,7 +529,9 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 objAngularConst = value;
                 objLinearConst = objAngularConst;
             }
-        }
+        } else
+            var numrobots = 100; //getting value for robots
+        var totalRobots = 100;
 
         ///////////////creating the main Regions
         mainMaps[0] = new Array(); //creating 3D array
@@ -651,7 +653,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         world.CreateBody(bodyDef).CreateFixture(fixDef);
 
         // maze
-        bodyDef.userData = 'obstacle';
+        bodyDef.userData = 'maze';
         fixDef.shape.SetAsBox(10, 0.5);//width, height
         bodyDef.position.Set(15, width / 4 / mapScale + 1.5); //TOP
         var bodyBottom = world.CreateBody(bodyDef);
@@ -942,16 +944,17 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 radius: radius * mapScale
             }).drawArc(
             {
-                strokeStyle: 'green',
-                strokeWidth: 16, //fillStyle: "green",
+                strokeStyle: "#39FF14",
+                strokeWidth: 7, //fillStyle: "green",
                 x: goalPositionXDraw * mapScale, y: goalPositionYDraw * mapScale,
-                radius: 2.0 * mapScale
+                radius: 2.3 * mapScale
             }).drawText(
             {
                 strokeStyle: "green",
+                fillStyle: "green",
                 strokeWidth: 2,
                 x: goalPositionXDraw * mapScale, y: goalPositionYDraw * mapScale,
-                fontSize: 20,
+                fontSize: 30,
                 fontFamily: 'Verdana, sans-serif',
                 text: "Goal"
             }).restoreCanvas();
@@ -1070,6 +1073,20 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     radius: radius * mapScale
                 })
                 .restoreCanvas();
+                $("canvas").rotateCanvas(
+               {
+                   x: x * mapScale, y: y * mapScale,
+                   rotate: angle
+               })
+               .drawArc(
+               {
+                   strokeStyle: "lightblue",
+                   strokeWidth: 1,
+                   fillStyle: "#39FF14",
+                   x: x * mapScale, y: y * mapScale,
+                   radius: radius * mapScale*.4
+               })
+               .restoreCanvas();
             }
 
             //draw robots and obstacles
@@ -1082,7 +1099,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                         var radius = f.GetShape().GetRadius();
                         _drawRobot(pos.x, pos.y, angle, radius);
                     }
-                    else if (userData == 'obstacle' || userData == 'moveable' || userData == 'rectangle_ground') {
+                    else if (userData == 'obstacle' || userData == 'moveable' || userData == 'rectangle_ground' || userData == 'maze') {
                         if (userData != 'moveable'){
                             var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
                             var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
@@ -1108,6 +1125,19 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                     fillStyle: color,
                                     x: pos.x * mapScale, y: pos.y * mapScale,
                                     radius: 1.5 * mapScale,
+                                    sides: 6,
+                                    rotate: angle || 0
+                                }).restoreCanvas();
+                                color = '#39FF14';
+                                $("canvas")
+                                .rotateCanvas({
+                                    x: pos.x * mapScale, y: pos.y * mapScale,
+                                    rotate: angle
+                                })
+                                .drawPolygon({
+                                    fillStyle: color,
+                                    x: pos.x * mapScale, y: pos.y * mapScale,
+                                    radius: 1.3 * mapScale,
                                     sides: 6,
                                     rotate: angle || 0
                                 })
@@ -1175,6 +1205,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
 
                         } else if (userData == 'rectangle_ground') {
                             var color = 'green';
+                        } else if (userData == 'maze') {
+                            var color = 'brown';
                         } else if (userData == 'obstacle') {
                             var color = 'brown';
                         }
@@ -1723,7 +1755,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 state.currentRun++;
                 localStorage.setItem("test", JSON.stringify(state));
             }
-            if (DrawForce_DebugMode) {
+            if (false&&DrawForce_DebugMode) {
                 for (var i = 0 ; i < mapXSize; i++) {
                     for (var j = 0 ; j < mapYSize; j++) {
                         rho = lineDistance((i + 0.5), (j + 0.5), attPointX, attPointY);
@@ -1740,7 +1772,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                             FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointX - (i + 0.5));//change these lines
                             FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointY - (j + 0.5));
                             $('canvas').drawVector({
-                                strokeStyle: '#000',
+                                strokeStyle: '#00FFFF',
                                 strokeWidth: 2,
                                 rounded: true,
                                 endArrow: true,
