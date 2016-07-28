@@ -1,19 +1,18 @@
 
 function [ currgoalX,currgoalY ] = NeagtiveFlow(RobotMeanX,RobotMeanY,AttPointX,AttPointY,RepPointX,RepPointY) 
-% FLOWFORCE calculates distance between two points
-%   FLOWFORCE(RobotMeanX,RobotMeanY,AttPointX,AttPointY,RepPointX,RepPointY)
+% NEAGTIVEFLOW calculates the vector for a negative force on an a point
+%              to repel it away from another point.
+%   NEAGTIVEFLOW(RobotMeanX,RobotMeanY,AttPointX,AttPointY,RepPointX,RepPointY)
 %
 %       RobotMeanX,RobotMeanY = here the robots currently are
 %       AttPointX,AttPointY = Where the robots should move towards
 %       RepPointX,RepPointY = Where the robots should be pushed from
 %
-%       eta and zeta are the ratio between the repulsive and attractive
-%       forces respectively.
+%       eta is the scaling factor of the repulsive field
 %       rhoNot is the area of effect for the repulsive fields
 %
 % By Lillian Lin Summer 2016
     eta=50;
-    zeta=1;
     rhoNot=7.5;
 
     rho=dist2points(RepPointX,RepPointY,RobotMeanX,RobotMeanY);
@@ -24,7 +23,6 @@ function [ currgoalX,currgoalY ] = NeagtiveFlow(RobotMeanX,RobotMeanY,AttPointX,
        FrepX=0;
        FrepY=0;
     end
-    rho=dist2points(AttPointX,AttPointY,RobotMeanX,RobotMeanY);
     FattX=0;
     FattY=0;
         

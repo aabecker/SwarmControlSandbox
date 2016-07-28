@@ -1,6 +1,6 @@
 
 function [ currgoalX,currgoalY ] = FlowForce(RobotMeanX,RobotMeanY,AttPointX,AttPointY,RepPointX,RepPointY) 
-% FLOWFORCE calculates distance between two points
+% FLOWFORCE calculates a vector for the potential field effect on a point
 %   FLOWFORCE(RobotMeanX,RobotMeanY,AttPointX,AttPointY,RepPointX,RepPointY)
 %
 %       RobotMeanX,RobotMeanY = here the robots currently are

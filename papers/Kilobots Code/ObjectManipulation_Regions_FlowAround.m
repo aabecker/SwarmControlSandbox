@@ -1,5 +1,5 @@
 %% Object Manipulation Experiment With Kilobots
-% In this code we use arduino and our vision system to controla swarm of
+% In this code we use arduino and our vision system to control a swarm of
 % kilobots to push an object through a maze
 %           See also REIGONCODE, FLOWFORCE.
 % By Shiva Shahrokhi, Mable Wan and Lillian Lin Summer 2016
@@ -36,6 +36,7 @@ if webcamShot
 end
 %% Initalize Variables
 Relay=0;
+delayTime = 10;
 VarCont = false;
 flowDebug = true;
 success = false;

@@ -1,7 +1,7 @@
-%% Object Manipulation Experiment With Kilobots
-% In this code we use arduino and our vision system to controla swarm of
-% kilobots to push an object through a maze
-%           See also REIGONCODE, FLOWFORCE.
+%% Object Manipulation Potential Field Drawing
+% In this code we use arduino and our vision system to interperate where
+% the forces on the swarm of robots would be and draws it on the map.
+%           See also REIGONCODE, FLOWFORCE, POSITIVEFLOW.
 % By Shiva Shahrokhi, Mable Wan and Lillian Lin Summer 2016
 
 close all
@@ -347,42 +347,5 @@ while success == false
         %% Turn on Lights
         relayOn(a,0);
         pause(delayTime);
-%         if M(1,1) > currgoalX+epsilon
-%             if M(1,2) > currgoalY + epsilon
-%                 Relay = 2;
-%                 relayOn(a,Relay);
-%                 pause(delayTime);
-%             elseif M(1,2) < currgoalY - epsilon
-%                 Relay = 8;
-%                 relayOn(a,Relay);
-%                 pause(delayTime);
-%             else
-%                 Relay = 1;
-%                 relayOn(a,Relay);
-%                 pause(delayTime);
-%             end
-%         elseif M(1,1) < currgoalX-epsilon   
-%             if M(1,2) > currgoalY + epsilon
-%                 Relay = 4;
-%                 relayOn(a,Relay);
-%                 pause(delayTime);
-%             elseif M(1,2) < currgoalY - epsilon
-%                 Relay = 6;
-%                 relayOn(a,Relay);
-%                 pause(delayTime);
-%             else
-%                 Relay = 5;
-%                 relayOn(a,Relay);
-%                 pause(delayTime);
-%             end     
-%         elseif M(1,2) > currgoalY+epsilon  
-%             Relay = 3;
-%             relayOn(a,Relay);
-%             pause(delayTime);
-%         elseif M(1,2) < currgoalY-epsilon
-%             Relay=7;
-%             relayOn(a,Relay);
-%             pause(delayTime);
-%         end
     end
 end
