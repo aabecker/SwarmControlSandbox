@@ -21,8 +21,8 @@ function [ currgoalX,currgoalY ] = FlowForce(RobotMeanX,RobotMeanY,AttPointX,Att
         FrepX=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(RepPointX-RobotMeanX);
         FrepY=eta*((rho^(-1))-(rhoNot^(-1)))*(rho^(-1))^2*(RepPointY-RobotMeanY);
     else 
-       FrepX=0;%
-       FrepY=0;%
+       FrepX=0;
+       FrepY=0;
     end
     rho=dist2points(AttPointX,AttPointY,RobotMeanX,RobotMeanY);
     FattX=zeta*(RobotMeanX-AttPointX)/rho;
