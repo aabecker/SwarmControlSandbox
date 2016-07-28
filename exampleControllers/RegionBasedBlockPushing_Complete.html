@@ -273,7 +273,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var transferMaps = new Array();
     //controls for simulation tests
     var testing = false; //tests parameters
-    var testRobots = true; //changes number of robots
+    var testRobots = false; //changes number of robots
     var testNoise = false; //changes brownian noise
     var testObj = false; //changes obj's angular/linear Const
 
@@ -1708,22 +1708,22 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     x: mean_position_x * mapScale, y: mean_position_y * mapScale,
                     radius: radius * mapScale
                 })
-                //.drawEllipse({
-                //    strokeStyle: "green",
-                //    strokeWidth: 5,
-                //    setLineDash: 6,
-                //    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                //    width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
-                //    rotate: angle2
-                //})
-                //.drawEllipse({
-                //    strokeStyle: "green",
-                //    strokeWidth: 5,
-                //    setLineDash: 6,
-                //    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                //    width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
-                //    rotate: angle2
-                //}).restoreCanvas();
+                .drawEllipse({
+                    strokeStyle: "green",
+                    strokeWidth: 5,
+                    setLineDash: 6,
+                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                    width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
+                    rotate: angle2
+                })
+                .drawEllipse({
+                    strokeStyle: "green",
+                    strokeWidth: 5,
+                    setLineDash: 6,
+                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                    width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
+                    rotate: angle2
+                }).restoreCanvas();
                 var Kgain = 10; //faster=bigger
                 var Kderivative = 1; //smaller=faster
                 var sum_velocity_x = 0;
@@ -1746,7 +1746,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 location.reload(true);
                 state.currentRun++;
                 localStorage.setItem("test", JSON.stringify(state));
-            } else if ((elapsedTimeSec > 1200) && testing) { //runtime error
+            } else if ((elapsedTimeSec > 1800) && testing) { //runtime error
                 var state = JSON.parse(localStorage.getItem("test"));
                 //alert(JSON.stringify(state));
                 state.test.outcomes[state.currentRun] = state.test.runs[state.currentRun] + " run time error";
