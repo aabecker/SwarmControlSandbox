@@ -273,9 +273,9 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var transferMaps = new Array();
     //controls for simulation tests
     var testing = true; //tests parameters
-    var testRobots = false; //changes number of robots
+    var testRobots = true; //changes number of robots
     var testNoise = false; //changes brownian noise
-    var testObj = true; //changes obj's angular/linear Const
+    var testObj = false; //changes obj's angular/linear Const
 
     var TestShapes = false; //tests shapes
     var Circle = false;
@@ -490,8 +490,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs:[100,100,100,100,100,100,100,100,100,100],
-                        //runs: [150,50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 125, 125, 125, 125, 125, 125, 125, 125, 125, 125, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
+                        runs: [20,20,20,20,20,20,20,20,20,20,50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
                         outcomes: []
                     }
                 }
@@ -1427,7 +1426,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     mostRobotRegion = adj2;
                 }
             }
-            
+            minRobotCount=numrobots/2;
             if (regionRobotCount < minRobotCount) {
                 robotVar = true;
             }
