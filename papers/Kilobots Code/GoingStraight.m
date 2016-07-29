@@ -128,16 +128,12 @@ while success == false
     ObjectCentroidX = centroids(index,1);
     ObjectCentroidY = centroids(index,2);
     ObjectOrientation = orientations(index);
-    ObjectLength = majorLength(index);
-    imshow(originalImage);
-    while (ObjectOrientation>90||ObjectOrientation<=-90)
-        if ObjectOrientation>90
-            ObjectOrientation=ObjectOrientation-180;
-        elseif ObjectOrientation<=-90
-            ObjectOrientation=ObjectOrientation+180;
-        end
-    end
     ObjectOrientation=deg2rad(ObjectOrientation);
+    ObjectOrientation=AngleFix(ObjectOrientation);
+    ObjectLength = majorLength(index);
+    
+    imshow(originalImage);
+    
     hold on
     for i = 1:size(corners)
         txt = int2str(i);

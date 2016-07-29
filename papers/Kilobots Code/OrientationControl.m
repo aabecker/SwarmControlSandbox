@@ -50,14 +50,9 @@ goalAngle=input('What angle would you like for the goal angle? (in degrees) ');
 if isempty(goalAngle)
     goalAngle=30;
 end
-while (goalAngle>90||goalAngle<=-90)
-    if goalAngle>90
-        goalAngle=goalAngle-180;
-    elseif goalAngle<=-90
-        goalAngle=goalAngle+180;
-    end
-end 
 goalAngle=deg2rad(goalAngle);
+goalAngle=AngleFix(goalAngle);
+
 while success == false
     if relay
         if again== true
@@ -138,16 +133,12 @@ while success == false
     ObjectCentroidX = centroids(index,1);
     ObjectCentroidY = centroids(index,2);
     ObjectOrientation = orientations(index);
-    ObjectLength = majorLength(index);
-    imshow(originalImage);
-    while (ObjectOrientation>90||ObjectOrientation<=-90)
-        if ObjectOrientation>90
-            ObjectOrientation=ObjectOrientation-180;
-        elseif ObjectOrientation<=-90
-            ObjectOrientation=ObjectOrientation+180;
-        end
-    end
     ObjectOrientation=deg2rad(ObjectOrientation);
+    ObjectOrientation=AngleFix(ObjectOrientation);
+    ObjectLength = majorLength(index);
+    
+    imshow(originalImage);
+
     hold on
     for i = 1:size(corners)
         txt = int2str(i);
@@ -265,7 +256,7 @@ while success == false
             if ObjectOrientation>goalAngle+(5*pi/180)||ObjectOrientation<goalAngle-(5*pi/180)
                 angdiffTop = ObjectOrientation+atan2((M(2)/scale - topPointY/scale),(M(1)/scale - topPointX/scale));
                 angdiffBot = ObjectOrientation+atan2((M(2)/scale - botPointY/scale),(M(1)/scale - botPointX/scale));
-                           
+                
                 if(angdiffTop > pi) 
                     angdiffTop = angdiffTop - 2*pi;
                 end
