@@ -1458,7 +1458,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     mostRobotRegion = adj2;
                 }
             }
-            minRobotCount=numrobots/2;
+            minRobotCount=totalRobots/2;
             if (regionRobotCount < minRobotCount) {
                 robotVar = true;
             }
@@ -1559,7 +1559,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 var mean_difference = lineDistance(mean_difference_x, mean_difference_y, 0, 0);
                 if (mean_difference < .1) {
                     flagVar = true;
-
                     timer_var = true;
                     stop_timer = true;
                 } else {
