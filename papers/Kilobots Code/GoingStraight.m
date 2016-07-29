@@ -129,7 +129,7 @@ while success == false
     ObjectCentroidY = centroids(index,2);
     ObjectOrientation = orientations(index);
     ObjectOrientation=deg2rad(ObjectOrientation);
-    ObjectOrientation=AngleFix(ObjectOrientation);
+    ObjectOrientation=AngleFix(ObjectOrientation,pi/2);
     ObjectLength = majorLength(index);
     
     imshow(originalImage);
@@ -252,20 +252,8 @@ while success == false
             angdiffTop = ObjectOrientation+atan2((M(2)/scale - topPointY/scale),(M(1)/scale - topPointX/scale));
             angdiffBot = ObjectOrientation+atan2((M(2)/scale - botPointY/scale),(M(1)/scale - botPointX/scale));
 
-            if(angdiffTop > pi) 
-                angdiffTop = angdiffTop - 2*pi;
-            end
-
-            if(angdiffTop < -pi) 
-                angdiffTop = angdiffTop + 2*pi;
-            end
-            if(angdiffBot > pi) 
-                angdiffBot = angdiffBot - 2*pi;
-            end
-
-            if(angdiffBot < -pi) 
-                angdiffBot = angdiffBot + 2*pi;
-            end
+            angdiffTop=AngleFix(angdiffTop,pi);
+            angdiffBot=AngleFix(angdiffBot,pi);
             if (version == 2 && abs(angdiffTop)<pi/2)||(version == 1 && abs(angdiffTop)>pi/2)
                 [currgoalX,currgoalY] = FlowForce(M(1)/scale,M(2)/scale,ObjectCentroidX/scale,ObjectCentroidY/scale,topPointX/scale,topPointY/scale);
                 currgoalX=M(1)+currgoalX*scale;
@@ -316,20 +304,8 @@ while success == false
                     angdiffTopD = ObjectOrientation+atan2((j - topPointY/scale),(i - topPointX/scale));
                     angdiffBotD = ObjectOrientation+atan2((j - botPointY/scale),(i - botPointX/scale));
                     
-                    if(angdiffTopD > pi) 
-                        angdiffTopD = angdiffTopD - 2*pi;
-                    end
-
-                    if(angdiffTopD < -pi) 
-                        angdiffTopD = angdiffTopD + 2*pi;
-                    end 
-                    if(angdiffBotD > pi) 
-                        angdiffBotD = angdiffBotD - 2*pi;
-                    end
-
-                    if(angdiffBotD < -pi) 
-                        angdiffBotD = angdiffBotD + 2*pi;
-                    end 
+                    angdiffTopD=AngleFix(angdiffTopD,pi);
+                    angdiffBotD=AngleFix(angdiffBotD,pi);
 
                     if (version == 2 && abs(angdiffTopD)<pi/2)||(version == 1 && abs(angdiffTopD)>pi/2)
                         [DX(i,j),DY(i,j)] = FlowForce(i,j,ObjectCentroidX/scale,ObjectCentroidY/scale,topPointX/scale,topPointY/scale);
