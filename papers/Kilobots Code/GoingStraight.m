@@ -46,20 +46,8 @@ if relay
     end 
 end
 
-%% Create Goal Angle in Degrees
-goalAngle=input('What angle would you like for the goal angle? (in degrees) ');
-if isempty(goalAngle)
-    goalAngle=30;
-end
-while (goalAngle>90||goalAngle<=-90)
-    if goalAngle>90
-        goalAngle=goalAngle-180;
-    elseif goalAngle<=-90
-        goalAngle=goalAngle+180;
-    end
-end 
-goalAngle=deg2rad(goalAngle);
 while success == false
+    success = true;
     if relay
         if again== true
             relayOn(a,0);
@@ -201,10 +189,10 @@ while success == false
         version = 2;
     end
     
-    ideal1X = ObjectCentroidX - cos(goalAngle)* ObjectLength/2.3;
-    ideal1Y = ObjectCentroidY + sin(goalAngle)* ObjectLength/2.3;
-    ideal2X = ObjectCentroidX + cos(goalAngle)* ObjectLength/2.3;
-    ideal2Y = ObjectCentroidY - sin(goalAngle)* ObjectLength/2.3;
+    ideal1X = ObjectCentroidX;
+    ideal1Y = ObjectCentroidY + ObjectLength/2.3;
+    ideal2X = ObjectCentroidX;
+    ideal2Y = ObjectCentroidY - ObjectLength/2.3;
     
     if ideal1Y<ideal2Y
         topIdealX = ideal1X;
@@ -237,7 +225,7 @@ while success == false
     %Covariance
     C = cov(centers);
     
-    line(ObjectCentroidX+t*sin(goalAngle+pi/2),ObjectCentroidY+t*cos(goalAngle+pi/2) , 'Color', 'green','linewidth',3);
+    line(ObjectCentroidX+t*sin(pi),ObjectCentroidY-t, 'Color', 'green','linewidth',3);
    
     [s, l] = size(centers);
     h = viscircles(centers,radii,'EdgeColor','b');
@@ -263,7 +251,7 @@ while success == false
         end
         if ~VarCont
             %% Determine Non-Variance Control Goal w/ 5 Degree Tolerance
-            if ObjectOrientation>goalAngle+(5*pi/180)||ObjectOrientation<goalAngle-(5*pi/180)
+            if ObjectOrientation>pi/2+(5*pi/180)||ObjectOrientation<pi/2-(5*pi/180)
                 angdiffTop = ObjectOrientation+atan2((M(2)/scale - topPointY/scale),(M(1)/scale - topPointX/scale));
                 angdiffBot = ObjectOrientation+atan2((M(2)/scale - botPointY/scale),(M(1)/scale - botPointX/scale));
                            
@@ -309,7 +297,7 @@ while success == false
                 currgoalY = (corners(corInd,2))*scale;
             end
         end
-        %%Draw Flow Around
+        %% Draw Flow Around
         if flowDebug
             X = zeros(size(s));
             Y = zeros(size(s));
