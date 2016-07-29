@@ -31,7 +31,6 @@ bigEpsilon = 2 ;
 smallEpsilon = 1;
 epsilon = bigEpsilon;
 obstacles = [];
-minDis = 10000;
 corInd = 0;
 maxVar = 12000; %was 16000
 minVar = 11000; %was 12000
