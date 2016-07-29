@@ -88,6 +88,18 @@ Experimental results are summarized in Fig.~\ref{fig:AutoControlVaryN}.  Althoug
 }
 \end{figure}
 
+\begin{figure}
+\centering
+\begin{overpic}[width=\columnwidth]{Snapshots.pdf}\put(6,29){\emph{t} = 3 s}\put(38,29){\emph{t} = 410 s}\put(70,29){\emph{t} = 710 s}
+\put(15,22){\emph{t} = 1374 s}\put(49,22){\emph{t} = 2185 s}\put(83,22){\emph{t} = 2703 s}
+\end{overpic}
+\vspace{-1em}
+\caption{\label{fig:expSnapShot}{Snapshots showing the block-pushing experiment with 100 kilobots under automatic control. The automatic controller will see the pink objects as obstacles and finds its path to the goal. See the video attachment for an animation~\cite{ShivaVideo2015}}
+%\vspace{-2em}
+}
+\end{figure}
+
+
 
 \begin{figure*}
 \centering
@@ -120,16 +132,6 @@ This is not true for all obstacle fields. In a  `{\sffamily T}'-shaped workspace
   Using only the mean and variance may be overly restrictive.  Many heuristics using high-order moments have been developed to test if a distribution is multimodal~\cite{haldane1951simple}.  Often the sensor data itself, though it may not resolve individual robots, will indicate multi-modality.  For instance CCD images reveal clusters of bacteria, and MRI scans show agglomerations of particles~\cite{stuber2007positive}.  This data can be fitted with $k$-means or expectation maximization algorithms, and manipulation could be performed with the nearest swarm of sufficient size.
   
 
-\begin{figure}
-\centering
-\begin{overpic}[scale=0.2]{FailureBlockPush.png}
-\end{overpic}
-\begin{overpic}[scale=0.2]{FailureBlockPushing}
-\end{overpic}
-\vspace{-1em}\caption{Algorithm \ref{alg:BlockPushing} fails when some robots are separated by the maze and the swarm can not achieve $\sigma^2 < \sigma_{min}^2$.  These failures occured during 14\% of trials.\label{fig:Failure}
-%\vspace{-2em}
-}
-\end{figure}
 
 
 
