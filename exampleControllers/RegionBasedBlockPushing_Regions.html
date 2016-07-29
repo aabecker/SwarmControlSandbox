@@ -272,8 +272,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var mainMaps = new Array();
     var transferMaps = new Array();
     //controls for simulation tests
-    var testing = false; //tests parameters
-    var testRobots = false; //changes number of robots
+    var testing = true; //tests parameters
+    var testRobots = true; //changes number of robots
     var testNoise = false; //changes brownian noise
     var testObj = false; //changes obj's angular/linear Const
 
@@ -490,7 +490,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [20,20,20,20,20,20,20,20,20,20,50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
+                        runs: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
                         outcomes: []
                     }
                 }
@@ -619,7 +619,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             new b2Vec2(0, 00) //gravity setting to zero removes gravity
             , true //allow sleep
             );
-        var canvas = $('#canvas');
+        var canvas = $('canvas');
         var context = canvas.get(0).getContext('2d');
         var timeStart = null;
         var timeFinish = null;
@@ -662,7 +662,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         bodyDef.position.Set(5, width * 2 / 3 / mapScale + 0.2); //BOTTOM
         world.CreateBody(bodyDef).CreateFixture(fixDef);
 
-        console.log("constants "+objAngularConst + " " + objLinearConst);
         //create an object to move
         if (Hexagon) {
             makeHexagon(world, 7, 15.5);
@@ -900,13 +899,14 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 impulseV.y = m_ControlInputY;
             }
             //apply Brownian noise:
+            
             var brownianImpulse = new b2Vec2(0, 0);
             var mag = 0;
             var ang = 0;
             var vary = 5; //was 5
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
-                if (inputTest.currentRun >= 50) {
+                if (inputTest.currentRun >= inputTest.test.runs.length) {
                     window.close();
                     console.log("window stopped");
                     windowStopped = true;
@@ -1073,20 +1073,21 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     radius: radius * mapScale
                 })
                 .restoreCanvas();
-                $("canvas").rotateCanvas(
-               {
-                   x: x * mapScale, y: y * mapScale,
-                   rotate: angle
-               })
-               .drawArc(
-               {
-                   strokeStyle: "lightblue",
-                   strokeWidth: 1,
-                   fillStyle: "#39FF14",
-                   x: x * mapScale, y: y * mapScale,
-                   radius: radius * mapScale*.4
-               })
-               .restoreCanvas();
+                //make robots green
+               // $("canvas").rotateCanvas( 
+               //{
+               //    x: x * mapScale, y: y * mapScale,
+               //    rotate: angle
+               //})
+               //.drawArc(
+               //{
+               //    strokeStyle: "lightblue",
+               //    strokeWidth: 1,
+               //    fillStyle: "#39FF14",
+               //    x: x * mapScale, y: y * mapScale,
+               //    radius: radius * mapScale*.4
+               //})
+               //.restoreCanvas();
             }
 
             //draw robots and obstacles
@@ -1128,20 +1129,20 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                     sides: 6,
                                     rotate: angle || 0
                                 }).restoreCanvas();
-                                color = '#39FF14';
-                                $("canvas")
-                                .rotateCanvas({
-                                    x: pos.x * mapScale, y: pos.y * mapScale,
-                                    rotate: angle
-                                })
-                                .drawPolygon({
-                                    fillStyle: color,
-                                    x: pos.x * mapScale, y: pos.y * mapScale,
-                                    radius: 1.3 * mapScale,
-                                    sides: 6,
-                                    rotate: angle || 0
-                                })
-                                        .restoreCanvas();
+                                //color = '#39FF14';
+                                //$("canvas")
+                                //.rotateCanvas({
+                                //    x: pos.x * mapScale, y: pos.y * mapScale,
+                                //    rotate: angle
+                                //})
+                                //.drawPolygon({
+                                //    fillStyle: color,
+                                //    x: pos.x * mapScale, y: pos.y * mapScale,
+                                //    radius: 1.3 * mapScale,
+                                //    sides: 6,
+                                //    rotate: angle || 0
+                                //})
+                                //        .restoreCanvas();
                             }
                             else if (Square) {
                                 $("canvas")
@@ -1302,9 +1303,9 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             if (isNaN(block_y)) {
                 var state = JSON.parse(localStorage.getItem("test"));
                 //alert(JSON.stringify(state));
-                state.test.outcomes[state.currentRun] = blockCOM_y + " NaN";
                 hasLoggedData = true;
                 location.reload(true);
+                state.test.outcomes[state.currentRun] = state.currentRun + " NaN";
                 state.currentRun++;
                 localStorage.setItem("test", JSON.stringify(state));
             }
@@ -1483,21 +1484,22 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                         countMain2++;
                     }
                 }
-                if ((countMain0 >= countMain1)&&(countMain0 >= countMain2)) {
+                console.log(countMain0 + " " + countMain1 + " " + countMain2);
+                if ((countMain0 >= countMain1)&&(countMain0 >= countMain2)) { //count0 is the biggest
                     mostRobotMainRegion = 0;
-                    if (countMain1 > countMain2) {
+                    if (countMain1 > (countMain2+2)) {
                         secondMostRobotMainRegion = 1;
                     } else secondMostRobotMainRegion = 2;
                 }
-                else if ((countMain1 >= countMain0 )&&(countMain1>= countMain2)) {
+                else if ((countMain1 >= countMain0 )&&(countMain1>= countMain2)) { //count1 is the biggest
                     mostRobotMainRegion = 1;
-                    if (countMain0 > countMain2) {
+                    if (countMain0 > (countMain2+2)) {
                         secondMostRobotMainRegion = 0;
                     } else secondMostRobotMainRegion = 2;
                 }
                 else if( (countMain2 > countMain0 )&&(countMain2> countMain1)) {
                     mostRobotMainRegion = 2;
-                    if (countMain0 > countMain1) {
+                    if (countMain0 > (countMain1+2)) {
                         secondMostRobotMainRegion = 0;
                     } else secondMostRobotMainRegion = 1;
                 }
@@ -1659,11 +1661,15 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                         var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
                         if (COMdist2swarm < 1.5) {
                             var r = 0.1;
-                        } else var r = 0.8;
-                        distX = CGoal * Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
-                        distY = CGoal * Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
-                        goalX = mean_position_x + distX;
-                        goalY = mean_position_y + distY;
+                            goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
+                            goalY = blockCOM_y + r * policy_y[block_x][block_y];
+                        } else {
+                            var r = 0.8;
+                            distX = CGoal * Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
+                            distY = CGoal * Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
+                            goalX = mean_position_x + distX;
+                            goalY = mean_position_y + distY;
+                        }
                 }
 
                 string = "Time = " + elapsedTimeSec + "s<br>inside # " + inside;
@@ -1713,7 +1719,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 location.reload(true);
                 state.currentRun++;
                 localStorage.setItem("test", JSON.stringify(state));
-            } else if ((elapsedTimeSec > 1800) && testing) { //runtime error
+            } else if ((elapsedTimeSec > 1000) && testing) { //runtime error
                 var state = JSON.parse(localStorage.getItem("test"));
                 //alert(JSON.stringify(state));
                 state.test.outcomes[state.currentRun] = state.test.runs[state.currentRun] + " run time error";

@@ -1,0 +1,10 @@
+﻿{"currentRun":22,"test":{"runs":[100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100,100],
+
+"outcomes":[442.304,317.048,396.839,215.176,318.169,414.123,440.364,195.855,500.531,144.308,156.722,309.04,204.342,548.097,410.072,364.337,171.646,153.405,372.195,621.321]}}
+
+number of NaN: 6
+//NaNs are replaced with another run
+numbber of RunTimeError: 4
+//RunTimeErrors are replaced with another run
+TotalRuns:32
+maxtime for RunTimerError=1000
