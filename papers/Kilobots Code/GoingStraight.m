@@ -8,7 +8,7 @@
 clear all
 
 %% Define webcam
-webcamShot = true;
+webcamShot = false;
 
 if webcamShot
     cam = webcam(1);
@@ -37,6 +37,7 @@ maxVar = 12000; %was 16000
 minVar = 11000; %was 12000
 version = 0;
 t0 = tic;
+justOriented = 0;
 
 if relay
     if (ispc)  
@@ -152,6 +153,9 @@ while success == false
     plot(ObjectCentroidX,ObjectCentroidY,'*','Markersize',16,'color','blue','linewidth',3);
     t = (-01:.01:1)*100;
     line(ObjectCentroidX+t*sin(ObjectOrientation+pi/2),ObjectCentroidY+t*cos(ObjectOrientation+pi/2) , 'Color', 'black','linewidth',3);
+    line(ObjectCentroidX+t*sin(pi),ObjectCentroidY-t, 'Color', 'green','linewidth',3);
+    line(ObjectCentroidX+t*sin(ObjectOrientation),ObjectCentroidY+t*cos(ObjectOrientation) , 'Color', 'blue','linewidth',3);
+    
     
     point1X = ObjectCentroidX - cos(ObjectOrientation)* ObjectLength/2.3;
     point1Y = ObjectCentroidY + sin(ObjectOrientation)* ObjectLength/2.3;
@@ -224,8 +228,6 @@ while success == false
     V = var(centers);
     %Covariance
     C = cov(centers);
-    
-    line(ObjectCentroidX+t*sin(pi),ObjectCentroidY-t, 'Color', 'green','linewidth',3);
    
     [s, l] = size(centers);
     h = viscircles(centers,radii,'EdgeColor','b');
@@ -250,51 +252,61 @@ while success == false
             VarCont = false;
         end
         if ~VarCont
-            %% Determine Non-Variance Control Goal w/ 5 Degree Tolerance
-            if ObjectOrientation>pi/2+(5*pi/180)||ObjectOrientation<pi/2-(5*pi/180)
-                angdiffTop = ObjectOrientation+atan2((M(2)/scale - topPointY/scale),(M(1)/scale - topPointX/scale));
-                angdiffBot = ObjectOrientation+atan2((M(2)/scale - botPointY/scale),(M(1)/scale - botPointX/scale));
-                           
-                if(angdiffTop > pi) 
-                    angdiffTop = angdiffTop - 2*pi;
-                end
+            %% Flow Around the ends if at ends
+            angdiffTop = ObjectOrientation+atan2((M(2)/scale - topPointY/scale),(M(1)/scale - topPointX/scale));
+            angdiffBot = ObjectOrientation+atan2((M(2)/scale - botPointY/scale),(M(1)/scale - botPointX/scale));
 
-                if(angdiffTop < -pi) 
-                    angdiffTop = angdiffTop + 2*pi;
-                end
-                if(angdiffBot > pi) 
-                    angdiffBot = angdiffBot - 2*pi;
-                end
+            if(angdiffTop > pi) 
+                angdiffTop = angdiffTop - 2*pi;
+            end
 
-                if(angdiffBot < -pi) 
-                    angdiffBot = angdiffBot + 2*pi;
-                end
-                if (version == 2 && abs(angdiffTop)<pi/2)||(version == 1 && abs(angdiffTop)>pi/2)
-                    [currgoalX,currgoalY] = FlowForce(M(1)/scale,M(2)/scale,ObjectCentroidX/scale,ObjectCentroidY/scale,topPointX/scale,topPointY/scale);
-                    currgoalX=M(1)+currgoalX*scale;
-                    currgoalY=M(2)+currgoalY*scale;
-                elseif (version == 2 && abs(angdiffBot)>pi/2)||(version == 1 && abs(angdiffBot)<pi/2)
-                    [currgoalX,currgoalY] = FlowForce(M(1)/scale,M(2)/scale,ObjectCentroidX/scale,ObjectCentroidY/scale,botPointX/scale,botPointY/scale);
-                    currgoalX=M(1)+currgoalX*scale;
-                    currgoalY=M(2)+currgoalY*scale;
-                elseif (topIdealX>topPointX && M(1)<(M(2)-offset)/slope)||(topIdealX<topPointX && M(1)>(M(2)-offset)/slope)
+            if(angdiffTop < -pi) 
+                angdiffTop = angdiffTop + 2*pi;
+            end
+            if(angdiffBot > pi) 
+                angdiffBot = angdiffBot - 2*pi;
+            end
+
+            if(angdiffBot < -pi) 
+                angdiffBot = angdiffBot + 2*pi;
+            end
+            if (version == 2 && abs(angdiffTop)<pi/2)||(version == 1 && abs(angdiffTop)>pi/2)
+                [currgoalX,currgoalY] = FlowForce(M(1)/scale,M(2)/scale,ObjectCentroidX/scale,ObjectCentroidY/scale,topPointX/scale,topPointY/scale);
+                currgoalX=M(1)+currgoalX*scale;
+                currgoalY=M(2)+currgoalY*scale;
+                justOriented = 1; 
+            elseif (version == 2 && abs(angdiffBot)>pi/2)||(version == 1 && abs(angdiffBot)<pi/2)
+                [currgoalX,currgoalY] = FlowForce(M(1)/scale,M(2)/scale,ObjectCentroidX/scale,ObjectCentroidY/scale,botPointX/scale,botPointY/scale);
+                currgoalX=M(1)+currgoalX*scale;
+                currgoalY=M(2)+currgoalY*scale;
+                justOriented = 1; 
+            %% Push Back to 90 Degrees
+            elseif ObjectOrientation>pi/2+(5*pi/180)||ObjectOrientation<pi/2-(5*pi/180)
+                if (topIdealX>topPointX && M(1)<(M(2)-offset)/slope)||(topIdealX<topPointX && M(1)>(M(2)-offset)/slope)
                     currgoalX = topPointX;
                     currgoalY = topPointY;
                 else
                     currgoalX = botPointX;
                     currgoalY = botPointY;
                 end
-                
+                justOriented = 1;   
             else
-                for i = 1:size(corners)
-                    dist = dist2points(corners(i,1),corners(i,2),M(1)/scale,M(2)/scale);
-                    if minDis > dist
-                        minDis = dist;
-                        corInd = i;
-                    end   
+                %% Back up if just Oriented
+                if justOriented
+                    currgoalY = ObjectCentroidY;
+                    if M(1) < ObjectCentroidX
+                        currgoalX = ObjectCentroidX - ObjectLength/3;
+                    else
+                        currgoalX = ObjectCentroidX + ObjectLength/3;
+                    end
+                    if (M(1) < currgoalX + smallEpsilon && M(1) > currgoalX - smallEpsilon) && (M(2) < currgoalY + smallEpsilon && M(2) > currgoalY - smallEpsilon)
+                        justOriented = 0;
+                    end
+                %% Push Straight
+                else
+                    currgoalX = ObjectCentroidX;
+                    currgoalY = ObjectCentroidY;
                 end
-                currgoalX = (corners(corInd,1))*scale;
-                currgoalY = (corners(corInd,2))*scale;
             end
         end
         %% Draw Flow Around
@@ -343,7 +355,6 @@ while success == false
         plot_gaussian_ellipsoid(M,C);
         newDot = [ObjectOrientation, toc(t0)];
         drawTime = [drawTime;newDot];
-        %M(frameCount)=getframe(gcf); 
         frameCount = frameCount +1;
         hold off
         %% Turn on Lights

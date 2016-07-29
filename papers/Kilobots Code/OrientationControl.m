@@ -308,7 +308,7 @@ while success == false
                 currgoalY = (corners(corInd,2))*scale;
             end
         end
-        %%Draw Flow Around
+        %% Draw Flow Around
         if flowDebug
             X = zeros(size(s));
             Y = zeros(size(s));
@@ -354,7 +354,6 @@ while success == false
         plot_gaussian_ellipsoid(M,C);
         newDot = [ObjectOrientation, toc(t0)];
         drawTime = [drawTime;newDot];
-        %M(frameCount)=getframe(gcf); 
         frameCount = frameCount +1;
         hold off
         %% Turn on Lights
