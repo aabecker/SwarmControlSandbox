@@ -7,7 +7,7 @@
 clear all
 
 %% Define webcam
-webcamShot = false;
+webcamShot = true;
 
 if webcamShot
     cam = webcam(1);
@@ -31,7 +31,6 @@ bigEpsilon = 2 ;
 smallEpsilon = 1;
 epsilon = bigEpsilon;
 obstacles = [];
-minDis = 10000;
 corInd = 0;
 maxVar = 12000; %was 16000
 minVar = 11000; %was 12000
@@ -60,7 +59,6 @@ while (goalAngle>90||goalAngle<=-90)
 end 
 goalAngle=deg2rad(goalAngle);
 while success == false
-    success = true;
     if relay
         if again== true
             relayOn(a,0);
@@ -243,12 +241,19 @@ while success == false
     [s, l] = size(centers);
     h = viscircles(centers,radii,'EdgeColor','b');
     %% Variance Control
-    if s > 5 
+    if s > 5
+        minDis = 10000;
         again = false;    
         if (V > maxVar)
             VarCont = true;
             epsilon = bigEpsilon;
-            corInd = 1;
+            for i = 1:size(corners)
+                dist = dist2points(corners(i,1),corners(i,2),M(1)/scale,M(2)/scale);
+                if minDis > dist
+                    minDis = dist;
+                    corInd = i;
+                end   
+            end
             currgoalX = (corners(corInd,1))*scale;
             currgoalY = (corners(corInd,2))*scale;
         end
@@ -292,7 +297,13 @@ while success == false
                 end
                 
             else
-                corInd = 1;
+                for i = 1:size(corners)
+                    dist = dist2points(corners(i,1),corners(i,2),M(1)/scale,M(2)/scale);
+                    if minDis > dist
+                        minDis = dist;
+                        corInd = i;
+                    end   
+                end
                 currgoalX = (corners(corInd,1))*scale;
                 currgoalY = (corners(corInd,2))*scale;
             end
