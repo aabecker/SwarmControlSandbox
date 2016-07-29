@@ -268,11 +268,11 @@ while success == false
                     currgoalX=M(1)+currgoalX*scale;
                     currgoalY=M(2)+currgoalY*scale;
                 elseif (topIdealX>topPointX && M(1)<(M(2)-offset)/slope)||(topIdealX<topPointX && M(1)>(M(2)-offset)/slope)
-                    currgoalX = topPointX;
-                    currgoalY = topPointY;
+                    currgoalX = topGoalX;
+                    currgoalY = topGoalY;
                 else
-                    currgoalX = botPointX;
-                    currgoalY = botPointY;
+                    currgoalX = botGoalX;
+                    currgoalY = botGoalY;
                 end
                 
             else

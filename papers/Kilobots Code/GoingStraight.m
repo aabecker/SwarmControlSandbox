@@ -149,9 +149,7 @@ while success == false
     plot(ObjectCentroidX,ObjectCentroidY,'*','Markersize',16,'color','blue','linewidth',3);
     t = (-01:.01:1)*100;
     line(ObjectCentroidX+t*sin(ObjectOrientation+pi/2),ObjectCentroidY+t*cos(ObjectOrientation+pi/2) , 'Color', 'black','linewidth',3);
-    line(ObjectCentroidX+t*sin(pi),ObjectCentroidY-t, 'Color', 'green','linewidth',3);
-    line(ObjectCentroidX+t*sin(ObjectOrientation),ObjectCentroidY+t*cos(ObjectOrientation) , 'Color', 'blue','linewidth',3);
-    
+    line(ObjectCentroidX+t*sin(pi),ObjectCentroidY-t, 'Color', 'green','linewidth',3);  
     
     point1X = ObjectCentroidX - cos(ObjectOrientation)* ObjectLength/2.3;
     point1Y = ObjectCentroidY + sin(ObjectOrientation)* ObjectLength/2.3;
@@ -267,11 +265,11 @@ while success == false
             %% Push Back to 90 Degrees
             elseif ObjectOrientation>pi/2+(5*pi/180)||ObjectOrientation<pi/2-(5*pi/180)
                 if (topIdealX>topPointX && M(1)<(M(2)-offset)/slope)||(topIdealX<topPointX && M(1)>(M(2)-offset)/slope)
-                    currgoalX = topPointX;
-                    currgoalY = topPointY;
+                    currgoalX = topGoalX;
+                    currgoalY = topGoalY;
                 else
-                    currgoalX = botPointX;
-                    currgoalY = botPointY;
+                    currgoalX = botGoalX;
+                    currgoalY = botGoalY;
                 end
                 justOriented = 1;   
             else
