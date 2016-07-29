@@ -248,14 +248,7 @@ while success == false
             theta = atan2((M(1,2)/scale - repPointY),(M(1,1)/scale - repPointX));
             angdiff = alphaWant-theta;
             rho=dist2points(repPointX,repPointY,M(1,1)/scale,M(1,2)/scale);
-            
-            if(angdiff > pi) 
-                angdiff = angdiff - 2*pi;
-            end
-
-            if(angdiff < -pi) 
-                angdiff = angdiff + 2*pi;
-            end
+            angdiff=AngleFix(angdiff,pi);
 
             if ((rho<rhoNot) && (abs(angdiff)<pi*4/8))
                 epsilon = 0.2 * scale;
@@ -286,12 +279,7 @@ while success == false
                         thetaD = atan2(j - repPointY,i - repPointX);
                         angdiffD = alphaWant-thetaD;
                         rhoD=sqrt((i-repPointX)^2 + (j-repPointY)^2);
-                        if(angdiffD > pi) 
-                            angdiffD = angdiffD - 2*pi;
-                        end
-                        if(angdiffD < -pi) 
-                            angdiffD = angdiffD + 2*pi;
-                        end
+                        angdiffD=AngleFix(angdiffD,pi);
                         if ((rhoD<rhoNot) && (abs(angdiffD)<pi*4/8))
                             [ DX(i,j),DY(i,j) ] = FlowForce(i,j,attPointX,attPointY,repPointX,repPointY);
 

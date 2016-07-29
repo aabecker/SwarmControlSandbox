@@ -7,7 +7,7 @@
 clear all
 
 %% Define webcam
-webcamShot = true;
+webcamShot = false;
 
 if webcamShot
     cam = webcam(1);
@@ -50,14 +50,9 @@ goalAngle=input('What angle would you like for the goal angle? (in degrees) ');
 if isempty(goalAngle)
     goalAngle=30;
 end
-while (goalAngle>90||goalAngle<=-90)
-    if goalAngle>90
-        goalAngle=goalAngle-180;
-    elseif goalAngle<=-90
-        goalAngle=goalAngle+180;
-    end
-end 
 goalAngle=deg2rad(goalAngle);
+goalAngle=AngleFix(goalAngle,pi/2);
+
 while success == false
     if relay
         if again== true
@@ -138,16 +133,12 @@ while success == false
     ObjectCentroidX = centroids(index,1);
     ObjectCentroidY = centroids(index,2);
     ObjectOrientation = orientations(index);
-    ObjectLength = majorLength(index);
-    imshow(originalImage);
-    while (ObjectOrientation>90||ObjectOrientation<=-90)
-        if ObjectOrientation>90
-            ObjectOrientation=ObjectOrientation-180;
-        elseif ObjectOrientation<=-90
-            ObjectOrientation=ObjectOrientation+180;
-        end
-    end
     ObjectOrientation=deg2rad(ObjectOrientation);
+    ObjectOrientation=AngleFix(ObjectOrientation,pi/2);
+    ObjectLength = majorLength(index);
+    
+    imshow(originalImage);
+
     hold on
     for i = 1:size(corners)
         txt = int2str(i);
@@ -265,21 +256,9 @@ while success == false
             if ObjectOrientation>goalAngle+(5*pi/180)||ObjectOrientation<goalAngle-(5*pi/180)
                 angdiffTop = ObjectOrientation+atan2((M(2)/scale - topPointY/scale),(M(1)/scale - topPointX/scale));
                 angdiffBot = ObjectOrientation+atan2((M(2)/scale - botPointY/scale),(M(1)/scale - botPointX/scale));
-                           
-                if(angdiffTop > pi) 
-                    angdiffTop = angdiffTop - 2*pi;
-                end
-
-                if(angdiffTop < -pi) 
-                    angdiffTop = angdiffTop + 2*pi;
-                end
-                if(angdiffBot > pi) 
-                    angdiffBot = angdiffBot - 2*pi;
-                end
-
-                if(angdiffBot < -pi) 
-                    angdiffBot = angdiffBot + 2*pi;
-                end
+                
+                angdiffTop=AngleFix(angdiffTop,pi);
+                angdiffBot=AngleFix(angdiffBot,pi);
                 if (version == 2 && abs(angdiffTop)<pi/2)||(version == 1 && abs(angdiffTop)>pi/2)
                     [currgoalX,currgoalY] = FlowForce(M(1)/scale,M(2)/scale,ObjectCentroidX/scale,ObjectCentroidY/scale,topPointX/scale,topPointY/scale);
                     currgoalX=M(1)+currgoalX*scale;
@@ -289,11 +268,11 @@ while success == false
                     currgoalX=M(1)+currgoalX*scale;
                     currgoalY=M(2)+currgoalY*scale;
                 elseif (topIdealX>topPointX && M(1)<(M(2)-offset)/slope)||(topIdealX<topPointX && M(1)>(M(2)-offset)/slope)
-                    currgoalX = topPointX;
-                    currgoalY = topPointY;
+                    currgoalX = topGoalX;
+                    currgoalY = topGoalY;
                 else
-                    currgoalX = botPointX;
-                    currgoalY = botPointY;
+                    currgoalX = botGoalX;
+                    currgoalY = botGoalY;
                 end
                 
             else
@@ -308,7 +287,7 @@ while success == false
                 currgoalY = (corners(corInd,2))*scale;
             end
         end
-        %%Draw Flow Around
+        %% Draw Flow Around
         if flowDebug
             X = zeros(size(s));
             Y = zeros(size(s));
@@ -319,20 +298,8 @@ while success == false
                     angdiffTopD = ObjectOrientation+atan2((j - topPointY/scale),(i - topPointX/scale));
                     angdiffBotD = ObjectOrientation+atan2((j - botPointY/scale),(i - botPointX/scale));
                     
-                    if(angdiffTopD > pi) 
-                        angdiffTopD = angdiffTopD - 2*pi;
-                    end
-
-                    if(angdiffTopD < -pi) 
-                        angdiffTopD = angdiffTopD + 2*pi;
-                    end 
-                    if(angdiffBotD > pi) 
-                        angdiffBotD = angdiffBotD - 2*pi;
-                    end
-
-                    if(angdiffBotD < -pi) 
-                        angdiffBotD = angdiffBotD + 2*pi;
-                    end 
+                    angdiffTopD=AngleFix(angdiffTopD,pi);
+                    angdiffBotD=AngleFix(angdiffBotD,pi);
 
                     if (version == 2 && abs(angdiffTopD)<pi/2)||(version == 1 && abs(angdiffTopD)>pi/2)
                         [DX(i,j),DY(i,j)] = FlowForce(i,j,ObjectCentroidX/scale,ObjectCentroidY/scale,topPointX/scale,topPointY/scale);
@@ -354,7 +321,6 @@ while success == false
         plot_gaussian_ellipsoid(M,C);
         newDot = [ObjectOrientation, toc(t0)];
         drawTime = [drawTime;newDot];
-        %M(frameCount)=getframe(gcf); 
         frameCount = frameCount +1;
         hold off
         %% Turn on Lights
