@@ -272,8 +272,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var mainMaps = new Array();
     var transferMaps = new Array();
     //controls for simulation tests
-    var testing = false; //tests parameters
-    var testRobots = false; //changes number of robots
+    var testing = true; //tests parameters
+    var testRobots = true; //changes number of robots
     var testNoise = false; //changes brownian noise
     var testObj = false; //changes obj's angular/linear Const
 
@@ -530,7 +530,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 objLinearConst = objAngularConst;
             }
         } else
-            var numrobots = 20; //getting value for robots
+            var numrobots = 50; //getting value for robots
         var totalRobots = numrobots;
 
         ///////////////creating the main Regions
