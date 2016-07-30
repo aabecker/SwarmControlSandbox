@@ -906,7 +906,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             var vary = 5; //was 5
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
-                if (inputTest.currentRun >= 50) {
+                if (inputTest.currentRun >= inputTest.test.runs.length) {
                     window.close();
                     console.log("window stopped");
                     windowStopped = true;
@@ -1303,9 +1303,9 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             if (isNaN(block_y)) {
                 var state = JSON.parse(localStorage.getItem("test"));
                 //alert(JSON.stringify(state));
-                state.test.outcomes[state.currentRun] = blockCOM_y + " NaN";
                 hasLoggedData = true;
                 location.reload(true);
+                state.test.outcomes[state.currentRun] = state.currentRun + " NaN";
                 state.currentRun++;
                 localStorage.setItem("test", JSON.stringify(state));
             }
@@ -1485,7 +1485,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 }
                 if ((countMain0 >= countMain1)&&(countMain0 >= countMain2)) {
                     mostRobotMainRegion = 0;
-                    if (countMain1 > countMain2) {
+                    if (countMain1 >= countMain2) {
                         secondMostRobotMainRegion = 1;
                     } else secondMostRobotMainRegion = 2;
                 }
@@ -1495,7 +1495,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                         secondMostRobotMainRegion = 0;
                     } else secondMostRobotMainRegion = 2;
                 }
-                else if( (countMain2 > countMain0 )&&(countMain2> countMain1)) {
+                else if( (countMain2 >= countMain0 )&&(countMain2> countMain1)) {
                     mostRobotMainRegion = 2;
                     if (countMain0 > countMain1) {
                         secondMostRobotMainRegion = 0;
