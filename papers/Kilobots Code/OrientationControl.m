@@ -50,13 +50,13 @@ end
 % if isempty(goalAngle)
 %     goalAngle=30;
 % end
-angleNegative = -60;
-anglePositive = 60;
+angleNegative = -75;
+anglePositive = 75;
 goalAngle = angleNegative;
 
 t0 = tic;
 q = zeros(1,2);
-iterationTime = 200;
+iterationTime = 400;
 numberOfIter = 3;
 tHandle = timer('TimerFcn',...
     {@sqWave_callback_fcn, anglePositive, angleNegative,t0}, ...
@@ -162,8 +162,15 @@ while success == false
         text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
         %plot( corners(i,1)* scale, corners(i,2)*scale,'*','Markersize',16,'color','red','linewidth',3);
     end
+    ObjectOrientation
     if first
-        drawTime = [ObjectOrientation,toc(t0)];
+        if ObjectOrientation >0 
+            DrawOrientation = 90- ObjectOrientation* 180/pi;
+        else 
+            DrawOrientation = -90- ObjectOrientation* 180/pi;
+        end
+        
+        drawTime = [(DrawOrientation),toc(t0)];
         first = false;
     end
     
@@ -346,12 +353,12 @@ while success == false
         %% Turn on Lights
         if relay 
             %% Prioritize Y direction
-            if M(1,1) > currgoalY + epsilon
-                if M(1,2) > currgoalX + epsilon
+            if M(1,2) > currgoalY + epsilon
+                if M(1,1) > currgoalX + epsilon
                     Relay = 2;
                     relayOn(a,Relay);
                     pause(delayTime);
-                elseif M(1,2) < currgoalX - epsilon
+                elseif M(1,1) < currgoalX - epsilon
                     Relay = 4;
                     relayOn(a,Relay);
                     pause(delayTime);
@@ -360,12 +367,12 @@ while success == false
                     relayOn(a,Relay);
                     pause(delayTime);
                 end
-            elseif M(1,1)  < currgoalY - epsilon
-                if M(1,2) > currgoalX + epsilon
+            elseif M(1,2)  < currgoalY - epsilon
+                if M(1,1) > currgoalX + epsilon
                     Relay = 8;
                     relayOn(a,Relay);
                     pause(delayTime);
-                elseif M(1,2) < currgoalX - epsilon
+                elseif M(1,1) < currgoalX - epsilon
                     Relay = 6;
                     relayOn(a,Relay);
                     pause(delayTime);
@@ -374,11 +381,11 @@ while success == false
                     relayOn(a,Relay);
                     pause(delayTime);
                 end
-            elseif M(1,2) > currgoalX + epsilon
+            elseif M(1,1) > currgoalX + epsilon
                 Relay = 1;
                 relayOn(a,Relay);
                 pause(delayTime);
-            elseif M(1,2) < currgoalX - epsilon
+            elseif M(1,1) < currgoalX - epsilon
                 Relay=5;
                 relayOn(a,Relay);
                 pause(delayTime);
@@ -438,7 +445,7 @@ while success == false
         ylabel('Orientation Control');
         
         hold on 
-        plot(drawTime(:,2), drawTime(:,1));
+        plot(drawTime(:,2), drawTime(:,1)*180/pi);
         save('orientationResult1','drawTime');
         hold off
         
