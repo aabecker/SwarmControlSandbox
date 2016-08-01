@@ -64,7 +64,6 @@ tHandle = timer('TimerFcn',...
  
 start(tHandle);
 
-
 drawTime=[goalAngle,0];
 
 while success == false
@@ -162,12 +161,11 @@ while success == false
         text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
         %plot( corners(i,1)* scale, corners(i,2)*scale,'*','Markersize',16,'color','red','linewidth',3);
     end
-    ObjectOrientation
     if first
         if ObjectOrientation >0 
-            DrawOrientation = 90- ObjectOrientation* 180/pi;
+            DrawOrientation = 90 - ObjectOrientation*180/pi;
         else 
-            DrawOrientation = -90- ObjectOrientation* 180/pi;
+            DrawOrientation = -90 - ObjectOrientation*180/pi;
         end
         
         drawTime = [(DrawOrientation),toc(t0)];
@@ -258,7 +256,12 @@ while success == false
     h = viscircles(centers,radii,'EdgeColor','b');
     %% Variance Control
     if s > 5
-        newDot = [ObjectOrientation, toc(t0)];
+        if ObjectOrientation >0 
+            DrawOrientation = 90 - ObjectOrientation*180/pi;
+        else 
+            DrawOrientation = -90 - ObjectOrientation*180/pi;
+        end
+        newDot = [DrawOrientation, toc(t0)];
     drawTime = [drawTime;newDot];
         minDis = 10000;
         again = false;    
@@ -346,7 +349,12 @@ while success == false
         plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
         plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
         plot_gaussian_ellipsoid(M,C);
-        newDot = [ObjectOrientation, toc(t0)];
+        if ObjectOrientation >0 
+            DrawOrientation = 90 - ObjectOrientation*180/pi;
+        else 
+            DrawOrientation = -90 - ObjectOrientation*180/pi;
+        end
+        newDot = [DrawOrientation, toc(t0)];
         drawTime = [drawTime;newDot];
         frameCount = frameCount +1;
         hold off
@@ -445,7 +453,7 @@ while success == false
         ylabel('Orientation Control');
         
         hold on 
-        plot(drawTime(:,2), drawTime(:,1)*180/pi);
+        plot(drawTime(:,2), drawTime(:,1));
         save('orientationResult1','drawTime');
         hold off
         
@@ -456,9 +464,13 @@ end
 stop(tHandle)
  
 function  sqWave_callback_fcn(src,evt, anglePositive, angleNegative,t0) %#ok<DEFNU>
-
-   tval = toc(t0);
-    q= [q;[tval, goalAngle]];
+    tval = toc(t0);
+    if goalAngle >0
+        DrawGoalPoint = 90-goalAngle;
+    else 
+        DrawGoalPoint = -90 - goalAngle;
+    end
+    q= [q;[tval, DrawGoalPoint]];
     
     if goalAngle == anglePositive
         goalAngle = angleNegative;
@@ -466,8 +478,11 @@ function  sqWave_callback_fcn(src,evt, anglePositive, angleNegative,t0) %#ok<DEF
         goalAngle = anglePositive;
     end
     goalAngleRad=deg2rad(goalAngle);
-    q= [q;[tval, goalAngle]];
-
-
+    if goalAngle >0
+        DrawGoalPoint = 90-goalAngle;
+    else 
+        DrawGoalPoint = -90 - goalAngle;
+    end
+    q= [q;[tval, DrawGoalPoint]];
 end
 end
