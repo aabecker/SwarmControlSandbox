@@ -12,7 +12,7 @@ success = false;
 webcamShot = true;
 obstacles = [];
 if webcamShot
-    cam = webcam(2);
+    cam = webcam(1);
 
 end
 t0 = tic;
@@ -229,7 +229,7 @@ save('ThresholdMaps','transferRegion','mainRegion');
 
 %% Gradient Code
 [probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
-save('MapDebug', 'movesX', 'movesY','corners');
+save('Map4', 'movesX', 'movesY','corners');
 
 %% (*turns off the camera*)
 if webcamShot

@@ -5,7 +5,7 @@
 % By Shiva Shahrokhi and Lillian Lin July 2016
 function OrientationControl()
 clear all
-global q goalAngle goalAngleRad
+global q goalAngle
 %% Define webcam
 webcamShot = true;
 
@@ -50,13 +50,15 @@ end
 % if isempty(goalAngle)
 %     goalAngle=30;
 % end
-angleNegative = -60;
-anglePositive = 60;
-goalAngle = angleNegative;
+angleNegative = -45;
+anglePositive = 45;
 
+goalAngle = anglePositive;
+goalAngle=deg2rad(goalAngle);
+goalAngle=AngleFix(goalAngle,pi/2);
 t0 = tic;
 q = zeros(1,2);
-iterationTime = 200;
+iterationTime = 400;
 numberOfIter = 3;
 tHandle = timer('TimerFcn',...
     {@sqWave_callback_fcn, anglePositive, angleNegative,t0}, ...
@@ -68,9 +70,6 @@ start(tHandle);
 drawTime=[goalAngle,0];
 
 while success == false
-    
-    goalAngleRad=AngleFix(goalAngleRad,pi/2);
-    
     if relay
         if again== true
             relayOn(a,0);
@@ -209,10 +208,10 @@ while success == false
         version = 2;
     end
     
-    ideal1X = ObjectCentroidX - cos(goalAngleRad)* ObjectLength/2.3;
-    ideal1Y = ObjectCentroidY + sin(goalAngleRad)* ObjectLength/2.3;
-    ideal2X = ObjectCentroidX + cos(goalAngleRad)* ObjectLength/2.3;
-    ideal2Y = ObjectCentroidY - sin(goalAngleRad)* ObjectLength/2.3;
+    ideal1X = ObjectCentroidX - cos(goalAngle)* ObjectLength/2.3;
+    ideal1Y = ObjectCentroidY + sin(goalAngle)* ObjectLength/2.3;
+    ideal2X = ObjectCentroidX + cos(goalAngle)* ObjectLength/2.3;
+    ideal2Y = ObjectCentroidY - sin(goalAngle)* ObjectLength/2.3;
     
     if ideal1Y<ideal2Y
         topIdealX = ideal1X;
@@ -245,7 +244,7 @@ while success == false
     %Covariance
     C = cov(centers);
     
-    line(ObjectCentroidX+t*sin(goalAngleRad+pi/2),ObjectCentroidY+t*cos(goalAngleRad+pi/2) , 'Color', 'green','linewidth',3);
+    line(ObjectCentroidX+t*sin(goalAngle+pi/2),ObjectCentroidY+t*cos(goalAngle+pi/2) , 'Color', 'green','linewidth',3);
    
     [s, l] = size(centers);
     h = viscircles(centers,radii,'EdgeColor','b');
@@ -273,7 +272,7 @@ while success == false
         end
         if ~VarCont
             %% Determine Non-Variance Control Goal w/ 5 Degree Tolerance
-            if ObjectOrientation>goalAngleRad+(5*pi/180)||ObjectOrientation<goalAngleRad-(5*pi/180)
+            if ObjectOrientation>goalAngle+(5*pi/180)||ObjectOrientation<goalAngle-(5*pi/180)
                 angdiffTop = ObjectOrientation+atan2((M(2)/scale - topPointY/scale),(M(1)/scale - topPointX/scale));
                 angdiffBot = ObjectOrientation+atan2((M(2)/scale - botPointY/scale),(M(1)/scale - botPointX/scale));
                 
@@ -446,7 +445,6 @@ while success == false
         hold off
         
        clear('cam');
-       clear all
     end
 end
 stop(tHandle)
@@ -461,7 +459,6 @@ function  sqWave_callback_fcn(src,evt, anglePositive, angleNegative,t0) %#ok<DEF
     else
         goalAngle = anglePositive;
     end
-    goalAngleRad=deg2rad(goalAngle);
     q= [q;[tval, goalAngle]];
 
 
