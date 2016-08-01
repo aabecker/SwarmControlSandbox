@@ -296,7 +296,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var min_desired_var_x = null; //was .663
     var max_desired_var_y = max_desired_var_x;
     var min_desired_var_y = min_desired_var_x;
-    var max_desired_var_x_constant = .7;
+    var max_desired_var_x_constant = .6;
     var min_desired_var_x_constant = .3;
     var objAngularConst = 1;
     var objLinearConst = 1;
@@ -903,7 +903,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             var brownianImpulse = new b2Vec2(0, 0);
             var mag = 0;
             var ang = 0;
-            var vary = 15; //was 5
+            var vary = 25; //was 5
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
                 if (inputTest.currentRun >= inputTest.test.runs.length) {
@@ -1327,7 +1327,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 var mean_difference = lineDistance(mean_difference_x, mean_difference_y, 0, 0);
                 if (mean_difference < .1) {
                     flagVar = true;
-
                     timer_var = true;
                     stop_timer = true;
                 } else {
@@ -1336,7 +1335,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     flagVar = false;
                 }
             }
-            if (timer_var && (!robotVar)) {
+            if (timer_var) {
                 min_desired_var_x = .1;
                 min_desired_var_y = min_desired_var_x;
                 //max_desired_var_x = .2;
@@ -1348,7 +1347,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 min_desired_var_y = min_desired_var_x;
             }
             ////////////switching regions
-            
+
             var var_x = sum2_x / numrobots;
             var var_y = sum2_y / numrobots;
             var diffeq = Math.sqrt((var_x - var_y) * (var_x - var_y) / 4 + cov_xy * cov_xy);
@@ -1405,12 +1404,39 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 if (var_x > max_desired_var_x || var_y > max_desired_var_y) {
                     flagVar = true;
                 }
+                var IndexConst = null;
                 if (flagVar) {
-                    var cornerCali = findRegionBasedVar(regionMain, regionNum, robotMain, mostRobotRegion);//finds corner based on regions
-                    IndexMinDist = cornerCali;
+                    var CornerValuesX = [1, 19, 19, 1, 1, 100];
+                    var CornerValuesY = [19, 19, 7, 13, 1, 100];
+                    var CornerValuesD = [51, 41, 30, 24, 17, 100];
+                    var dist2corner = new Array(CornerValuesX.length);
+                    var COMdist2corner = new Array(CornerValuesX.length);
+                    var minDistCorner = 10000;
+                    var IndexMinDist = 0;
+                    for (var i = 0 ; i < CornerValuesX.length ; i++) {	//computes distance from all corners to COM  and swarm mean.  Also records closest corner to  mean of swarm
+                        dist2corner[i] = lineDistance(blockCOM_x, blockCOM_y, CornerValuesX[i], CornerValuesY[i]);
+                        COMdist2corner[i] = lineDistance(blockCOM_x, blockCOM_y, CornerValuesX[i], CornerValuesY[i]);
+                        if (minDistCorner > dist2corner[i]) {
+                            minDistCorner = dist2corner[i];
+                            IndexMinDist = i;
+                        }
+                    }
+                    var cornerIndex = IndexMinDist;
+                    if (CornerValuesD[IndexMinDist] < map[block_x][block_y] && IndexMinDist > 0) {
+                        //console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
+                       IndexMinDist = IndexMinDist;
+                    }else if (timer_var) {
+                        IndexMinDist = IndexMinDist-1;
+                    } else IndexMinDist = IndexMinDist;
+                    if (IndexMinDist < 0) { IndexMinDist = 0;}
                     goalX = mean_position_x + Math.cos(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
                     goalY = mean_position_y + Math.sin(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
-
+                    if (cornerIndex >= 4) {
+                        max_desired_var_x_constant = .8;
+                        min_desired_var_x_constant = .4;
+                        console.log("changed min/max");
+                    }
+                    
                 }
                 if (!flagVar) {
                     var CGoal = 1;
