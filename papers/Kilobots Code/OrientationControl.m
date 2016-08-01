@@ -345,93 +345,90 @@ while success == false
         hold off
         %% Turn on Lights
         if relay 
-            if M(1,1) > currgoalX+epsilon
-                if M(1,2) > currgoalY + epsilon
+            %% Prioritize Y direction
+            if M(1,1) > currgoalY + epsilon
+                if M(1,2) > currgoalX + epsilon
                     Relay = 2;
                     relayOn(a,Relay);
                     pause(delayTime);
-                elseif M(1,2) < currgoalY - epsilon
-                    Relay = 8;
-                    relayOn(a,Relay);
-                    pause(delayTime);
-                else
-                    Relay = 1;
-                    relayOn(a,Relay);
-                    pause(delayTime);
-                end
-            elseif M(1,1)  < currgoalX-epsilon
-                if M(1,2) > currgoalY + epsilon
+                elseif M(1,2) < currgoalX - epsilon
                     Relay = 4;
                     relayOn(a,Relay);
                     pause(delayTime);
-                elseif M(1,2) < currgoalY - epsilon
+                else
+                    Relay = 3;
+                    relayOn(a,Relay);
+                    pause(delayTime);
+                end
+            elseif M(1,1)  < currgoalY - epsilon
+                if M(1,2) > currgoalX + epsilon
+                    Relay = 8;
+                    relayOn(a,Relay);
+                    pause(delayTime);
+                elseif M(1,2) < currgoalX - epsilon
                     Relay = 6;
                     relayOn(a,Relay);
                     pause(delayTime);
                 else
-                    Relay = 5;
+                    Relay = 7;
                     relayOn(a,Relay);
                     pause(delayTime);
                 end
-            elseif M(1,2) > currgoalY+epsilon
-                Relay = 3;
+            elseif M(1,2) > currgoalX + epsilon
+                Relay = 1;
                 relayOn(a,Relay);
                 pause(delayTime);
-            elseif M(1,2) < currgoalY-epsilon
-                Relay=7;
+            elseif M(1,2) < currgoalX - epsilon
+                Relay=5;
                 relayOn(a,Relay);
                 pause(delayTime);
             else       
                 again = true;
                 epsilon = smallEpsilon;
             end
-        end
-       
-%         if M(1,2) > currgoalY+epsilon
-%         writeDigitalPin(a,RELAY3,0);
-%         writeDigitalPin(a, RELAY8,1);
-%         writeDigitalPin(a,RELAY5,1);
-%         writeDigitalPin(a,RELAY7,1);
-%         pause(delayTime);
-%        
-%     else if M(1,2) < currgoalY-epsilon
-%             writeDigitalPin(a,RELAY3,1);
-%         writeDigitalPin(a, RELAY8,1);
-%         writeDigitalPin(a,RELAY5,1);
-%         writeDigitalPin(a,RELAY7,0);
-%         pause(delayTime);
-%         else if M(1,1) > currgoalX+epsilon
-%         writeDigitalPin(a,RELAY3,1);
-%         writeDigitalPin(a, RELAY8,0);
-%         writeDigitalPin(a,RELAY5,1);
-%         writeDigitalPin(a,RELAY7,1);
-%         pause(1);
-%        
-%     else if M(1,1) < currgoalX-epsilon
-%             writeDigitalPin(a,RELAY3,1);
-%         writeDigitalPin(a, RELAY8,1);
-%         writeDigitalPin(a,RELAY5,0);
-%         writeDigitalPin(a,RELAY7,1);
-%         pause(delayTime);
-%         else 
-%             epsilon = smallEpsilon;
-%             writeDigitalPin(a,RELAY3,0);
-%             writeDigitalPin(a, RELAY8,0);
-%             writeDigitalPin(a,RELAY5,0);
-%             writeDigitalPin(a,RELAY7,0);
-%             pause(delayTime);
-%             again = true;
-%         end
+                      
+%            %% Prioritize X direction
+%             if M(1,1) > currgoalX + epsilon
+%                 if M(1,2) > currgoalY + epsilon
+%                     Relay = 2;
+%                     relayOn(a,Relay);
+%                     pause(delayTime);
+%                 elseif M(1,2) < currgoalY - epsilon
+%                     Relay = 8;
+%                     relayOn(a,Relay);
+%                     pause(delayTime);
+%                 else
+%                     Relay = 1;
+%                     relayOn(a,Relay);
+%                     pause(delayTime);
+%                 end
+%             elseif M(1,1)  < currgoalX - epsilon
+%                 if M(1,2) > currgoalY + epsilon
+%                     Relay = 4;
+%                     relayOn(a,Relay);
+%                     pause(delayTime);
+%                 elseif M(1,2) < currgoalY - epsilon
+%                     Relay = 6;
+%                     relayOn(a,Relay);
+%                     pause(delayTime);
+%                 else
+%                     Relay = 5;
+%                     relayOn(a,Relay);
+%                     pause(delayTime);
+%                 end
+%             elseif M(1,2) > currgoalY + epsilon
+%                 Relay = 3;
+%                 relayOn(a,Relay);
+%                 pause(delayTime);
+%             elseif M(1,2) < currgoalY - epsilon
+%                 Relay=7;
+%                 relayOn(a,Relay);
+%                 pause(delayTime);
+%             else       
+%                 again = true;
+%                 epsilon = smallEpsilon;
 %             end
-%         end
-%         end
-%        save('TorqueResultC03rd', 'drawTime');
-%         if (toc(t0) > 300 && relay)
-%             success = true;
-% 
-%             figure
-%             plot(drawTime(:,2),drawTime(:,1));
-%         end
+        end
     end
     if(toc(t0) > iterationTime * numberOfIter)
         success = true;
