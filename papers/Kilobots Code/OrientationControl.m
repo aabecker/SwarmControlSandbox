@@ -50,13 +50,13 @@ end
 % if isempty(goalAngle)
 %     goalAngle=30;
 % end
-angleNegative = -75;
-anglePositive = 75;
+angleNegative = -70;
+anglePositive = 70;
 goalAngle = angleNegative;
 
 t0 = tic;
 q = zeros(1,2);
-iterationTime = 400;
+iterationTime = 200;
 numberOfIter = 3;
 tHandle = timer('TimerFcn',...
     {@sqWave_callback_fcn, anglePositive, angleNegative,t0}, ...
@@ -283,7 +283,8 @@ while success == false
         end
         if ~VarCont
             %% Determine Non-Variance Control Goal w/ 5 Degree Tolerance
-            if ObjectOrientation>goalAngleRad+(5*pi/180)||ObjectOrientation<goalAngleRad-(5*pi/180)
+            angleEpsilon = 1;
+            if ObjectOrientation>goalAngleRad+(angleEpsilon*pi/180)||ObjectOrientation<goalAngleRad-(angleEpsilon*pi/180)
                 angdiffTop = ObjectOrientation+atan2((M(2)/scale - topPointY/scale),(M(1)/scale - topPointX/scale));
                 angdiffBot = ObjectOrientation+atan2((M(2)/scale - botPointY/scale),(M(1)/scale - botPointX/scale));
                 
@@ -359,36 +360,37 @@ while success == false
         frameCount = frameCount +1;
         hold off
         %% Turn on Lights
+        epsilon = 1*scale;
         if relay 
             %% Prioritize Y direction
             if M(1,2) > currgoalY + epsilon
-                if M(1,1) > currgoalX + epsilon
-                    Relay = 2;
-                    relayOn(a,Relay);
-                    pause(delayTime);
-                elseif M(1,1) < currgoalX - epsilon
-                    Relay = 4;
-                    relayOn(a,Relay);
-                    pause(delayTime);
-                else
+%                 if M(1,1) > currgoalX + epsilon
+%                     Relay = 2;
+%                     relayOn(a,Relay);
+%                     pause(delayTime);
+%                 elseif M(1,1) < currgoalX - epsilon
+%                     Relay = 4;
+%                     relayOn(a,Relay);
+%                     pause(delayTime);
+%                 else
                     Relay = 3;
                     relayOn(a,Relay);
                     pause(delayTime);
-                end
+                %end
             elseif M(1,2)  < currgoalY - epsilon
-                if M(1,1) > currgoalX + epsilon
-                    Relay = 8;
-                    relayOn(a,Relay);
-                    pause(delayTime);
-                elseif M(1,1) < currgoalX - epsilon
-                    Relay = 6;
-                    relayOn(a,Relay);
-                    pause(delayTime);
-                else
+%                 if M(1,1) > currgoalX + epsilon
+%                     Relay = 8;
+%                     relayOn(a,Relay);
+%                     pause(delayTime);
+%                 elseif M(1,1) < currgoalX - epsilon
+%                     Relay = 6;
+%                     relayOn(a,Relay);
+%                     pause(delayTime);
+%                 else
                     Relay = 7;
                     relayOn(a,Relay);
                     pause(delayTime);
-                end
+               % end
             elseif M(1,1) > currgoalX + epsilon
                 Relay = 1;
                 relayOn(a,Relay);
@@ -454,7 +456,7 @@ while success == false
         
         hold on 
         plot(drawTime(:,2), drawTime(:,1));
-        save('orientationResult1','drawTime');
+        save('orientationResult2','drawTime');
         hold off
         
        clear('cam');
