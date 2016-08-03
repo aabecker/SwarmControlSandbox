@@ -179,8 +179,6 @@
          m_Robot[i].m_linearDamping = 1;
 
      }
-
-
          //setup debug draw
          var debugDraw = new b2DebugDraw();
          debugDraw.SetSprite(document.getElementById("canvas").getContext("2d"));
@@ -224,9 +222,25 @@
 		}
 
 		var countRobotsAtGoal;
-         function update() {//called each animation round
-
-		
+		function update() {//called each animation round
+		    var impulseV = new b2Vec2(0, 0);
+		    var impulse = 3.0;
+		    if (m_controlState & ROBOT_INPUT.ROBOT_PROP) {
+		        impulseV.x = m_ControlInputX;
+		        impulseV.y = m_ControlInputY;
+		    }
+             //apply Brownian noise:
+             var brownianImpulse = new b2Vec2(0, 0);
+             var mag = 0;
+             var ang = 0;
+             var vary = 25; //was 5
+             for (var i = 0; i < m_Robot.length; i++) {
+                 mag = vary * Math.random();
+                 ang = 2 * Math.PI * Math.random();
+                 brownianImpulse.x = mag * Math.cos(ang) + impulseV.x;
+                 brownianImpulse.y = mag * Math.sin(ang) + impulseV.y;
+                 m_Robot[i].ApplyForce(brownianImpulse, m_Robot[i].GetWorldPoint(new b2Vec2(0, 0)));
+             }
 		world.Step(1 / 60, 10, 10);
 		world.DrawDebugData();
 		world.ClearForces();
@@ -491,7 +505,7 @@
 				}
 
 		}
-		console.log(elapsedTimeSec+ " " + rAngle*180/Math.PI + " " + goalAngle  )
+			console.log(elapsedTimeSec + " " + rAngle * 180 / Math.PI + " " + goalAngle);
 		impulseV.y =  Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
 			impulseV.x = Kgain*(goalX - mean_position_x) + Kderivative * (0-mean_velocity_x);
 		for(var i =0; i<m_Robot.length; i++) {

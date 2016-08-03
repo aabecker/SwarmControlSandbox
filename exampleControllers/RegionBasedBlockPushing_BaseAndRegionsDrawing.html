@@ -530,7 +530,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 objLinearConst = objAngularConst;
             }
         } else
-            var numrobots = 50; //getting value for robots
+            var numrobots = 100; //getting value for robots
         var totalRobots = numrobots;
 
         ///////////////creating the main Regions
@@ -732,7 +732,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         if (MDP_DebugMode || Gradient_DebugMode) {
             numrobots = 0;
         }
-        fixDef.density = 10.0;
+        fixDef.density = 4.0;
         fixDef.friction = 2;
         fixDef.restitution = .5; //bouncing value
         fixDef.isSensor = false;
@@ -903,7 +903,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             var brownianImpulse = new b2Vec2(0, 0);
             var mag = 0;
             var ang = 0;
-            var vary = 15; //was 5
+            var vary = 30; //was 5
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
                 if (inputTest.currentRun >= inputTest.test.runs.length) {
@@ -1073,21 +1073,22 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     radius: radius * mapScale
                 })
                 .restoreCanvas();
-                // $("canvas").rotateCanvas(
-                //{
-                //    x: x * mapScale, y: y * mapScale,
-                //    rotate: angle
-                //})
-                //.drawArc(
-                //{
-                //    strokeStyle: "lightblue",
-                //    strokeWidth: 1,
-                //    fillStyle: "#39FF14",
-                //    x: x * mapScale, y: y * mapScale,
-                //    radius: radius * mapScale*.4
-                //})
-                //.restoreCanvas();
+                $("canvas").rotateCanvas(
+               {
+                   x: x * mapScale, y: y * mapScale,
+                   rotate: angle
+               })
+               .drawArc(
+               {
+                   strokeStyle: "lightblue",
+                   strokeWidth: 1,
+                   fillStyle: "#39FF14",
+                   x: x * mapScale, y: y * mapScale,
+                   radius: radius * mapScale * .4
+               })
+               .restoreCanvas();
             }
+           
 
             //draw robots and obstacles
             for (b = world.GetBodyList() ; b; b = b.GetNext()) {
@@ -1123,7 +1124,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                 .drawPolygon({
                                     fillStyle: color,
                                     x: pos.x * mapScale, y: pos.y * mapScale,
-                                    radius: 1.5 * mapScale,
+                                    radius: 1.45 * mapScale,
                                     sides: 6,
                                     rotate: angle || 0
                                 }).restoreCanvas();
@@ -1246,31 +1247,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 }
             }
 
-            if (!goalRecieved) {
-                $("canvas")
-                .drawArc({
-                    //draw the goal mean position
-                    strokeStyle: "lightblue",
-                    strokeWidth: 5,
-                    x: goalX * mapScale, y: goalY * mapScale,
-                    radius: radius * mapScale
-                }).drawArc({
-                    //draw the goal mean position
-                    strokeStyle: "lightblue",
-                    strokeWidth: 5,
-                    x: goalX * mapScale, y: goalY * mapScale,
-                    radius: (radius + 0.2) * mapScale
-                }).restoreCanvas();
-            }
-            $("canvas").drawArc({
-                //COM of the block
-                strokeStyle: "orange",
-                strokeWidth: 5,
-                x: blockCOM_x * mapScale, y: blockCOM_y * mapScale,
-                radius: radius * mapScale
-            })
-            .restoreCanvas();
-
             var day = new Date();
             if (timeFinish == null && false)
             { timeFinish = day.getTime(); }
@@ -1348,7 +1324,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 min_desired_var_y = min_desired_var_x;
             }
             ////////////switching regions
-            
+
             var var_x = sum2_x / numrobots;
             var var_y = sum2_y / numrobots;
             var diffeq = Math.sqrt((var_x - var_y) * (var_x - var_y) / 4 + cov_xy * cov_xy);
@@ -1393,25 +1369,59 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             var regionRobotCount = 0;
             if (regionMain) {
                 for (var i = 0; i < numrobots; ++i) {
-                    var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-                    var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+                    var rx = m_Robot[i].GetPosition().x;
+                    var ry = m_Robot[i].GetPosition().y;
+                    var pos_x = Math.floor(rx);
+                    var pos_y = Math.floor(ry);
                     var pos = mainMaps[regionNum][pos_x][pos_y];
                     if (pos == 1) {
                         sum_position_x_regions += m_Robot[i].GetPosition().x;
                         sum_position_y_regions += m_Robot[i].GetPosition().y;
                         regionRobotCount = regionRobotCount + 1;
+                    }else {
+                        $("canvas").rotateCanvas(
+                {
+                    x: rx * mapScale, y: ry * mapScale,
+                    rotate: angle
+                })
+                .drawArc(
+                {
+                    strokeStyle: "LightSteelBlue",
+                    strokeWidth: 1,
+                    fillStyle: "LightSteelBlue",
+                    x: rx * mapScale, y: ry * mapScale,
+                    radius: radius * mapScale
+                })
+                .restoreCanvas();
                     }
                 }
             }
             if (!regionMain) {
                 for (var i = 0; i < numrobots; ++i) {
-                    var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-                    var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+                    var rx = m_Robot[i].GetPosition().x;
+                    var ry = m_Robot[i].GetPosition().y;
+                    var pos_x = Math.floor(rx);
+                    var pos_y = Math.floor(ry);
                     var pos = transferMaps[regionNum][pos_x][pos_y];
                     if (pos == 1) {
-                        sum_position_x_regions += m_Robot[i].GetPosition().x;
-                        sum_position_y_regions += m_Robot[i].GetPosition().y;
+                        sum_position_x_regions += rx;
+                        sum_position_y_regions += ry;
                         regionRobotCount = regionRobotCount + 1;
+                    }else{
+                        $("canvas").rotateCanvas(
+                {
+                    x: rx * mapScale, y: ry * mapScale,
+                    rotate: angle
+                })
+                .drawArc(
+                {
+                    strokeStyle: "LightSteelBlue",
+                    strokeWidth: 1,
+                    fillStyle: "LightSteelBlue",
+                    x: rx * mapScale, y: ry * mapScale,
+                    radius: radius   * mapScale
+                })
+                .restoreCanvas();
                     }
                 }
             }
@@ -1422,15 +1432,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             //console.log(flagVar);
             ////////////////////////////////
             if (!goalRecieved) {
-                $("canvas").drawEllipse({
-                    strokeStyle: "red",
-                    strokeWidth: 5,
-                    setLineDash: 6,
-                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                    width: 3 * 30 * Math.sqrt(var_xp), height: 3 * 30 * Math.sqrt(var_yp),
-                    rotate: angle2
-                })
-                .restoreCanvas();
             } else {
                 var winstring = "Success,\n " + totalRobots + " robots in " + Math.floor(timeFinished) + "s";
                 goalRecieved = true;
@@ -1501,22 +1502,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     x: mean_position_x_regions * mapScale, y: mean_position_y_regions * mapScale,
                     radius: radius * mapScale
                 })
-                .drawEllipse({
-                    strokeStyle: "green",
-                    strokeWidth: 5,
-                    setLineDash: 6,
-                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                    width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
-                    rotate: angle2
-                })
-                .drawEllipse({
-                    strokeStyle: "green",
-                    strokeWidth: 5,
-                    setLineDash: 6,
-                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                    width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
-                    rotate: angle2
-                }).restoreCanvas();
+                
                 var Kgain = 10; //faster=bigger
                 var Kderivative = 1; //smaller=faster
                 var sum_velocity_x = 0;

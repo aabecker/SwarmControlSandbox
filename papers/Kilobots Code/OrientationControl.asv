@@ -58,7 +58,7 @@ function OrientationControl()
 
     t0 = tic;
     q = zeros(1,2);
-    iterationTime = 200;
+    iterationTime = 30;% was 200
     numberOfIter = 3;
     tHandle = timer('TimerFcn',...
     {@sqWave_callback_fcn, anglePositive, angleNegative,t0}, ...
@@ -185,10 +185,10 @@ function OrientationControl()
         point2X = ObjectCentroidX + cos(ObjectOrientation)* ObjectLength/2.3;
         point2Y = ObjectCentroidY - sin(ObjectOrientation)* ObjectLength/2.3;
 
-        goal1X = ObjectCentroidX - cos(ObjectOrientation)* ObjectLength/3.5;
-        goal1Y = ObjectCentroidY + sin(ObjectOrientation)* ObjectLength/3.5;
-        goal2X = ObjectCentroidX + cos(ObjectOrientation)* ObjectLength/3.5;
-        goal2Y = ObjectCentroidY - sin(ObjectOrientation)* ObjectLength/3.5;
+        goal1X = ObjectCentroidX - cos(ObjectOrientation)* ObjectLength/3;
+        goal1Y = ObjectCentroidY + sin(ObjectOrientation)* ObjectLength/3;
+        goal2X = ObjectCentroidX + cos(ObjectOrientation)* ObjectLength/3;
+        goal2Y = ObjectCentroidY - sin(ObjectOrientation)* ObjectLength/3;
 
         slope = (point2Y-point1Y)/(point2X-point1X);
         offset = point1Y - slope*point1X;
@@ -235,7 +235,10 @@ function OrientationControl()
         plot(botIdealX,botIdealY,'v','Markersize',16,'color','green','linewidth',3);
         plot(topIdealX,topIdealY,'^','Markersize',16,'color','green','linewidth',3);
         plot(botPointX,botPointY,'v','Markersize',16,'color','white','linewidth',3);
-        plot(topPointX,topPointY,'^','Markersize',16,'color',[0.75 0 0.75],'linewidth',3);      
+        plot(topPointX,topPointY,'^','Markersize',16,'color',[0.75 0 0.75],'linewidth',3);
+        plot(botPointX,botPointY,'v','Markersize',16,'color','white','linewidth',3);
+        plot(topPointX,topPointY,'^','Markersize',16,'color',[0.75 0 0.75],'linewidth',3);
+        
 
         %% threshold the image to remove shadows (and only show dark parts of kilobots)
         if ispc
@@ -369,7 +372,7 @@ function OrientationControl()
                         end
                     end
                 end
-                hq=quiver(X*scale,Y*scale,DX,DY,'color','cyan');
+                hq=quiver(X*scale,Y*scale,DX,DY,'color','cyan');%[0,0,0.5]); 
             end
             plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
             plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
