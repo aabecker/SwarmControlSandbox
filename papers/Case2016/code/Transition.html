@@ -43,10 +43,57 @@
 	  var rAngle;
 	  var varCont = false;
 
-
+	  var testing = true; //tests parameters
+	  var testRobots = true; //changes number of robots
+	  var testNoise = false; //changes brownian noise
+	  var testObj = false; //changes obj's angular/linear Const
 
       function init() {
-      	
+          var test = localStorage.getItem("test"); //creates object for localStorage
+          if (test == null) {
+              if (testRobots) {
+                  test = {
+                      currentRun: 0,
+                      test: {
+                          runs: [20, 50, 100, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
+                          outcomes: []
+                      }
+                  }
+              } else if (testNoise) { //changing brownian noise 0,.1,.5,1,5
+                  test = {
+                      currentRun: 0,
+                      test: {
+                          runs: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+                          outcomes: []
+                      }
+                  }
+              } else if (testObj) {
+                  test = {
+                      currentRun: 0,
+                      test: {
+                          runs: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                          //runs: [.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5,2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                          outcomes: []
+                      }
+                  }
+              }
+              localStorage.setItem("test", JSON.stringify(test));
+          }
+          if (testing) {//getting values to run simulations
+              var inputTest = JSON.parse(localStorage.getItem("test"));
+              var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
+              if (testRobots) {
+                  var numrobots = value; //getting value for robots
+              } else if (testNoise) {
+                  var numrobots = 100; //getting value for robots
+              } else if (testObj) {
+                  var numrobots = 100; //getting value for robots
+                  objAngularConst = value;
+                  objLinearConst = objAngularConst;
+              }
+          } else
+              var numrobots = 100; //getting value for robots
+
 
       	var overall_time= null;
       	var cov_desired_negative = -3;
@@ -137,7 +184,6 @@
 
 
          var robotrad = 0.2;
-	  var numrobots = 144;// Math.floor(20/(4*robotrad*robotrad));
 	  var rowLength = 12;//Math.floor(5/(2*robotrad));
 
 
@@ -229,6 +275,8 @@
 			return Math.sqrt( xs + ys );
 		}
 		var countRobotsAtGoal;
+		var hasLoggedData = false; //control variable for localStorage
+
          function update() {//called each animation round
                  var impulseV = new b2Vec2(0, 0);
                  var impulse = 3.0;
@@ -394,6 +442,25 @@
 		sum_velocity_x += m_Robot[i].GetLinearVelocity().x;
 		sum_velocity_y += m_Robot[i].GetLinearVelocity().y;
 	}
+
+	console.log(elapsedTimeSec + " " + blockCOM_x); //need to adjust goalRecieved conditions
+	if (rAngle > 88) {
+	    GoalRecieved = true;
+	}
+	else {
+	    GoalRecieved = false;
+	}
+    if (elapsedTimeSec > 5) { GoalRecieved = true; }
+	if (GoalRecieved && !hasLoggedData && testing) { //stores game time
+	    var state = JSON.parse(localStorage.getItem("test"));
+	    // alert(JSON.stringify(state));
+	    state.test.outcomes[state.currentRun] = elapsedTimeSec;
+	    hasLoggedData = true;
+	    location.reload(true);
+	    state.currentRun++;
+	    localStorage.setItem("test", JSON.stringify(state));
+	}
+
 	var mean_velocity_x = sum_velocity_x / numrobots;
 	var mean_velocity_y = sum_velocity_y / numrobots;
 			         	var impulseV=new b2Vec2(0,0);
@@ -425,7 +492,6 @@
 			}
          	if(!varCont){
 				goalY = C * deltaTheta + blockCOM_y;
-				console.log(blockCOM_x+ " " + deltaTheta);
 				goalX = blockCOM_x;
 			}
 			else{
@@ -445,7 +511,6 @@
 			m_Robot[i].SetLinearVelocity( new b2Vec2(0,0) );
 			m_Robot[i].ApplyForce(impulseV,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
 		}
-		//console.log(elapsedTimeSec + " " + cov_xy + " " + cov_desired + " " +var_x+ " "+  min_desired_var_x + " " + var_y+" "+ min_desired_var_y);
 
 			$("canvas").drawEllipse({
 				strokeStyle: "red",
