@@ -49,8 +49,8 @@
 	  var goalY = 10.5;
 
 	  var testing = true; //tests parameters
-	  var testRobots = true; //changes number of robots
-	  var testNoise = false; //changes brownian noise
+	  var testRobots = false; //changes number of robots
+	  var testNoise = true; //changes brownian noise
 	  var testObj = false; //changes obj's angular/linear Const
 
 
@@ -70,7 +70,7 @@
                   test = {
                       currentRun: 0,
                       test: {
-                          runs: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+                          runs: [5,50,70, 5, 5, 5, 5, 5, 5, 5, 5, 5, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
                           outcomes: []
                       }
                   }
@@ -91,12 +91,13 @@
               var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
               if (testRobots) {
                   var numrobots = value; //getting value for robots
-              } else if (testNoise) {
-                  var numrobots = 100; //getting value for robots
               } else if (testObj) {
                   var numrobots = 100; //getting value for robots
                   objAngularConst = value;
                   objLinearConst = objAngularConst;
+              } else if (testNoise) {
+                  var numrobots = 100;
+                  vary = value;
               }
           } else
               var numrobots = 100; //getting value for robots
@@ -292,7 +293,6 @@
              var brownianImpulse = new b2Vec2(0, 0);
              var mag = 0;
              var ang = 0;
-             var vary = 50; //was 5
              for (var i = 0; i < m_Robot.length; i++) {
                  mag = vary * Math.random();
                  ang = 2 * Math.PI * Math.random();
