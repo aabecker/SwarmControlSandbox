@@ -57,17 +57,19 @@ Experimental results are summarized in Fig.~\ref{fig:AutoControlVaryN}.  Althoug
 
 \begin{figure*}
 \centering
-\renewcommand{\figwid}{0.19\columnwidth}
-\href{http://youtu.be/tCej-9e6-4o}{\begin{overpic}[width =\figwid]{story1.png}\put(6,15){T = 5 s}
+%\renewcommand{\figwid}{0.19\columnwidth}
+%\href{http://youtu.be/tCej-9e6-4o}{\begin{overpic}[width =\figwid]{story1.png}\put(6,15){T = 5 s}
+%\end{overpic}
+%\begin{overpic}[width =\figwid]{story2.png}\put(6,15){T = 12 s}
+%\end{overpic}
+%\begin{overpic}[width =\figwid]{story3.png}\put(6,15){T = 20 s}
+%\end{overpic}
+%\begin{overpic}[width =\figwid]{story4.png}\put(6,15){T = 25 s}
+%\end{overpic}
+%\begin{overpic}[width =\figwid]{story5.png}\put(6,15){T = 33 s}
+%\end{overpic}}
+\begin{overpic}[width =\columnwidth]{SwarmRun.pdf}
 \end{overpic}
-\begin{overpic}[width =\figwid]{story2.png}\put(6,15){T = 12 s}
-\end{overpic}
-\begin{overpic}[width =\figwid]{story3.png}\put(6,15){T = 20 s}
-\end{overpic}
-\begin{overpic}[width =\figwid]{story4.png}\put(6,15){T = 25 s}
-\end{overpic}
-\begin{overpic}[width =\figwid]{story5.png}\put(6,15){T = 33 s}
-\end{overpic}}
 \vspace{-1em}
 \caption{\label{fig:story}\href{http://youtu.be/tCej-9e6-4o}{Snapshots showing the block-pushing experiment with 200 robots under automatic control.  See the video attachment for an animation~\cite{ShivaVideo2015}.}
 %\vspace{-2em}
@@ -126,8 +128,8 @@ Experimental results are summarized in Fig.~\ref{fig:AutoControlVaryN}.  Althoug
 Algorithm \ref{alg:BlockPushing} is an imperfect solution and has a failure mode if the robot swarm becomes multi-modal with modes separated by an obstacle, as shown in Fig.~\ref{fig:Failure}.  In this case, moving toward a corner will never reduce the variance below $\sigma_{min}^2$.
 
 
-  The first challenge is to identify when the distribution has become multi-modal.  Measuring just the mean and variance is insufficient to determine if a distribution is no longer unimodal, but if the swarm is being directed to a corner, and the variance does not reduce below $\sigma_{min}^2$, the swarm has become separated. In this case, we must either manipulate with a partial swarm, or run a gathering algorithm.  For the  `{\sffamily S}'-shaped workspace in this study, an open-loop input that commands the swarm to move in succession \{{\sc left, down, right, down}\} will move the swarm to the bottom right corner.
-This is not true for all obstacle fields. In a  `{\sffamily T}'-shaped workspace, it is not possible to find an open-loop input that will move the entire swarm to the bottom of the `{\sffamily T}'.  
+  The first challenge is to identify when the distribution has become multi-modal.  Measuring just the mean and variance is insufficient to determine if a distribution is no longer unimodal, but if the swarm is being directed to a corner, and the variance does not reduce below $\sigma_{min}^2$, the swarm has become separated. In this case, we must either manipulate with a partial swarm, or run a gathering algorithm.  For the  {\sffamily S}-shaped workspace in this study, an open-loop input that commands the swarm to move in succession \{{\sc left, down, right, down}\} will move the swarm to the bottom right corner.
+This is not true for all obstacle fields. In a {\sffamily T}-shaped workspace, it is not possible to find an open-loop input that will move the entire swarm to the bottom of the {\sffamily T}.  
  
   Using only the mean and variance may be overly restrictive.  Many heuristics using high-order moments have been developed to test if a distribution is multimodal~\cite{haldane1951simple}.  Often the sensor data itself, though it may not resolve individual robots, will indicate multi-modality.  For instance CCD images reveal clusters of bacteria, and MRI scans show agglomerations of particles~\cite{stuber2007positive}.  This data can be fitted with $k$-means or expectation maximization algorithms, and manipulation could be performed with the nearest swarm of sufficient size.
   
