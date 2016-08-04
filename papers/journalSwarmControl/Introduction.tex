@@ -3,14 +3,10 @@
 
 
 %Micro- and nanorobotics have the potential to revolutionize many applications including targeted material delivery, assembly, and surgery.  The same properties that promise breakthrough solutions---small size and large populations---present unique challenges to generating controlled motion.  
-Large populations of micro- and nanorobots are being produced in laboratories around the world, with diverse potential applications in drug delivery and construction \cite{Peyer2013,Shirai2005,Chiang2011}. These activities require robots that behave intelligently.
+Large populations of micro- and nanorobots are being produced in laboratories around the world, with diverse potential applications in drug delivery and construction, see \cite{Peyer2013,Shirai2005,Chiang2011}. These activities require robots that behave intelligently.
 Limited computation and communication rules out autonomous operation or direct control over individual units; instead we must rely on global control signals broadcast to the entire robot population.  It is not always practical to gather pose information on individual robots for feedback control; the robots might be difficult or impossible to sense individually due to their size and location. However, it is often possible to sense global properties of the group, such as mean position and density.  Finally, many promising applications will require direct human control, but user interfaces to thousands---or millions---of robots is a daunting human-swarm interaction (HSI) challenge. 
 
-The goal of this work is to provide a tool for investigating HSI methods through statistically significant numbers of experiments.  There is currently no comprehensive understanding of user interfaces for controlling multi-robot systems with massive populations.  We are particularly motivated by the sharp constraints in micro- and nanorobotic systems.  For example, full-state feedback with $10^6$ robots leads to operator overload.  
-Similarly, the user interaction required to individually control each robot scales linearly with robot population.   
-Instead, user interaction is often constrained to modifying a global input. This input may be nonstandard, such as the attraction/repulsion field from a scanning tunneling microscope (STM) tip. 
-
-Our previous work with over a hundred hardware robots and thousands of simulated robots~\cite{Becker2013b} demonstrated that direct human control of large swarms is possible. Unfortunately, the logistical challenges of repeated experiments with over one hundred robots prevented large-scale tests.
+Our previous work with over a hundred hardware robots and thousands of simulated robots~\cite{Becker2013b} demonstrated that direct human control of large swarms is possible. Unfortunately, the logistical challenges of repeated experiments with over one hundred robots prevented large-scale tests. This paper presents a tool for investigating HSI methods through statistically significant numbers of experiments.  There is currently no comprehensive understanding of user interfaces for controlling multi-robot systems with massive populations.  
 
 \begin{figure}
 \renewcommand{\figwid}{0.32\columnwidth}
@@ -37,18 +33,20 @@ Screenshots from our five online experiments controlling multi-robot systems wit
 \textbf{(c)} Comparing 3 control architectures
 \textbf{(d)} Varying noise from 0 to 200\% of control authority
 \textbf{(e)} Controlling the position of 1 to 10 robots.
-\href{http://youtu.be/HgNENj3hvEg}{See video overview at ~\cite{ShivaVideo2015}}
+\href{http://youtu.be/HgNENj3hvEg}{See video overview at \cite{ShivaVideo2015}}
 \vspace{-2em}
 }
 \end{figure}
 
-Our goal was to test several scenarios involving large-scale human-swarm interaction (HSI), and to do so with a statistically-significant sample size. Towards this end, we created \href{http://www.swarmcontrol.net/show_results}{SwarmControl.net}, an open-source online testing platform suitable for inexpensive deployment and data collection on a scale not yet seen in swarm robotics research. Screenshots from this platform are shown in Fig.~\ref{fig:5experiments}.  \href{https://github.com/crertel/swarmmanipulate.git}{All code}~\cite{Chris-Ertel2013}, \href{http://www.swarmcontrol.net/show_results}{and experimental results} are posted online.
+Our goal was to test several scenarios involving large-scale human-swarm interaction (HSI), and to do so with a statistically-significant sample size. Towards this end, we created \href{http://www.swarmcontrol.net/show_results}{SwarmControl.net}, an open-source online testing platform suitable for inexpensive deployment and data collection on a scale not yet seen in swarm robotics research. Screenshots from this platform are shown in Fig.~\ref{fig:5experiments}.  \href{https://github.com/crertel/swarmmanipulate.git}{All code} \href{http://www.swarmcontrol.net/show_results}{and experimental results} are posted online, \cite{Chris-Ertel2013}. {TODO: link to 2016 code}
 
-Our experiments show that numerous simple robots responding to global control inputs are directly controllable by a human operator without special training, that the visual feedback of the swarm state should be very simple in order to increase task performance, and that humans perform swarm-object manipulation faster using attractive control schemes than repulsive control schemes.
+Our experiments show that numerous simple robots responding to global control inputs are directly controllable by a human operator without special training, that the visual feedback of the swarm state should be simple to increase task performance, and that humans perform swarm-object manipulation faster using attractive control schemes than repulsive control schemes.
 
-Inspired by our online experiments, because it is not always possible to gather pose information on each robot for feedback control and robots might be difficult or impossible to sense individually due to their size and location. 
-for example, micro-robots are smaller than the minimum resolution of a clinical MRI-scanner~\cite{martel2014computer}, it is often possible to sense global properties of the group, such as mean position and variance. 
-To make progress in automatic control with global inputs, this paper presents swarm manipulation controllers requiring only mean and variance measurements of the robot's positions.  These controllers are used as primitives to perform a block-pushing task illustrated in Fig.~\ref{fig:bigPictureMeanAndVarianceForSwarm}.
+%Inspired by our online experiments, because it is not always possible to gather pose information on each robot for feedback control and
+Often robots are difficult or impossible to sense individually due to their size and location. 
+For example, microrobots are smaller than the minimum resolution of a clinical MRI-scanner, see \cite{martel2014computer}, however it is often possible to sense global properties of the group, such as mean position and variance. 
+To make progress in automatic control with global inputs, this paper presents swarm manipulation controllers, inspired by our online experiments, that require only mean and variance measurements of the robot's positions.  
+These controllers are used as primitives to perform the object manipulation task illustrated in Fig.~\ref{fig:bigPictureMeanAndVarianceForSwarm}.
 
 \begin{figure}
 \centering
@@ -57,11 +55,11 @@ To make progress in automatic control with global inputs, this paper presents sw
 %Please use the same color and line style for the variance min and max as you use in Figure 4.
 %}
 %{blockpushingImageWithMeanAndVarianceOverlay.png}
-\caption{\label{fig:bigPictureMeanAndVarianceForSwarm} A swarm of robots, all controlled by a uniform force field, can be effectively controlled by a hybrid controller that knows only the first and second moments of the robot distribution.  Here a swarm of simple robots (blue discs) pushes a black block toward the goal. See video attachment~\cite{ShivaVideo2015}.}
+\caption{\label{fig:bigPictureMeanAndVarianceForSwarm} A swarm of robots, all controlled by a uniform force field, can be effectively controlled by a hybrid controller that knows only the first and second moments of the robot distribution.  Here a swarm of simple robots (blue discs) pushes a green hexagon toward the goal. See video attachment~\cite{ShivaVideo2015}.}
 \end{figure}
  %function and implementation function
 
- Our paper is organized as follows.  After a discussion of related work in Section \ref{sec:RelatedWork},we will prove that mean and variance of the robots are controllable in Section \ref{sec:theory}, then we describe our experimental methods for an online human-user experiment in Section \ref{sec:expMethods}.  We report the results of our online experiments in Section \ref{sec:expResults}, and illustrate auto controllers that does the same thing in Section \ref{sec:simulation}. We conclude with our implementation of the auto controllers on our hardware robots and complete an object manipulation task in Section \ref{sec:realExperiment}.
+ Our paper is organized as follows.  After a discussion of related work in Section \ref{sec:RelatedWork},  we describe our experimental methods for an online human-user experiment in Section \ref{sec:expMethods}. We report the results of our online experiments in Section \ref{sec:expResults}. Inspired by these results, we prove that the mean and variance of a robot swarm are controllable in Section \ref{sec:theory}, and present automatic controllers in Section \ref{sec:simulation}. We conclude with implementations of these controllers on hardware robots and use them to complete an object manipulation task  with 100+ kilobots in Section \ref{sec:realExperiment}.
  
- This paper is the synthesis of two preliminary conference papers, the first covering first few months of SwarmControl.net experiments, and the second with simulations of object manipulation (??).  This paper presents the final results from SwarmControl.net.  All hardware validation experiments with 100+ kilobots are new for this paper.
+ This paper is the synthesis of two preliminary conference papers, the first, \cite{swarmcontrol2013}, covering first few months of SwarmControl.net experiments, and the second, \cite{ShahrokhiIROS2015}, with simulations of object manipulation.  This paper presents the final results from SwarmControl.net.  All hardware validation experiments are new.
 

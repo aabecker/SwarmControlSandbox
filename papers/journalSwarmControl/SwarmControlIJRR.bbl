@@ -1,4 +1,4 @@
-\begin{thebibliography}{42}
+\begin{thebibliography}{48}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -56,13 +56,21 @@ Aaron Becker, Golnaz Habibi, Justin Werfel, Michael Rubenstein, and
 \newblock In \emph{IEEE/RSJ International Conference on Intelligent Robots and
   Systems (IROS)}, pages 520--527, November 2013.
 
-\bibitem[Becker et~al.(2014)Becker, Onyuksel, Bretl, and
+\bibitem[Becker et~al.(2014{\natexlab{a}})Becker, Ertel, and
+  McLurkin]{swarmcontrol2013}
+Aaron Becker, Chris Ertel, and James McLurkin.
+\newblock Crowdsourcing swarm manipulation experiments: A massive online user
+  study with large swarms of simple robots.
+\newblock In \emph{IEEE International Conference on Robotics and Automation},
+  2014{\natexlab{a}}.
+
+\bibitem[Becker et~al.(2014{\natexlab{b}})Becker, Onyuksel, Bretl, and
   McLurkin]{beckerIJRR2014}
 Aaron Becker, Cem Onyuksel, Timothy Bretl, and James McLurkin.
 \newblock Controlling many differential-drive robots with uniform control
   inputs.
 \newblock \emph{The international journal of Robotics Research}, 33\penalty0
-  (13):\penalty0 1626--1644, 2014.
+  (13):\penalty0 1626--1644, 2014{\natexlab{b}}.
 
 \bibitem[Catto(2010)]{catto2010box2d}
 Erin Catto.
@@ -165,6 +173,10 @@ JBS Haldane.
 \newblock Simple tests for bimodality and bitangentiality.
 \newblock \emph{Annals of eugenics}, 16\penalty0 (1):\penalty0 359--364, 1951.
 
+\bibitem[K-Team(2015)]{K-Team2015}
+K-Team.
+\newblock Kilobot, www.k-team.com/mobile-robotics-products/kilobot, 2015.
+
 \bibitem[Khalil et~al.(2013)Khalil, van~den Brink, Sukas, and
   Misra]{Khalil2013}
 Islam S.~M. Khalil, Frank van~den Brink, Ozlem~Sardan Sukas, and Sarthak Misra.
@@ -185,9 +197,10 @@ Andreas Kolling, Steven Nunnally, and Michael Lewis.
 \newblock In \emph{Proceedings of the seventh annual ACM/IEEE international
   conference on Human-Robot Interaction}, pages 89--96. ACM, 2012.
 
-\bibitem[Lyapunov{, translated and edited by A.T. Fuller}(1992)]{Lyapunov1992}
-Aleksandr~Mikhailovich Lyapunov{, translated and edited by A.T. Fuller}.
-\newblock \emph{The General Problem of the Stability of Motion}.
+\bibitem[Lyapunov(1992)]{Lyapunov1992}
+Aleksandr~Mikhailovich Lyapunov.
+\newblock \emph{The General Problem of the Stability of Motion{, translated and
+  edited by A.T. Fuller}}.
 \newblock Tayor \& Francis, London, 1992.
 
 \bibitem[Lynch(1999)]{Lynch1999}
@@ -226,10 +239,16 @@ Kathrin~E. Peyer, Li~Zhang, and Bradley~J. Nelson.
   applications.
 \newblock \emph{Nanoscale}, 2013.
 
-\bibitem[Sadraddini and Belta(2015)]{Sadraddini2015}
-Sadra Sadraddini and Calin Belta.
-\newblock Swarm manipulation with a uniform magnetic field.
-\newblock In \emph{unpublished}, 2015.
+\bibitem[Rubenstein et~al.(2012)Rubenstein, Ahler, and Nagpal]{Rubenstein2012}
+M.~Rubenstein, C.~Ahler, and R.~Nagpal.
+\newblock Kilobot: A low cost scalable robot system for collective behaviors.
+\newblock In \emph{IEEE Int. Conf. Rob. Aut.}, pages 3293--3298, May 2012.
+
+\bibitem[Rubenstein et~al.(2014)Rubenstein, Cornejo, and
+  Nagpal]{rubenstein2014programmable}
+Michael Rubenstein, Alejandro Cornejo, and Radhika Nagpal.
+\newblock Programmable self-assembly in a thousand-robot swarm.
+\newblock \emph{Science}, 345\penalty0 (6198):\penalty0 795--799, 2014.
 
 \bibitem[Shahrokhi and Becker(2015{\natexlab{a}})]{Shahrokhi2015}
 Shiva Shahrokhi and Aaron~T. Becker.
@@ -237,10 +256,23 @@ Shiva Shahrokhi and Aaron~T. Becker.
   https://github.com/aabecker/swarmcontrolsandbox/blob/master/
   examplecontrollers/blockpushingiros2015.html, July 2015{\natexlab{a}}.
 
-\bibitem[Shahrokhi and Becker(2015{\natexlab{b}})]{ShivaVideo2015}
+\bibitem[Shahrokhi and
+  Becker(2015{\natexlab{b}})]{Shahrokhi2015GitHubShapeControl}
+Shiva Shahrokhi and Aaron~T. Becker.
+\newblock "{Wall-Friction Swarm Shape Control}",
+  https://github.com/aabecker/swarmcontrolsandbox/ tree/master/papers/icra2016,
+  August 2015{\natexlab{b}}.
+
+\bibitem[Shahrokhi and Becker(2015{\natexlab{c}})]{ShahrokhiIROS2015}
+Shiva Shahrokhi and Aaron~T. Becker.
+\newblock Stochastic swarm control with global inputs.
+\newblock In \emph{IEEE/RSJ International Conference on Intelligent Robots and
+  Systems (IROS)}, page tbd, September 2015{\natexlab{c}}.
+
+\bibitem[Shahrokhi and Becker(2015{\natexlab{d}})]{ShivaVideo2015}
 Shiva Shahrokhi and Aaron~T. Becker.
 \newblock Stochastic swarm control, https://youtu.be/tcej-9e6-4o, October
-  2015{\natexlab{b}}.
+  2015{\natexlab{d}}.
 \newblock URL \url{https://youtu.be/tCej-9e6-4o}.
 
 \bibitem[Shirai et~al.(2005)Shirai, Osgood, Zhao, Kelly, and Tour]{Shirai2005}
@@ -250,6 +282,11 @@ Yasuhiro Shirai, Andrew~J. Osgood, Yuming Zhao, Kevin~F. Kelly, and James~M.
 \newblock \emph{Nano Letters}, 5\penalty0 (11):\penalty0 2330--2334, February
   2005.
 \newblock \doi{10.1021/nl051915k}.
+
+\bibitem[Spong and Vidyasagar(2008)]{spong2008robot}
+Mark~W Spong and Mathukumalli Vidyasagar.
+\newblock \emph{Robot dynamics and control}.
+\newblock John Wiley \& Sons, 2008.
 
 \bibitem[Squire et~al.(2006)Squire, Trafton, and
   Parasuraman]{Squire:2006:HCM:1121241.1121248}
