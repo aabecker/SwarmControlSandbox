@@ -17,10 +17,12 @@ u_y &= K_{p}(y_{goal}  - \bar{y}) + K_{d}(0-\bar{v}_y)  \label{eq:PDcontrolPosit
 here $K_{p}$ is the proportional gain, and $K_{d}$ is the derivative gain. We performed a parameter sweep to identify the best values.  Representative experiments are shown in Fig.~\ref{fig:gainvalues}. 100 robots were used and the maximum speed was 3 meters per second. As shown in Fig.~\ref{fig:gainvalues}, we can achieve an overshoot of 1\% and a  rise time of 1.52 s with $K_{p}= 4$, and  $K_{d} = 1$. 
 \begin{figure}
 \centering
-\begin{overpic}[width = \columnwidth ]{gains.eps}
+\begin{overpic}[width = 0.7\columnwidth ]{gains.eps}
 \end{overpic}
+%\begin{overpic}[width =0.49\columnwidth]{meanVariance4.eps}
+%\end{overpic}
 \vspace{-1em}
-\caption{\label{fig:gainvalues} Tuning proportional ($K_p$, top) and derivative ($K_d$, bottom)  gain values in \eqref{eq:PDcontrolPosition} improves performance with $n = 100$ robots.
+\caption{\label{fig:gainvalues} Tuning proportional ($K_p$, top) and derivative ($K_d$, bottom)  gain values in \eqref{eq:PDcontrolPosition} improves performance with $n = 100$ robots. %b) Simulation result with 100 robots under hybrid control Alg.~\ref{alg:MeanVarianceControl}, which  controls both the mean position (top) and variance (bottom). For ease of analysis, only $x$ position and variance are shown.
 %\vspace{-2em}
 }
 \end{figure}
@@ -39,7 +41,7 @@ here $K_{p}$ is the proportional gain, and $K_{d}$ is the derivative gain. We pe
 \subsection{Controlling the variance}
 \begin{figure}
 \centering
-\begin{overpic}[width = \columnwidth] {brownianWpublish.eps}
+\begin{overpic}[width =0.7 \columnwidth] {brownianWpublish.eps}
 \end{overpic}
 \vspace{-1em}
 \caption{\label{fig:varyBrownian} Increased noise results in more responsive variance control because stronger Brownian noise causes a faster increase of variance.
@@ -74,11 +76,11 @@ Fig. ~\ref{fig:hybrid} shows a simulation run of the hybrid controller in Alg.~\
 %\todo{plot showing 1.5 cycles of mean position, and a variance goal.  We might need a longer time}
 \begin{figure}
 \centering
-\begin{overpic}[width =\columnwidth]{meanVariance4.eps}
+\begin{overpic}[width =0.7\columnwidth]{meanVariance4.eps}
 \end{overpic}
 \vspace{-1em}
 \caption{\label{fig:hybrid} Simulation result with 100 robots under hybrid control Alg.~\ref{alg:MeanVarianceControl}, which  controls both the mean position (top) and variance (bottom). For ease of analysis, only $x$ position and variance are shown.
-%\vspace{-2em}
+\vspace{-2em}
 }
 \end{figure}
 
