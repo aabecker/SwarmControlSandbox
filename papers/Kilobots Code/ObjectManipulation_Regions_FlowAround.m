@@ -13,7 +13,7 @@ load('ThresholdMaps','transferRegion','mainRegion');
 
 
 %% Define webcam
-webcamShot = false;
+webcamShot = true;
 
 if webcamShot
     cam = webcam(2);
@@ -53,6 +53,7 @@ currentRegionMap=mainRegion(:,:,regionNum); %init map
 
 while success == false  
     %% Read in a webcam snapshot.
+    success = true;
     if webcamShot
         if (again == true)
             relayOn(a,0);
