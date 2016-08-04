@@ -12,7 +12,7 @@
 \contentsline {subsection}{\numberline {3.3}Controlling mean position}{10}{subsection.3.3}
 \contentsline {subsection}{\numberline {3.4}Controlling the variance of many robots}{11}{subsection.3.4}
 \contentsline {subsection}{\numberline {3.5}Controlling both mean and variance of many robots}{12}{subsection.3.5}
-\contentsline {section}{\numberline {4}Online Experiment}{14}{section.4}
+\contentsline {section}{\numberline {4}Online experiment}{14}{section.4}
 \contentsline {subsection}{\numberline {4.1}Methods}{14}{subsection.4.1}
 \contentsline {paragraph}{Overview}{14}{section*.2}
 \contentsline {paragraph}{Frontend}{15}{section*.3}
@@ -24,7 +24,7 @@
 \contentsline {paragraph}{Varying visualization}{18}{section*.6}
 \contentsline {subsection}{\numberline {4.3}Varying noise}{19}{subsection.4.3}
 \contentsline {subsection}{\numberline {4.4}Position control}{20}{subsection.4.4}
-\contentsline {section}{\numberline {5}Simulation of Control Laws}{21}{section.5}
+\contentsline {section}{\numberline {5}Simulation of control laws}{21}{section.5}
 \contentsline {subsection}{\numberline {5.1}Controlling the mean position}{21}{subsection.5.1}
 \contentsline {subsection}{\numberline {5.2}Controlling the variance}{21}{subsection.5.2}
 \contentsline {subsection}{\numberline {5.3}Hybrid control of mean and variance}{23}{subsection.5.3}
