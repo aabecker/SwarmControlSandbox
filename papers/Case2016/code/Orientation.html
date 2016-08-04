@@ -494,10 +494,10 @@
                 // alert(JSON.stringify(state));
                 state.test.outcomes[state.currentRun] = elapsedTimeSec;
                 hasLoggedData = true;
-                location.reload(true);
                 state.currentRun++;
                 localStorage.setItem("test", JSON.stringify(state));
             }
+            console.log("goalAngle "+goalAngle);
             if (!GoalRecieved) {
 
                 var Ko = 10;
@@ -518,6 +518,7 @@
                     varCont = false;
                 }
                 if (!varCont) {
+
                     var Ko = 10;
                     var sign = deltaTheta / Math.abs(deltaTheta);
                     if (Ko * Math.abs(deltaTheta) < objectWidth * 2 / 3)

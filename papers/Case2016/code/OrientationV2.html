@@ -10,7 +10,7 @@
 <body onload="init();">
     <!--aspect ratio for HD is 16:9 -->
 
-    <canvas id="canvas" width="2240" height="630" style="background-color:#EEEEEE;"></canvas>
+    <canvas id="canvas" width="2240" height="1000" style="background-color:#EEEEEE;"></canvas>
 </body>
 <script type="text/javascript" src="../shared/Box2dWeb-2.1.a.3.min.js"></script> <!-- box2d -->
 <script type="text/javascript" src="../shared/jquery.min.js"></script> <!-- forms & strings, @ https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js -->
@@ -35,7 +35,7 @@
     var m_controlState = ROBOT_INPUT.ROBOT_IDLE;
     var mapScale = 30;
     var canvasWidth = 2240;//was 1120
-    var canvasHeight = 630;
+    var canvasHeight = 1000;
     var blockCOM_x = 0;
     var blockCOM_y = 0;
     var rAngle;
@@ -67,7 +67,7 @@
                     goalNumCount: 0,
                     variableCount: 0,
                     test: {
-                        variable: [10,10,10,10,10],	//needs variableCount		increments when goalNum>4
+                        variable: [150,150,150,150,150],	//needs variableCount		increments when goalNum>4
                         goalNum: [], 	//needs goalNumCount 		increments when Time cycle ends
                         time: [], 		//needs resultsCount		increments with each update
                         blockAngle: [],	//needs resultsCount		increments with each update
@@ -81,7 +81,7 @@
         if (testing) {//getting values to run simulations
             var inputTest = JSON.parse(localStorage.getItem("test"));
             if (inputTest.variableCount >= inputTest.test.variable.length) {
-                window.close();
+                window.stop();
                 windowStopped = true;
             } else {
                 variableCount = JSON.parse(inputTest.variableCount);
@@ -160,10 +160,10 @@
 
         //Creating the box
         bodyDef.type = b2Body.b2_dynamicBody;
-        fixDef.density = 100.0;
+        fixDef.density = 75.0;
         fixDef.friction = 0.0;
         fixDef.restitution = 0.2;  //bouncing value
-        bodyDef.position.Set(10, 10);
+        bodyDef.position.Set(10, 17);
         bodyDef.userData = 'moveable';
         bodyDef.angle = 0 * Math.PI / 180;
         fixDef.shape = new b2PolygonShape;
@@ -184,7 +184,7 @@
         var robotrad = 0.2;
         var rowLength = 12;//Math.floor(5/(2*robotrad));
         fixDef.density = 1.0;
-        fixDef.friction = 5.0;
+        fixDef.friction = 2.0;
         fixDef.restitution = 0.1;  //bouncing value
         var m_Robot = new Array();
 
@@ -265,8 +265,8 @@
             var variableCount = null;
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
-                if (inputTest.currentRun >= inputTest.test.variable.length) {
-                    window.close();
+                if (inputTest.variableCount > inputTest.test.variable.length) {
+                    window.stop();
                     windowStopped = true;
                 } else {
                     resultsCount = JSON.parse(inputTest.resultsCount);
@@ -417,7 +417,7 @@
 
                 }
             }
-            var cycleInSec = 50;
+            var cycleInSec = 70;
             var day = new Date();
 
 
@@ -470,16 +470,24 @@
                 goalNumCount++; //runs through four cycles
                 incrementedGoalNum = true;
             }
-            if (elapsedTimeSec % cycleInSec > 5){
+            else if (elapsedTimeSec % cycleInSec > 5){
                 incrementedGoalNum=false;
             }
             if (goalNumCount > 4) {
                 variableCount++;
-                goalNumCount = 1;
+                goalNumCount = 0;
                 location.reload(true);
-            } //goes to the next test variable
-            //b = world.GetBodyList();
-            //var oRad = b.GetAngle();
+            } 
+            var e = 0.5;
+            var angle = rAngle * 180 / Math.PI;
+           // console.log("goalAngle "+goalAngle+ "angle "+angle);
+            if (Math.abs(goalAngle - angle) < e) {
+                GoalRecieved = true;
+            }
+            else {
+                GoalRecieved = false;
+            }
+
             var objAngle = rAngle * (180 / Math.PI);
             objAngle = (objAngle);
             resultsCount++;
@@ -494,6 +502,7 @@
                 localStorage.setItem("test", JSON.stringify(state));
                 
             }
+            //console.log("objAngle "+objAngle+" goalAngle "+goalAngle);
             if (!GoalRecieved) {
 
                 var Ko = 10;
@@ -533,18 +542,19 @@
                     }
                     else {
                         goalX = 0;
-                        goalY = 21;
+                        goalY = 33;
                     }
                 }
             }
             else {
-                if (goalAngle > 0) {
+                if (goalAngle > 0) 
+                {
                     goalX = 2;
                     goalY = 2;
                 }
                 else {
                     goalX = 2;
-                    goalY = 19;
+                    goalY = 33;
                 }
 
             }
