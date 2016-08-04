@@ -22,7 +22,6 @@
 \usepackage{color}
 \usepackage{colortbl} %TODO: lab computers choke on this.  Why?
 %\usepackage{cite}
-\usepackage[font={small}]{caption}
 \usepackage[caption=false,font=footnotesize]{subfig}
 \usepackage{overpic}
 \graphicspath{{./},{./pictures/pdf/},{./pictures/ps/},{./pictures/png/},{./pictures/jpg/}}
@@ -42,10 +41,9 @@
   citecolor= black
 }
 \usepackage[round]{natbib}
-\usepackage{mathtools}
+
 
 %% ABBREVIATIONS
-\newcommand\mydefeq{\stackrel{\mathclap{\normalfont\mbox{\tiny def}}}{=}}
 \newcommand{\qstart}{\mathbf{q}_{\text{start}}}
 \newcommand{\qgoal}{\mathbf{q}_{\text{goal}}}
 \newcommand{\pstart}{\mathbf{p}_{\text{start}}}
@@ -165,18 +163,25 @@
 \begin{abstract}
 Micro- and nanorobotics have the potential to revolutionize many applications including targeted material delivery, assembly, and surgery.  The same properties that promise breakthrough solutions---small size and large populations---present unique challenges to generating controlled motion. We want to use large swarms of robots to perform manipulation tasks; unfortunately, human-swarm interaction studies as conducted today are limited in sample size, are difficult to reproduce, and are prone to hardware failures. We present an alternative.
 
-This paper first examines the perils, pitfalls, and possibilities we discovered by launching \href{http://www.swarmcontrol.net}{SwarmControl.net}, an online game where players steer swarms of up to 500 robots to complete manipulation challenges. We record statistics from thousands of players, and use the game to explore aspects of large-population robot control. We present the game framework as a new, open-source tool for large-scale user experiments. One surprising result was that humans completed an object manipulation task \emph{faster} when provided with only the mean and variance of the robot swarm than with full-state feedback. Inspired by human operators, this paper next investigates controllers that use only the mean and variance of a robot swarm. We prove that the mean position is controllable, then provide conditions under which variance is controllable.  We next derive automatic controllers for these and a hybrid, hysteresis-based switching control to regulate the first two moments of the robot distribution.  Finally, we employ these controllers as primitives for an object manipulation task and implement all the automatic controllers on 100 kilobots controlled by the direction of a global light source.
+This paper first examines the perils, pitfalls, and possibilities we discovered by launching \href{http://www.swarmcontrol.net}{SwarmControl.net}, an online game where players steer swarms of up to 500 robots to complete manipulation challenges. We record statistics from thousands of players, and use the game to explore aspects of large-population robot control. We present the game framework as a new, open-source tool for large-scale user experiments. One surprising result was that humans completed a block-pushing task \emph{faster} when provided with only the mean and variance of the robot swarm than with full-state feedback. Inspired by human operators, this paper next investigates controllers that use only the mean and variance of a robot swarm. We prove that the mean position is controllable, then provide conditions under which variance is controllable.  We next derive automatic controllers for these and a hybrid, hysteresis-based switching control to regulate the first two moments of the robot distribution.  Finally, we employ these controllers as primitives for a block-pushing task and implement all the automatic controllers on 101 kilobots, with our vision system.
 \end{abstract}
 %\input{00-Abstract.tex}
 \input{Introduction.tex}
 \input{relatedWork.tex}
+\input{theory.tex}
 \input{expMethods.tex}
 \input{expResults.tex}
-\input{theory.tex}
 \input{simulation.tex}
 \input{experiment.tex}
 \input{realExperiment.tex}
 
+%\input{04-RangeAndBearing.tex}
+%\input{05-Results.tex}
+%\input{06-GlobalAsymptoticStability.tex}
+%\input{07-Implementation.tex}
+%\input{08-SimulationResults.tex}
+%\input{09-HardwareImplementation.tex}
+%\input{10-Conclusion.tex}
 
 %\section*{Acknowledgements}
 

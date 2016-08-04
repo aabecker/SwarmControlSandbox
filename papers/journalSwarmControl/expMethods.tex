@@ -13,14 +13,12 @@
 %%%% Google analytics, airbrake, etc.
 
 %% wherein we describe our framework
-
+\subsection{Methods}
 
 We have developed a flexible testing framework for online human-swarm interaction studies. There are two halves to our framework: the server backend and the client-side (in-browser) frontend. The server backend is responsible for tabulating results, serving webpages containing the frontend code, and for issuing unique identifiers to each experiment participant. The in-browser frontend is responsible for running an experiment---that is to say, accepting user input, updating the state of the robot swarm, and ultimately evaluating task completion.
 
 %% wherein we outline the process that a user takes to participate in an experiemnt
-\subsection{Methods}
-
-%\paragraph{Overview}
+\paragraph{Overview}
 
 A participant visits the site, initiating a communication between their browser and our server. The web server generates a unique identifier for the participant and sends it along with the landing page to the participant---this identifier is stored as a browser cookie and will be sent along with all results the participant generates. The participant's browser prompts for confirmation of the terms-of-service and offers a menu of experiments.
 
@@ -90,13 +88,13 @@ Cumulative time played for completed tests.
 %SwarmControl.net %16 char
 %SwarmControl.herokuapp.com %26 char
 
-%As mobile traffic becomes more prominent and overtakes the volume of internet access from desktop computers & laptops, shorter domain names will become increasingly more important and more desirable.  The likelihood of a typo on a mobile device is increased and that  can be hedged by having a shorter domain name which requires less typing and fewer characters to enter. - See more at: http://www.mediaoptions.com/domain-names/short-is-sweet-the-value-of-short-domain-names.html#sthash.AJNqlXhB.dpuf
+%As mobile traffic becomes more prominent and overtakes the volume of internet access from desktop computers & laptops, shorter domain names will become increasingly more important and more desirable.  The likelihood of a typo on a mobile device is increased and that “liability” can be hedged by having a shorter domain name which requires less typing and fewer characters to enter. - See more at: http://www.mediaoptions.com/domain-names/short-is-sweet-the-value-of-short-domain-names.html#sthash.AJNqlXhB.dpuf
 
 %Given the large number of experiment sessions run (over 11,000 at the time of this writing), we see a per-experiment cost of less than three cents.
 
 %% wherein we describe how we monitor the progress of the experimental setup
 \subsubsection{Instrumentation}
 
-When conducting an online experiment, it is helpful to gather data about both the experiment infrastructure and the participants. For the backend, we use a service called Airbrake to monitor the Rails server, getting emails in the events of any errors occurring or suspicious activity. We also use another service called New Relic to provide monitoring and analytics on the server traffic, giving coarse statistics about site visitation, page load time, and other indicators of how our backend is performing.
+When conducting an online experiment, it is very helpful to gather data about both the experiment infrastructure and the participants. For the backend, we use a service called Airbrake to monitor the `health' of the Rails server, getting emails in the events of any errors occurring or suspicious activity. We also use another service called New Relic to provide monitoring and analytics on the server traffic, giving coarse statistics about site visitation, page load time, and other indicators of how our backend is performing.
 
-For the frontend, we use Google Analytics to track user behavior. This tool allows us to see country of origin for users, time spent on the site, relative percent of people who look past the landing page (bounce rate), and user agent information (type of browser, type of device, etc.).
+For the frontend, we use Google Analytics to track user behavior. This tool allows us to see country of origin for users, time spent on the site, relative percent of people who look past the landing page (`bounce rate'), and user agent information (type of browser, type of device, etc.).
