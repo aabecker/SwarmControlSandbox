@@ -1,6 +1,6 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Web massive results}\label{sec:expResults}
+\subsection{Human-swarm interaction results}\label{sec:expResults}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 We designed five experiments to investigate human control of large robotic swarms for manipulation tasks.  Screenshots of each experiment are shown in Fig.~\ref{fig:5experiments}.  Each experiment examined the effects of varying a single parameter: population of robots for manipulation, four levels of visual feedback, three control architectures, different levels of Brownian noise, and position control with 1 to 10 robots. The users could choose which experiment to try, and then our architecture randomly assigned a particular parameter value for each trial.  We recorded the completion time and the participant ID for each successful trial.  As Fig.~\ref{fig:Learning} shows, one-third of all participants played only a single game.  Still, many played multiple games, and their decreasing completion times demonstrates their skills improved.
@@ -38,13 +38,13 @@ We designed five experiments to investigate human control of large robotic swarm
 }
 \end{figure}
 
-Transport of goods and materials between points is at the heart of all engineering and construction in real-world systems. This experiment varied from 1 to 500 the population of robots used to transport an object. We kept the total area, maximum robot speed, and total net force the swarm could produce constant. The robots pushed a large hexagonal object through an `S'-shaped maze. Our hypothesis was that participants would complete the task faster with more robots. The results, shown in Fig.~\ref{fig:ResVaryNu}, do not support our hypothesis, indicating rather that there is a local minima around 130 robots.
+Transport of goods and materials between points is at the heart of all engineering and construction in real-world systems. This experiment varied from 1 to 500 the population of robots used to transport an object. We kept the total area, maximum robot speed, and total net force the swarm could produce constant. The robots pushed a large hexagonal object through an  {\sffamily S}-shaped maze. Our hypothesis was that participants would complete the task faster with more robots. The results, shown in Fig.~\ref{fig:ResVaryNu}, do not support our hypothesis, indicating rather that there is a local minima around 130 robots.
 
 
 \paragraph{Varying control}
 Ultimately, we want to use swarms of robots to build things. This experiment compared different control architectures modeled after real-world devices.
 
-We compared attractive and repulsive control with the global control used for the other experiments. The attractive and repulsive controllers were loosely modeled after scanning tunneling microscopes (STM), but also apply to magnetic manipulation~\cite{Khalil2013} and biological models~\cite{goodrich2012types}. STMs can be used to arrange atoms and make small assemblies~\cite{avouris1995manipulation}. An STM tip is charged with electrical potential, and used to repel like-charged or to attract differently-charged molecules. In contrast, the global controller uses a uniform field (perhaps formed by parallel lines of differently-charged conductors) to pull molecules in the same direction.
+We compared attractive and repulsive control with the global control used for the other experiments. The attractive and repulsive controllers were loosely modeled after scanning tunneling microscopes (STM), but also apply to magnetic manipulation, e.g. \cite{Khalil2013} and biological models, e.g. \cite{goodrich2012types}. STMs can be used to arrange atoms and make small assemblies~\cite{avouris1995manipulation}. An STM tip is charged with electrical potential, and used to repel like-charged or to attract differently-charged molecules. In contrast, the global controller uses a uniform field (perhaps formed by parallel lines of differently-charged conductors) to pull molecules in the same direction.
 The experiment challenged players to assemble a three-block pyramid with a swarm of 16 robots.
 
 %\todo{describe controller model here, use an equation}
@@ -72,7 +72,7 @@ The results were conclusive, as shown in Fig.~\ref{fig:ResVaryControl}: attracti
 
 \paragraph{Varying visualization}
 
-Sensing is expensive, especially on the nanoscale. To see nanocars~\cite{Chiang2011}, scientists fasten molecules that fluoresce light when activated by a strong light source. Unfortunately, multiple exposures can destroy these molecules, a process called \emph{photobleaching}. Photobleaching can be minimized by lowering the excitation light intensity, but this increases the probability of missed detections~\cite{Cazes2001}.  This experiment explores manipulation with varying amounts of sensing information: {\bf full-state} sensing provides the most information by showing the position of all robots; {\bf convex-hull} draws a convex hull around the outermost robots; {\bf mean} provides the average position of the population; and {\bf mean + variance} adds a confidence ellipse. Fig.~\ref{fig:Visualization} shows screenshots of the same robot swarm with each type of visual feedback. Full-state requires $2n$ data points for $n$ robots. Convex-hull requires at worst $2n$, but usually a smaller number.  Mean requires two, and variance three, data points.  Mean and mean + variance are convenient even with millions of robots. Our hypothesis predicted a steady decay in performance as the amount of visual feedback decreased.
+Sensing is expensive, especially on the nanoscale. To see nanocars~\cite{Chiang2011}, scientists fasten molecules that fluoresce light when activated by a strong light source. Unfortunately, multiple exposures can destroy these molecules, a process called \emph{photobleaching}. Photobleaching can be minimized by lowering the excitation light intensity, but \cite{Cazes2001} showed this increases the probability of missed detections.  This experiment explores manipulation with varying amounts of sensing information: {\bf full-state} sensing provides the most information by showing the position of all robots; {\bf convex-hull} draws a convex hull around the outermost robots; {\bf mean} provides the average position of the population; and {\bf mean + variance} adds a confidence ellipse. Fig.~\ref{fig:Visualization} shows screenshots of the same robot swarm with each type of visual feedback. Full-state requires $2n$ data points for $n$ robots. Convex-hull requires at worst $2n$, but usually a smaller number.  Mean requires two, and variance three, data points.  Mean and mean + variance are convenient even with millions of robots. Our hypothesis predicted a steady decay in performance as the amount of visual feedback decreased.
 
 % Additionally, as population characteristics, they are available even if only a percentage of the robots are detected each control cycle.
 %Photobleaching: http://www.piercenet.com/browse.cfm?fldID=4DD9D52E-5056-8A76-4E6E-E217FAD0D86B
@@ -95,7 +95,7 @@ Sensing is expensive, especially on the nanoscale. To see nanocars~\cite{Chiang2
 \begin{overpic}[width =\figwid]{VaryVisCH.pdf}\put(10,15){Convex-hull}\end{overpic}
 \begin{overpic}[width =\figwid]{VaryVisMV.pdf}\put(10,15){Mean + var}\end{overpic}
 \begin{overpic}[width =\figwid]{VaryVisMe.pdf}\put(30,15){Mean}\end{overpic}
-\vspace{-1em}
+\vspace{-.5em}
 \caption{\label{fig:Visualization}Screenshots from task \emph{Vary Visualization}. This experiment challenges players to quickly steer 100 robots (blue discs) to push an object (green hexagon) into a goal region. We record the completion time and other statistics.
 %\vspace{-1em}
 }
@@ -104,8 +104,8 @@ Sensing is expensive, especially on the nanoscale. To see nanocars~\cite{Chiang2
 To our surprise, our experiment indicates the opposite: players  with just the mean completed the task faster than those with full-state feedback.  As Fig.~\ref{fig:ResVaryVis} shows, the levels of feedback arranged by increasing completion time are [mean + variance, mean, full-state, convex-hull].  Anecdotal evidence from beta-testers who played the game suggests that tracking 100 robots is overwhelming---similar to schooling phenomenons that confuse predators---while working with just the mean + variance is like using a ``spongy'' manipulator. Our beta-testers found convex-hull feedback confusing and irritating.  A single robot left behind an obstacle will stretch the entire hull, obscuring the majority of the swarm.
 %obscuring what the rest of the swarm is doing.   
 
-\subsection{Varying noise}
-Real-world microrobots and nanorobots are affected by turbulence caused by random collisions with molecules. The effect of these collisions is called Brownian motion.
+\paragraph{Varying noise}
+Microrobots are affected by turbulence caused by random collisions with molecules. The effect of these collisions is called Brownian motion.
 
 This experiment varied the strength of these disturbances to study how noise affects human control of large swarms. Noise was applied at every timestep as follows:
 \begin{align*}
@@ -127,7 +127,7 @@ We hypothesized 200\% noise was the largest a human could be expected to control
 \end{figure}
 
 
-\subsection{Position control}
+\paragraph{Position control}
 This online experiment examined how completion time scales with the number of robots $n$. Using a single square obstacle, users arranged $n\in[1,10]$ robots into a specified goal pattern.  The goal pattern formed a block `A' with 10 robots, and lesser numbers of robots used a subset of these goal positions. Our hypothesis was that completion time would increase linearly with the number of robots, as with our position control algorithm in \cite{Becker2013b}.  Our results roughly corroborate this, as shown in Fig.~\ref{fig:ResPositioning}.  Though the number of robots presented to game players is uniformly distributed, larger $n$ are more difficult, and the number of successful experiments drops steadily as $n$ increases.
 
 

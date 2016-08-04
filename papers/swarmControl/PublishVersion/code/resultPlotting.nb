@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    231842,       4692]
-NotebookOptionsPosition[    229482,       4609]
-NotebookOutlinePosition[    229951,       4627]
-CellTagsIndexPosition[    229908,       4624]
+NotebookDataLength[    232262,       4700]
+NotebookOptionsPosition[    229902,       4617]
+NotebookOutlinePosition[    230371,       4635]
+CellTagsIndexPosition[    230328,       4632]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -2492,8 +2492,9 @@ Cell[BoxData[{
       RowBox[{"100", ",", "3", ",", "5"}], "}"}]}], "}"}]}], 
   ";"}], "\[IndentingNewLine]", 
  RowBox[{
-  RowBox[{"r", " ", "=", " ", 
-   FractionBox["1", "10"]}], ";", 
+  RowBox[{
+   RowBox[{"r", " ", "=", " ", 
+    FractionBox["1", "10"]}], ";"}], 
   RowBox[{"(*", 
    RowBox[{"r", " ", "=", 
     RowBox[{"the", " ", "radius", " ", "of", " ", "our", " ", 
@@ -2551,8 +2552,9 @@ Cell[BoxData[{
        RowBox[{"2", "r"}], ")"}], "2"], 
      SqrtBox["3"], " ", 
      SuperscriptBox["n", "2"]}], 
-    RowBox[{"2", " ", "n", " ", "4", " ", "\[Pi]", " "}]], "*)"}], 
-  "\[IndentingNewLine]", 
+    RowBox[{"2", " ", "n", " ", "4", " ", "\[Pi]", " "}]], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
   RowBox[{"slope", " ", "=", " ", 
    FractionBox[
     SqrtBox["3"], 
@@ -2622,9 +2624,9 @@ Cell[BoxData[{
      RowBox[{"\"\<\!\(\*
 StyleBox[\"n\",
 FontSlant->\"Italic\"]\), Number of Robots\>\"", ",", " ", 
-      "\"\<\!\(\*SuperscriptBox[SubscriptBox[\(\[Sigma]\), \(x\)], \(2\)]\),  \
-  \!\(\*SuperscriptBox[SubscriptBox[\(\[Sigma]\), \(y\)], \(2\)]\)\>\""}], 
-     "}"}]}], ",", "\[IndentingNewLine]", 
+      "\"\<\!\(\*SubsuperscriptBox[\(\[Sigma]\), \(x\), \(2\)]\), \
+\!\(\*SubsuperscriptBox[\(\[Sigma]\), \(y\), \(2\)]\)\>\""}], "}"}]}], ",", 
+   "\[IndentingNewLine]", 
    RowBox[{"AspectRatio", "\[Rule]", ".4"}], ",", "\[IndentingNewLine]", 
    RowBox[{"Epilog", "\[Rule]", 
     RowBox[{"{", "\[IndentingNewLine]", 
@@ -2635,8 +2637,8 @@ FontSlant->\"Italic\"]\), Number of Robots\>\"", ",", " ",
         RowBox[{
          RowBox[{"Style", "[", 
           RowBox[{
-          "\"\<\!\(\*SuperscriptBox[SubscriptBox[\(\[Sigma]\), \(max\)], \
-\(2\)]\)\>\"", ",", 
+          "\"\<\!\(\*SubsuperscriptBox[\(\[Sigma]\), \(max\), \(2\)]\)\>\"", 
+           ",", 
            RowBox[{"FontFamily", "\[Rule]", "\"\<Times\>\""}], ",", 
            RowBox[{"FontSize", "\[Rule]", "FontSz"}]}], "]"}], ",", 
          RowBox[{"{", 
@@ -2648,8 +2650,8 @@ FontSlant->\"Italic\"]\), Number of Robots\>\"", ",", " ",
        RowBox[{
         RowBox[{"Style", "[", 
          RowBox[{
-         "\"\<\!\(\*SuperscriptBox[SubscriptBox[\(\[Sigma]\), \(min\)], \
-\(2\)]\)\>\"", ",", 
+         "\"\<\!\(\*SubsuperscriptBox[\(\[Sigma]\), \(min\), \(2\)]\)\>\"", 
+          ",", 
           RowBox[{"FontFamily", "\[Rule]", "\"\<Times\>\""}], ",", 
           RowBox[{"FontSize", "\[Rule]", "FontSz"}]}], "]"}], ",", 
         RowBox[{"{", 
@@ -2659,9 +2661,9 @@ FontSlant->\"Italic\"]\), Number of Robots\>\"", ",", " ",
       RowBox[{"Text", "[", 
        RowBox[{
         RowBox[{"Style", "[", 
-         RowBox[{
-         "\"\<n \!\(\*SuperscriptBox[\(r\), \(2\)]\) \!\(\*SqrtBox[\(3\)]\)/\
-\[Pi]\>\"", ",", 
+         RowBox[{"\"\<\!\(\*SuperscriptBox[
+StyleBox[\"nr\",
+FontSlant->\"Italic\"], \"2\"]\)\!\(\*SqrtBox[\(3\)]\)/\[Pi]\>\"", ",", 
           RowBox[{"FontFamily", "\[Rule]", "\"\<Times\>\""}], ",", 
           RowBox[{"FontSize", "\[Rule]", "FontSz"}]}], "]"}], ",", 
         RowBox[{"{", 
@@ -2757,7 +2759,9 @@ FontSlant->\"Italic\"]\), Number of Robots\>\"", ",", " ",
    3.634521245176605*^9, 3.6345212960679398`*^9}, {3.634521341607877*^9, 
    3.634521438704685*^9}, {3.634523389422309*^9, 3.634523392654228*^9}, {
    3.647305952738536*^9, 3.6473059647263803`*^9}, {3.647306216440441*^9, 
-   3.647306224055423*^9}, {3.6473062610108433`*^9, 3.64730626738873*^9}}],
+   3.647306224055423*^9}, {3.6473062610108433`*^9, 3.64730626738873*^9}, {
+   3.6793148914342527`*^9, 3.679314893512044*^9}, {3.6793154923162117`*^9, 
+   3.679315543724119*^9}, {3.6793158138378277`*^9, 3.679315863543551*^9}}],
 
 Cell[BoxData["\<\"/Users/ab55/Desktop/git/SwarmControlSandbox/papers/\
 swarmControl/PublishVersion/code\"\>"], "Output",
@@ -2770,7 +2774,8 @@ swarmControl/PublishVersion/code\"\>"], "Output",
    3.634521296947999*^9}, {3.63452134286408*^9, 3.634521439005682*^9}, 
    3.634523396419742*^9, {3.634523556074833*^9, 3.634523567335292*^9}, 
    3.6473060557418747`*^9, 3.647306118287438*^9, 3.64730622512074*^9, 
-   3.647306269134181*^9}],
+   3.647306269134181*^9, 3.67931489845026*^9, 3.679314949862824*^9, 
+   3.67931554575494*^9, {3.679315825159176*^9, 3.6793158639937267`*^9}}],
 
 Cell[BoxData[
  GraphicsBox[{{
@@ -3149,30 +3154,32 @@ tI6lvoLdF9RXIENu2b06mfpKdn9QXwmdFF/ZlWXUV7L7hPpK1C6Tveauob6S
     InsetBox[
      FormBox[
       StyleBox[
-      "\"\\!\\(\\*SuperscriptBox[SubscriptBox[\\(\[Sigma]\\), \\(max\\)], \
-\\(2\\)]\\)\"", FontFamily -> "Times", FontSize -> 16, StripOnInput -> False],
-       TraditionalForm], {95, 1.56}, Automatic, Automatic, {9, 1}], 
+      "\"\\!\\(\\*SubsuperscriptBox[\\(\[Sigma]\\), \\(max\\), \\(2\\)]\\)\"",
+        FontFamily -> "Times", FontSize -> 16, StripOnInput -> False], 
+      TraditionalForm], {95, 1.56}, Automatic, Automatic, {9, 1}], 
     InsetBox[
      FormBox[
       StyleBox[
-      "\"\\!\\(\\*SuperscriptBox[SubscriptBox[\\(\[Sigma]\\), \\(min\\)], \
-\\(2\\)]\\)\"", FontFamily -> "Times", FontSize -> 16, StripOnInput -> False],
-       TraditionalForm], {95, 0.7}, Automatic, Automatic, {9, 1}], 
+      "\"\\!\\(\\*SubsuperscriptBox[\\(\[Sigma]\\), \\(min\\), \\(2\\)]\\)\"",
+        FontFamily -> "Times", FontSize -> 16, StripOnInput -> False], 
+      TraditionalForm], {95, 0.7}, Automatic, Automatic, {9, 1}], 
     InsetBox[
      FormBox[
       StyleBox[
-      "\"n \\!\\(\\*SuperscriptBox[\\(r\\), \\(2\\)]\\) \\!\\(\\*SqrtBox[\\(3\
-\\)]\\)/\[Pi]\"", FontFamily -> "Times", FontSize -> 16, StripOnInput -> 
-       False], TraditionalForm], {170, 0.25}, Automatic, Automatic, {9, 1}]},
+      "\"\\!\\(\\*SuperscriptBox[\\n \
+StyleBox[\\\"nr\\\",\\nFontSlant->\\\"Italic\\\"], \
+\\\"2\\\"]\\)\\!\\(\\*SqrtBox[\\(3\\)]\\)/\[Pi]\"", FontFamily -> "Times", 
+       FontSize -> 16, StripOnInput -> False], TraditionalForm], {170, 0.25}, 
+     Automatic, Automatic, {9, 1}]},
   Frame->{True, True, False, False},
   FrameLabel->{
     FormBox[
     "\"\\!\\(\\*\\nStyleBox[\\\"n\\\",\\nFontSlant->\\\"Italic\\\"]\\), \
 Number of Robots\"", TraditionalForm], 
     FormBox[
-    "\"\\!\\(\\*SuperscriptBox[SubscriptBox[\\(\[Sigma]\\), \\(x\\)], \
-\\(2\\)]\\),    \\!\\(\\*SuperscriptBox[SubscriptBox[\\(\[Sigma]\\), \
-\\(y\\)], \\(2\\)]\\)\"", TraditionalForm]},
+    "\"\\!\\(\\*SubsuperscriptBox[\\(\[Sigma]\\), \\(x\\), \\(2\\)]\\), \
+\\!\\(\\*SubsuperscriptBox[\\(\[Sigma]\\), \\(y\\), \\(2\\)]\\)\"", 
+     TraditionalForm]},
   FrameTicks->{{Automatic, Automatic}, {Automatic, Automatic}},
   GridLinesStyle->Directive[
     GrayLevel[0.5, 0.4]],
@@ -3243,7 +3250,8 @@ Number of Robots\"", TraditionalForm],
    3.634521296947999*^9}, {3.63452134286408*^9, 3.634521439005682*^9}, 
    3.634523396419742*^9, {3.634523556074833*^9, 3.634523567335292*^9}, 
    3.6473060557418747`*^9, 3.647306118287438*^9, 3.64730622512074*^9, 
-   3.6473062692064667`*^9}]
+   3.647306269134181*^9, 3.67931489845026*^9, 3.679314949862824*^9, 
+   3.67931554575494*^9, {3.679315825159176*^9, 3.679315864078435*^9}}]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -4669,27 +4677,27 @@ Cell[110298, 2446, 398, 8, 31, "Output"],
 Cell[110699, 2456, 400, 8, 31, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[111136, 2469, 11714, 290, 929, "Input"],
-Cell[122853, 2761, 791, 11, 50, "Output"],
-Cell[123647, 2774, 26758, 471, 202, "Output"]
+Cell[111136, 2469, 11884, 294, 929, "Input"],
+Cell[123023, 2765, 907, 12, 50, "Output"],
+Cell[123933, 2779, 26892, 474, 236, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[150442, 3250, 210, 5, 50, "Input"],
-Cell[150655, 3257, 76, 1, 31, "Output"]
+Cell[150862, 3258, 210, 5, 50, "Input"],
+Cell[151075, 3265, 76, 1, 31, "Output"]
 }, Open  ]],
-Cell[150746, 3261, 1597, 50, 86, "Input"],
-Cell[152346, 3313, 637, 14, 204, "Text"],
+Cell[151166, 3269, 1597, 50, 86, "Input"],
+Cell[152766, 3321, 637, 14, 204, "Text"],
 Cell[CellGroupData[{
-Cell[153008, 3331, 1108, 34, 140, "Input"],
-Cell[154119, 3367, 15001, 263, 265, "Output"]
-}, Open  ]],
-Cell[CellGroupData[{
-Cell[169157, 3635, 298, 7, 37, "Input"],
-Cell[169458, 3644, 59889, 952, 262, "Output"]
+Cell[153428, 3339, 1108, 34, 140, "Input"],
+Cell[154539, 3375, 15001, 263, 265, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[229384, 4601, 21, 0, 31, "Input"],
-Cell[229408, 4603, 22, 0, 31, "Output"]
+Cell[169577, 3643, 298, 7, 37, "Input"],
+Cell[169878, 3652, 59889, 952, 262, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[229804, 4609, 21, 0, 31, "Input"],
+Cell[229828, 4611, 22, 0, 31, "Output"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]

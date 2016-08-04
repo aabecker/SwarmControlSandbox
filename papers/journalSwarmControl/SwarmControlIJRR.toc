@@ -1,38 +1,36 @@
 \contentsline {section}{\numberline {1}Introduction}{3}{section.1}
 \contentsline {section}{\numberline {2}Related Work}{6}{section.2}
 \contentsline {subsection}{\numberline {2.1}Global control of microrobots}{6}{subsection.2.1}
-\contentsline {subsubsection}{\numberline {2.1.1}Control---global inputs}{6}{subsubsection.2.1.1}
-\contentsline {subsubsection}{\numberline {2.1.2}Sensing---large populations}{7}{subsubsection.2.1.2}
-\contentsline {subsubsection}{\numberline {2.1.3}Computation---calculating the control law}{7}{subsubsection.2.1.3}
-\contentsline {subsection}{\numberline {2.2}Human swarm interaction}{7}{subsection.2.2}
+\contentsline {paragraph}{Control---global inputs:}{6}{section*.4}
+\contentsline {paragraph}{Sensing---large populations:}{6}{section*.5}
+\contentsline {paragraph}{Computation---calculating the control law:}{7}{section*.6}
+\contentsline {subsection}{\numberline {2.2}Human-swarm interaction}{7}{subsection.2.2}
 \contentsline {subsection}{\numberline {2.3}Block pushing and compliant manipulation}{8}{subsection.2.3}
-\contentsline {section}{\numberline {3}Theory}{8}{section.3}
-\contentsline {subsection}{\numberline {3.1}Models}{8}{subsection.3.1}
-\contentsline {subsection}{\numberline {3.2}Independent control with multiple robots is impossible}{9}{subsection.3.2}
-\contentsline {subsection}{\numberline {3.3}Controlling mean position}{10}{subsection.3.3}
-\contentsline {subsection}{\numberline {3.4}Controlling the variance of many robots}{11}{subsection.3.4}
-\contentsline {subsection}{\numberline {3.5}Controlling both mean and variance of many robots}{12}{subsection.3.5}
-\contentsline {section}{\numberline {4}Online experiment}{14}{section.4}
-\contentsline {subsection}{\numberline {4.1}Methods}{14}{subsection.4.1}
-\contentsline {paragraph}{Overview}{14}{section*.2}
-\contentsline {paragraph}{Frontend}{15}{section*.3}
-\contentsline {subsubsection}{\numberline {4.1.1}Human subjects}{15}{subsubsection.4.1.1}
-\contentsline {subsubsection}{\numberline {4.1.2}Instrumentation}{16}{subsubsection.4.1.2}
-\contentsline {subsection}{\numberline {4.2}Web massive results}{16}{subsection.4.2}
-\contentsline {paragraph}{Varying number}{16}{figure.7}
-\contentsline {paragraph}{Varying control}{18}{section*.5}
-\contentsline {paragraph}{Varying visualization}{18}{section*.6}
-\contentsline {subsection}{\numberline {4.3}Varying noise}{19}{subsection.4.3}
-\contentsline {subsection}{\numberline {4.4}Position control}{20}{subsection.4.4}
-\contentsline {section}{\numberline {5}Simulation of control laws}{21}{section.5}
-\contentsline {subsection}{\numberline {5.1}Controlling the mean position}{21}{subsection.5.1}
-\contentsline {subsection}{\numberline {5.2}Controlling the variance}{21}{subsection.5.2}
-\contentsline {subsection}{\numberline {5.3}Hybrid control of mean and variance}{23}{subsection.5.3}
-\contentsline {section}{\numberline {6}Object manipulation results}{23}{section.6}
-\contentsline {subsection}{\numberline {6.1}Human-controlled object manipulation}{24}{subsection.6.1}
-\contentsline {subsection}{\numberline {6.2}Automated object manipulation}{24}{subsection.6.2}
-\contentsline {section}{\numberline {7}Object manipulation with hardware robots}{28}{section.7}
-\contentsline {subsection}{\numberline {7.1}Environmental setup}{28}{subsection.7.1}
-\contentsline {subsection}{\numberline {7.2}Automated object manipulation}{30}{subsection.7.2}
-\contentsline {paragraph}{Heuristics to handle outliers and improve performance}{30}{section*.7}
-\contentsline {paragraph}{Potential fields for swarm management}{30}{section*.8}
+\contentsline {section}{\numberline {3}Online experiment}{8}{section.3}
+\contentsline {subsection}{\numberline {3.1}Methods}{8}{subsection.3.1}
+\contentsline {paragraph}{Frontend}{9}{section*.7}
+\contentsline {subsubsection}{\numberline {3.1.1}Human subjects}{9}{subsubsection.3.1.1}
+\contentsline {subsubsection}{\numberline {3.1.2}Instrumentation}{10}{subsubsection.3.1.2}
+\contentsline {subsection}{\numberline {3.2}Human-swarm interaction results}{10}{subsection.3.2}
+\contentsline {paragraph}{Varying number}{11}{figure.caption.11}
+\contentsline {paragraph}{Varying control}{11}{section*.12}
+\contentsline {paragraph}{Varying visualization}{12}{section*.14}
+\contentsline {paragraph}{Varying noise}{13}{section*.16}
+\contentsline {paragraph}{Position control}{13}{section*.18}
+\contentsline {section}{\numberline {4}Theory}{14}{section.4}
+\contentsline {subsection}{\numberline {4.1}Independent control of many robots is impossible}{15}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Controlling mean position}{16}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Controlling the variance of many robots}{17}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.4}Controlling both mean and variance of many robots}{18}{subsection.4.4}
+\contentsline {section}{\numberline {5}Simulation of control laws}{20}{section.5}
+\contentsline {subsection}{\numberline {5.1}Controlling the mean position}{20}{subsection.5.1}
+\contentsline {subsection}{\numberline {5.2}Controlling the variance}{20}{subsection.5.2}
+\contentsline {subsection}{\numberline {5.3}Hybrid control of mean and variance}{20}{subsection.5.3}
+\contentsline {section}{\numberline {6}Object manipulation results}{22}{section.6}
+\contentsline {subsection}{\numberline {6.1}Human-controlled object manipulation}{22}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}Automated object manipulation (simulation)}{22}{subsection.6.2}
+\contentsline {section}{\numberline {7}Object manipulation with hardware robots}{26}{section.7}
+\contentsline {subsection}{\numberline {7.1}Environmental setup}{26}{subsection.7.1}
+\contentsline {subsection}{\numberline {7.2}Automated object manipulation (hardware experiment)}{27}{subsection.7.2}
+\contentsline {paragraph}{Heuristics to handle outliers and improve performance}{27}{section*.30}
+\contentsline {paragraph}{Potential fields for swarm management}{28}{section*.32}
