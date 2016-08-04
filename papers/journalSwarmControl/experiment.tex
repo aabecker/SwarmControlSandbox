@@ -1,11 +1,11 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Object manipulation results}\label{sec:exp}
+\section{Block-Pushing Results}\label{sec:exp}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-This section analyzes a \emph{object manipulation} task attempted by both our hybrid, hysteresis-based controller and by human users.  
+This section analyzes a \emph{block-pushing} task attempted by both our hybrid, hysteresis-based controller and by human users.  
 
-\subsection{Human-controlled object manipulation}
+\subsection{Human-Controlled Block-Pushing}
 
 
 
@@ -13,7 +13,7 @@ As we saw in previous section, players with just the mean completed the task fas
 %obscuring what the rest of the swarm is doing.   
 
 
-\subsection{Automated object manipulation}
+\subsection{Automated Block-Pushing}
 Fig.~\ref{fig:story} shows snapshots during an execution of this algorithm. To solve this block-pushing task, we discretized the environment. On this discretized grid we used breadth-first search to determine $\mathbf{M}$, the shortest distance from any grid cell to the goal, and generated a gradient map $\nabla \mathbf{M}$ toward the goal as shown in Fig.~\ref{fig:BFSGradient}.  The block's center of mass is at $\mathbf{b}$ and has radius $r_b$. 
 Three constants are needed, where $k_1>k_2>1$ and $1>k_2>0$. All experiments used $[k_1,k_2,k_3] = [2.5,1.5,0.1]$.
 The robots were directed to assemble behind the block at  $\mathbf{b} - k_2 r_b \nabla \mathbf{M}(\mathbf{b})$, then move to  $\mathbf{b} - k_3 r_b \nabla \mathbf{M}(\mathbf{b})$ to push the block toward the goal location. We use the hybrid hysteresis-based controller in Alg.~\ref{alg:MeanVarianceControl}  to track the desired position, while maintaining sufficient robot density to move a block by switching to minimize variance whenever variance exceeds a set limit. The minimize variance control law \eqref{eq:PDcontrolVariance} is slightly modified to choose the nearest corner further from the goal than $\mathbf{b}$ with an obstacle-free straight-line path to $\mathbf{b}$. 
