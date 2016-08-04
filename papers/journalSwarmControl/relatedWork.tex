@@ -10,7 +10,7 @@
 This section describes challenges of global control and reviews highlights of human-swarm interaction, robotic block pushing, and compliant manipulation.
 
 
-\subsection{Global-Control of Microrobots}
+\subsection{Global control of microrobots}
 Small robots have been constructed with physical heterogeneity so that they respond differently to a global, broadcast control signal.  Examples include \emph{scratch-drive microrobots}, actuated and controlled by a DC voltage signal from a substrate \cite{Donald2006,Donald2008};   magnetic structures  with different cross-sections that could be independently steered \cite{Floyd2011,Diller2013};   \emph{MagMite} microrobots with different resonant frequencies and a global magnetic field \cite{Frutiger2008}; and  magnetically controlled nanoscale helical screws constructed to stop movement at different cutoff frequencies of a global magnetic field
 \cite{Tottori2012,Peyer2013}. 
 %In our previous work with robots that can be modeled as nonholonomic unicycles~\cite{Becker2012k}, we showed that an inhomogeneity in turning speed is enough to make even an infinite number of robots controllable with regard to position. 
@@ -90,7 +90,7 @@ In our previous work the controllers required at best a summation over all the r
 These operations become intractable for large populations of robots. By focusing on \emph{human} control of large robot populations, we accentuate computational difficulties because the controllers are implemented by the unaided human operator. % We present an approach that, for many tasks, bypasses these problems due to large populations by allowing the user to command the entire population as a single unit.  For position control we cannot bypass this problem, but we provide an algorithm that scales linearly in the number of robots. 
 
 
- \subsection{Human-Swarm Interaction}
+ \subsection{Human swarm interaction}
 Olson and Wood studied human \emph{fanout}, the number of robots a single human user could control~\cite{Jr2004}.  %Studied as a key aspect of human-robot interaction, 
 They postulated that the optimal number of robots was approximately  the autonomous time  divided by the interaction time required by each robot.  Their sample problem involved a multi-robot search task, where users could assign goals to robots.  Their user interaction studies with simulated planar robots  indicated a \emph{fanout plateau} of about 8 robots, after which there were diminishing returns.   They hypothesize that the location of this plateau is highly dependent on the underlying task, and our work indicated there are some tasks without plateaus. % (Lemmings is an example of this as well, for systems with autonomy
 Their research investigated robots with 3 levels of autonomy.  We use robots without autonomy, corresponding with their first-level robots.
@@ -104,7 +104,7 @@ A number of user studies compare methods for controlling large swarms of simulat
 For instance, the studies \cite{de2012controllability}, \cite{bashyal2008human}, and \cite{kolling2012towards}  were limited to a pool of 18, 5, and 32  participants.
 	Using an online testing environment, we conduct similar studies but with much larger sample sizes.
 
-\subsection{Block-pushing and Compliant Manipulation}
+\subsection{Block pushing and compliant manipulation}
 Unlike \emph{caging} manipulation, where robots form a rigid arrangement around an object~\cite{Sudsang2002,Fink2007}, our swarm of robots is unable to grasp the blocks they push, and so our manipulation strategies are similar to \emph{nonprehensile manipulation} techniques, e.g.~\cite{Lynch1999}, where forces must be applied along the center of mass of the moveable object. A key difference is that our robots are compliant and tend to flow around the object, making this similar to fluidic trapping~\cite{Armani2006,Becker2009}.  
 
 Our $n$-robot system with 2 control inputs and 4$n$ states is inherently under-actuated, and superficially bears resemblance to compliant, under-actuated manipulators~\cite{odhner2014compliant,deimel2014novel}.  Like these manipulators, the swarm conforms to the object to be manipulated.  However our swarm lacks the restoring force provided by flexures in \cite{odhner2014compliant} and the silicone in \cite{deimel2014novel}.  Our swarm tends to disperse itself, so we require  artificial forces, such as the variance control primitives in Section \ref{sec:VarianceControl},
