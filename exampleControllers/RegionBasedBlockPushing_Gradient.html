@@ -490,7 +490,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, ],
+                        runs: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
                         outcomes: []
                     }
                 }
@@ -846,10 +846,10 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                         if (map_MDP[i][j] != -100) {
                             Gradient(i, j);
                             map_MDP[i][j] = gamma * (map_R[i][j] + bestpayoff);
-                            policy_x[i][j] = -bestmove[0];
-                            policy_y[i][j] = -bestmove[1];
+                            gradient_x[i][j] = -bestmove[0];
+                            gradient_y[i][j] = -bestmove[1];
 
-                            policy_angle[i][j] = Math.atan2(policy_y[i][j], policy_x[i][j]) * 180 / Math.PI + 270;
+                            gradient_angle[i][j] = Math.atan2(gradient_y[i][j], gradient_x[i][j]) * 180 / Math.PI + 270;
 
                         }
                     }
@@ -998,8 +998,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                             endArrow: true,
                             arrowRadius: 10,
                             arrowAngle: 30,
-                            x: mapScale * (i + 0.5 + 0.5 * Math.cos((90 + policy_angle[i][j]) * Math.PI / 180.0)), y: mapScale * (j + 0.5 + 0.5 * Math.sin((90 + policy_angle[i][j]) * Math.PI / 180.0)),
-                            a1: policy_angle[i][j], l1: mapScale
+                            x: mapScale * (i + 0.5 + 0.5 * Math.cos((90 + gradient_angle[i][j]) * Math.PI / 180.0)), y: mapScale * (j + 0.5 + 0.5 * Math.sin((90 + gradient_angle[i][j]) * Math.PI / 180.0)),
+                            a1: gradient_angle[i][j], l1: mapScale
                         });
                     }
                 }
@@ -1694,7 +1694,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 }
                 if (!flagVar && !robotVar) {
                     var r = 0.8;
-                    alphaWant = Math.atan2(policy_y[block_x][block_y], policy_x[block_x][block_y]);
+                    alphaWant = Math.atan2(gradient_y[block_x][block_y], gradient_x[block_x][block_y]);
 
                     attPointX = blockCOM_x - r * Math.cos(alphaWant + Math.PI);
                     attPointY = blockCOM_y - r * Math.sin(alphaWant + Math.PI);
@@ -1726,8 +1726,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                             if (COMdist2swarm < 1.5) {
                                 var r = 0.1;
                             } else var r = 0.8;
-                            distX = CGoal * Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
-                            distY = CGoal * Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
+                            distX = CGoal * Math.cos(Math.atan2(blockCOM_y + r * gradient_y[block_x][block_y] - mean_position_y, blockCOM_x + r * gradient_x[block_x][block_y] - mean_position_x));
+                            distY = CGoal * Math.sin(Math.atan2(blockCOM_y + r * gradient_y[block_x][block_y] - mean_position_y, blockCOM_x + r * gradient_x[block_x][block_y] - mean_position_x));
                             max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
                             max_desired_var_y = max_desired_var_x;
                         }
