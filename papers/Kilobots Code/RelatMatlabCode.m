@@ -1,6 +1,6 @@
 clear all
 
-a = arduino('COM5','uno');
+a = arduino('COM4','uno');
 
 RELAY1 = 7;
 RELAY2 = 6;
