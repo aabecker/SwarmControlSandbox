@@ -491,7 +491,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100,100],
+                        runs: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, ],
                         outcomes: []
                     }
                 }
@@ -904,7 +904,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             var brownianImpulse = new b2Vec2(0, 0);
             var mag = 0;
             var ang = 0;
-            var vary = 100; //was 5
+            var vary = 5; //was 5
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
                 if (inputTest.currentRun >= inputTest.test.runs.length) {
@@ -1574,7 +1574,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 prev_mean_position_y = mean_position_y;
                 start_timer = false;
             }
-            if ((elapsedTimeSec - timer) > 10) {
+            if ((elapsedTimeSec - timer) > 5) {
                 var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
                 var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
                 //var mean_difference=Math.sqrt(mean_difference_x^2+mean_difference_y^2);
@@ -1767,7 +1767,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 location.reload(true);
                 state.currentRun++;
                 localStorage.setItem("test", JSON.stringify(state));
-            } else if ((elapsedTimeSec > 1800) && testing) { //runtime error
+            } else if ((elapsedTimeSec > 1000) && testing) { //runtime error
                 var state = JSON.parse(localStorage.getItem("test"));
                 //alert(JSON.stringify(state));
                 state.test.outcomes[state.currentRun] = state.test.runs[state.currentRun] + " run time error";
