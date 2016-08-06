@@ -76,7 +76,6 @@ R(goalX,goalY) = 100; %goal state has big reward
 % DrawPolicy(V_hat,World,false);
 % if pauseOn; pause(); end
 
-figure(f1)
 [V_hat_prob, DX, DY] = MDP_discrete_value_iteration(R,World,true);
 %if pauseOn; pause(); end
 %Gradient = V_hat_prob;
@@ -99,15 +98,17 @@ figure(f1)
         DX = zeros(size(X));
         DY = zeros(size(Y));
         if ~prob
-            subplot(2,2,3)
+            figure(10)
+            %subplot(2,2,3)
         else
-            subplot(2,2,4)
+            figure(10)
+            %subplot(2,2,4)
         end
         hImageV =   imagesc(V_hat);
         axis equal
         axis tight
         set(gca,'Xtick',[], 'Ytick',[])
-        htext = text(25,-1,'Vhat','HorizontalAlignment','center','FontSize',18);
+        %htext = text(25,-1,'Vhat','HorizontalAlignment','center','FontSize',18);
         iteration_limit = 200; %value function needs ~600 iterations to converge, but the policy converges after ~100 iterations
         while ~isequal(V_hat,V_hat_prev) && iteration < iteration_limit 
             V_hat_prev = V_hat;
@@ -124,9 +125,14 @@ figure(f1)
             end
             iteration = iteration+1;
             set(hImageV,'cdata',V_hat);
-            set(htext,'String',['Vhat, iteration ',num2str(iteration)])
+            %set(htext,'String',['Vhat, iteration ',num2str(iteration)])
             drawnow
+            
+            
+            
         end
+        hold on; hq=quiver(X,Y,DY,DX,0.5,'color',[0,0,0]); hold off
+        set(hq,'linewidth',2);
     end
 
     function [bestMove,bestPayoff] = policy_MDP(index,V_hat,prob)

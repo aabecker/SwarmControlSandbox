@@ -94,8 +94,8 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
    end
 hold off
 %% Map Creation
-goalX = 4;
-goalY = 4;
+goalX = 5;
+goalY = 5;
 s = size(rgbIm);
 numberOfSquares=30; %number of squares we want in the x direction
 scale = floor(s(2)/numberOfSquares);
@@ -225,12 +225,13 @@ for j = 2:sizeOfMap(2)-1
         end
     end
 end
-save('ThresholdMaps','transferRegion','mainRegion');
+save('ThresholdMapsMac','transferRegion','mainRegion');
 
 %% Gradient Code
-[probability, movesX, movesY] = MDPgridworldExampleBADWALLS(map,goalX,goalY);
-save('Map4', 'movesX', 'movesY','corners');
+[probability, movesX, movesY] = MDPgridworldExample(map,goalX,goalY);
+%save('MDPShot', 'movesX', 'movesY','corners');
 
+save('MazeMap', 'movesX', 'movesY','corners');
 %% (*turns off the camera*)
 if webcamShot
 clear('cam'); 
