@@ -458,7 +458,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         bodyDef.position.Set(x, y);
 
         var fixDef = new Box2D.Dynamics.b2FixtureDef();
-        fixDef.density = 6.0;
+        fixDef.density = 10.0;
         fixDef.friction = 0.8;
         fixDef.restitution = 0.2;  //bouncing value
         fixDef.isSensor = false;
@@ -746,8 +746,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             bodyDef.position.y = 18.5 - Math.floor(i / rowLength) * 2 * robotrad;
             m_Robot[i] = world.CreateBody(bodyDef);
             m_Robot[i].CreateFixture(fixDef);
-            m_Robot[i].m_angularDamping = 1; //was 1, we used 10 on SwarmControl
-            m_Robot[i].m_linearDamping = 1;
+            m_Robot[i].m_angularDamping = 2; //was 1, we used 10 on SwarmControl
+            m_Robot[i].m_linearDamping = 2;
         }
         window.requestAnimFrame = (function () {
             return window.requestAnimationFrame ||
@@ -1320,7 +1320,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 prev_mean_position_y = mean_position_y;
                 start_timer = false;
             }
-            if ((elapsedTimeSec - timer) > 10) {
+            if ((elapsedTimeSec - timer) > 5) {
                 var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
                 var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
                 //var mean_difference=Math.sqrt(mean_difference_x^2+mean_difference_y^2);
@@ -1397,6 +1397,9 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
             //console.log(block_difference);
             //console.log(flagVar);
+            var CornerValuesX = [1, 19, 19, 1, 1, 100]; //variance corners
+        var CornerValuesY = [19, 19, 7, 13, 1, 100];
+        var CornerValuesD = [51, 41, 30, 24, 17, 100];
             if (!goalRecieved) {
                 if (var_x < min_desired_var_x && var_y < min_desired_var_y) {
                     flagVar = false;
@@ -1405,53 +1408,88 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     flagVar = true;
                 }
                 var IndexConst = null;
-                if (flagVar) {
-                    var CornerValuesX = [1, 19, 19, 1, 1, 100];
-                    var CornerValuesY = [19, 19, 7, 13, 1, 100];
-                    var CornerValuesD = [51, 41, 30, 24, 17, 100];
-                    var dist2corner = new Array(CornerValuesX.length);
-                    var COMdist2corner = new Array(CornerValuesX.length);
-                    var minDistCorner = 10000;
-                    var IndexMinDist = 0;
-                    for (var i = 0 ; i < CornerValuesX.length ; i++) {	//computes distance from all corners to COM  and swarm mean.  Also records closest corner to  mean of swarm
-                        dist2corner[i] = lineDistance(blockCOM_x, blockCOM_y, CornerValuesX[i], CornerValuesY[i]);
-                        COMdist2corner[i] = lineDistance(blockCOM_x, blockCOM_y, CornerValuesX[i], CornerValuesY[i]);
-                        if (minDistCorner > dist2corner[i]) {
-                            minDistCorner = dist2corner[i];
-                            IndexMinDist = i;
+                if (flagVar && !robotVar) {
+                    if (timer_var) {
+                        var dist2corner = new Array(CornerValuesX.length);
+                        var COMdist2corner = new Array(CornerValuesX.length);
+                        var minDistCorner = 10000;
+                        var IndexMinDist = 0;
+                        for (var i = 0 ; i < CornerValuesX.length ; i++) {  //computes distance from all corners to COM  and swarm mean.  Also records closest corner to  mean of swarm
+                             COMdist2corner = lineDistance(blockCOM_x, blockCOM_y, CornerValuesX[i], CornerValuesY[i]);
+                             if (minDistCorner > COMdist2corner) {
+                                 minDistCorner = COMdist2corner;
+                                IndexMinDist = i;
+                            }
+                        }
+                        if (IndexMinDist == 0) {
+                            IndexMinDist = 1;
+                        }
+                        else IndexMinDist = IndexMinDist-1;
+                    }
+                   
+                    if (!timer_var) {
+                        var dist2corner = new Array(CornerValuesX.length);
+                        var COMdist2corner = new Array(CornerValuesX.length);
+                        var minDistCorner = 10000;
+                        var IndexMinDist = 0;
+                        for (var i = 0 ; i < CornerValuesX.length ; i++) {  //computes distance from all corners to COM  and swarm mean.  Also records closest corner to  mean of swarm
+                             COMdist2corner = lineDistance(blockCOM_x, blockCOM_y, CornerValuesX[i], CornerValuesY[i]);
+                             if (minDistCorner > COMdist2corner) {
+                                 minDistCorner = COMdist2corner;
+                                IndexMinDist = i;
+                            }
+                        }
+                        if (IndexMinDist == 0) {
+                            IndexMinDist = 1;
                         }
                     }
-                    var cornerIndex = IndexMinDist;
-                    if (CornerValuesD[IndexMinDist] < map[block_x][block_y] && IndexMinDist > 0) {
-                        //console.log(" Corner " + map[CornerValuesX[IndexMinDist]][CornerValuesY[IndexMinDist] ]  + " block " +  map[block_x][block_y] + " MinIndex" + IndexMinDist );
-                       IndexMinDist = IndexMinDist;
-                    }else if (timer_var) {
-                        IndexMinDist = IndexMinDist-1;
-                    } else IndexMinDist = IndexMinDist;
-                    if (IndexMinDist < 0) { IndexMinDist = 0;}
                     goalX = mean_position_x + Math.cos(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
                     goalY = mean_position_y + Math.sin(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
-                    if (cornerIndex >= 4) {
-                        max_desired_var_x_constant = .8;
-                        min_desired_var_x_constant = .4;
-                        console.log("changed min/max");
-                    }
-                    
+
                 }
-                if (!flagVar) {
-                    var CGoal = 1;
-                    var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-                    if (COMdist2swarm < 1.5) {
-                        var r = 0.1;
-                        goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-                        goalY = blockCOM_y + r * policy_y[block_x][block_y];
-                    } else {
-                        var r = 0.8;
-                        distX = CGoal * Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
-                        distY = CGoal * Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
-                        goalX = mean_position_x + distX;
-                        goalY = mean_position_y + distY;
+                if (!flagVar && !robotVar) {
+                    var r = 0.8;
+                    alphaWant = Math.atan2(policy_y[block_x][block_y], policy_x[block_x][block_y]);
+
+                    attPointX = blockCOM_x - r * Math.cos(alphaWant + Math.PI);
+                    attPointY = blockCOM_y - r * Math.sin(alphaWant + Math.PI);
+                    repPointX = blockCOM_x;
+                    repPointY = blockCOM_y;
+                    if (1000 < day.getTime() - goalStartTime || firstloop) {
+                        rho = lineDistance(mean_position_x, mean_position_y, repPointX, repPointY);
+
+                        inside = inside + 1;
+
+                        theta = Math.atan2(mean_position_y - repPointY, mean_position_x - repPointX);
+                        angdiff = alphaWant - theta;
+                        if (angdiff > Math.PI) { angdiff = angdiff - 2 * Math.PI };
+                        if (angdiff < -Math.PI) { angdiff = angdiff + 2 * Math.PI };
+                        var CGoal = 1;
+
+                        if ((rho < rhoNot && Math.abs(angdiff) > (goalAngle)) && !robotVar) {
+                            FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointX - mean_position_x);//change these lines
+                            FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointY - mean_position_y);
+                            rho = lineDistance(mean_position_x, mean_position_y, attPointX, attPointY);
+                            FattX = zeta * (mean_position_x - attPointX) / rho;//change these lines
+                            FattY = zeta * (mean_position_y - attPointY) / rho;
+                            distX = -CGoal * Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX));
+                            distY = -CGoal * Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX));
+                            max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
+                            max_desired_var_y = max_desired_var_x;
+                        } else if (!robotVar) {
+                            var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+                            if (COMdist2swarm < 1.5) {
+                                var r = 0.1;
+                            } else var r = 0.8;
+                            distX = CGoal * Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
+                            distY = CGoal * Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
+                            max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
+                            max_desired_var_y = max_desired_var_x;
+                        }
+                        goalStartTime = day.getTime();
                     }
+                    goalX = mean_position_x + distX;
+                    goalY = mean_position_y + distY;
                 }
 
                 string = "Time = " + elapsedTimeSec + "s<br>inside # " + inside;
