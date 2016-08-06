@@ -490,7 +490,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+                        runs: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
                         outcomes: []
                     }
                 }
@@ -907,7 +907,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
                 if (inputTest.currentRun >= inputTest.test.runs.length) {
-                    window.close();
+                    window.stop();
                     console.log("window stopped");
                     windowStopped = true;
                 } else {
@@ -1463,6 +1463,11 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             if (regionRobotCount < minRobotCount) {
                 robotVar = true;
             }
+
+            if (robotCornerCount >= (minRobotCount + 10) || timer_var) {
+                robotVar = false;
+            }
+            console.log(robotVar);
             if (robotVar) {
                 ///////////////////////////////go to best corner to recollect when robots<15 in region
                 var mostRobotMainRegion = null;
@@ -1537,9 +1542,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 console.log("corner: " + corner + " " + mostRobotMainRegion + " " + secondMostRobotMainRegion);
             }
 
-            if (robotCornerCount >= minRobotCount||timer_var) {
-                robotVar = false;
-            }
             //for init- prev mean pos, start_timer=false, stop_timer=true; var timer=0;
             //for global var prev_mean pos
             //variance control if the mean stays in the same place
@@ -1554,7 +1556,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 prev_mean_position_y = mean_position_y;
                 start_timer = false;
             }
-            if ((elapsedTimeSec - timer) > 10) {
+            if ((elapsedTimeSec - timer) > 5) {
                 var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
                 var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
                 //var mean_difference=Math.sqrt(mean_difference_x^2+mean_difference_y^2);

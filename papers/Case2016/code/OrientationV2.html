@@ -10,7 +10,7 @@
 <body onload="init();">
     <!--aspect ratio for HD is 16:9 -->
 
-    <canvas id="canvas" width="1120" height="630" style="background-color:#EEEEEE;"></canvas>
+    <canvas id="canvas" width="2240" height="1000" style="background-color:#EEEEEE;"></canvas>
 </body>
 <script type="text/javascript" src="../shared/Box2dWeb-2.1.a.3.min.js"></script> <!-- box2d -->
 <script type="text/javascript" src="../shared/jquery.min.js"></script> <!-- forms & strings, @ https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js -->
@@ -34,8 +34,8 @@
 
     var m_controlState = ROBOT_INPUT.ROBOT_IDLE;
     var mapScale = 30;
-    var canvasWidth = 1120;
-    var canvasHeight = 630;
+    var canvasWidth = 2240;//was 1120
+    var canvasHeight = 1000;
     var blockCOM_x = 0;
     var blockCOM_y = 0;
     var rAngle;
@@ -52,55 +52,48 @@
     var initial = true;
 
     var testing = true; //tests parameters
-    var testRobots = false; //changes number of robots
-    var testNoise = true; //changes brownian noise
+    var testRobots = true; //changes number of robots
+    var testNoise = false; //changes brownian noise
     var testObj = false; //changes obj's angular/linear Const
 
     function init() {
+        var cycleTime = false;
+        var incrementedGoalNum = false;
         var test = localStorage.getItem("test"); //creates object for localStorage
         if (test == null) {
             if (testRobots) {
                 test = {
-                    currentRun: 0,
+                    resultsCount: 0,
+                    goalNumCount: 0,
+                    variableCount: 0,
                     test: {
-                        runs: [20,50,100, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
-                        outcomes: []
+                        variable: [150,150,150,150,150],	//needs variableCount		increments when goalNum>4
+                        goalNum: [], 	//needs goalNumCount 		increments when Time cycle ends
+                        time: [], 		//needs resultsCount		increments with each update
+                        blockAngle: [],	//needs resultsCount		increments with each update
+                        goalAngle: []	//needs resultsCount		increments with each update
                     }
                 }
-            } else if (testNoise) { //changing brownian noise 0,.1,.5,1,5
-                test = {
-                    currentRun: 0,
-                    test: {
-                        runs: [5,50,75, 5, 5, 5, 5, 5, 5, 5, 5, 5, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
-                        outcomes: []
-                    }
-                }
-            } else if (testObj) {
-                test = {
-                    currentRun: 0,
-                    test: {
-                        runs: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                        //runs: [.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5,2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-                        outcomes: []
-                    }
-                }
+                localStorage.setItem("test", JSON.stringify(test));
             }
-            localStorage.setItem("test", JSON.stringify(test));
         }
+        var numrobots = null;
         if (testing) {//getting values to run simulations
             var inputTest = JSON.parse(localStorage.getItem("test"));
-            var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
-            if (testRobots) {
-                var numrobots = value; //getting value for robots
-            } else if (testNoise) {
-                var numrobots = 100; //getting value for robots
-            } else if (testObj) {
-                var numrobots = 100; //getting value for robots
-                objAngularConst = value;
-                objLinearConst = objAngularConst;
+            if (inputTest.variableCount >= inputTest.test.variable.length) {
+                window.stop();
+                windowStopped = true;
+            } else {
+                variableCount = JSON.parse(inputTest.variableCount);
+                var variableValue = JSON.parse(inputTest.test.variable[inputTest.variableCount]);
+                if (testRobots) {
+                    numrobots = variableValue; //getting value for robots
+                } else if (testNoise) {
+                    vary = variableValue; //getting value for brownian noise
+                    numrobots = 100; //getting value for robots
+                }
             }
-        } else
-            var numrobots = 100; //getting value for robots
+        } else {  numrobots = 100; } //getting value for robots
 
         var overall_time = null;
         var cov_desired_negative = -3;
@@ -167,10 +160,10 @@
 
         //Creating the box
         bodyDef.type = b2Body.b2_dynamicBody;
-        fixDef.density = 100.0;
+        fixDef.density = 75.0;
         fixDef.friction = 0.0;
         fixDef.restitution = 0.2;  //bouncing value
-        bodyDef.position.Set(10, 10);
+        bodyDef.position.Set(10, 17);
         bodyDef.userData = 'moveable';
         bodyDef.angle = 0 * Math.PI / 180;
         fixDef.shape = new b2PolygonShape;
@@ -188,13 +181,10 @@
             return ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3;
         }
 
-
         var robotrad = 0.2;
         var rowLength = 12;//Math.floor(5/(2*robotrad));
-
-
         fixDef.density = 1.0;
-        fixDef.friction = 5.0;
+        fixDef.friction = 2.0;
         fixDef.restitution = 0.1;  //bouncing value
         var m_Robot = new Array();
 
@@ -204,17 +194,10 @@
                   );
             bodyDef.userData = 'robot';
 
-            // start the robots in a Gaussian distribution
-            // bodyDef.position.x = 1120/60+10*rnd2();
-            // bodyDef.position.y = 630/60+10*rnd2();
-
             ///  put the robots in a loose rectangle
             bodyDef.position.x = 0 + (i % rowLength) * 2 * robotrad;
             bodyDef.position.y = 7 - Math.floor(i / rowLength) * 2 * robotrad; // for up it was 8. for straight it is 9, for down 10.
 
-            ///  put the robots in a tight rectangle
-            //   bodyDef.position.x = 0.5+(i%rowLength)*2*robotrad;
-            //   bodyDef.position.y = 19.5-Math.floor(i/rowLength)*2*robotrad;
             m_Robot[i] = world.CreateBody(bodyDef);
             m_Robot[i].CreateFixture(fixDef);
             m_Robot[i].m_angularDamping = 1;
@@ -276,26 +259,29 @@
             var brownianImpulse = new b2Vec2(0, 0);
             var mag = 0;
             var ang = 0;
-            var vary = 25; //was 5
+            var vary = 10; //was 5
+            var resultsCount = null;
+            var goalNumCount = null;
+            var variableCount = null;
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
-                if (inputTest.currentRun >= inputTest.test.runs.length) {
-                    window.close();
-                    console.log("window stopped");
+                if (inputTest.variableCount > inputTest.test.variable.length) {
+                    window.stop();
                     windowStopped = true;
                 } else {
-                    var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
+                    resultsCount = JSON.parse(inputTest.resultsCount);
+                    goalNumCount = JSON.parse(inputTest.goalNumCount);
+                    variableCount = JSON.parse(inputTest.variableCount);
+                    var variableValue = JSON.parse(inputTest.test.variable[inputTest.variableCount]);
                     if (testRobots) {
-                        numrobots = value; //getting value for robots
-                        totalRobots = value;
+                        numrobots = variableValue; //getting value for robots
                     } else if (testNoise) {
-                        vary = value; //getting value for brownian noise
+                        vary = variableValue; //getting value for brownian noise
                         numrobots = 100; //getting value for robots
                         totalRobots = 100;
                     }
                 }
             }
-
             for (var i = 0; i < m_Robot.length; i++) {
                 mag = vary * Math.random();
                 ang = 2 * Math.PI * Math.random();
@@ -367,11 +353,12 @@
 
 
             //draw robots and obstacles
+            var objAngle = null;
             for (b = world.GetBodyList() ; b; b = b.GetNext()) {
+                
                 var angleRad = b.GetAngle();
                 var angle = angleRad * (180 / Math.PI);
                 for (f = b.GetFixtureList() ; f; f = f.GetNext()) {
-
                     if (b.GetUserData() == 'robot') {
                         var radius = f.GetShape().GetRadius();
                         var pos = b.GetPosition();
@@ -412,7 +399,6 @@
                                 initial = false;
                             }
                             rAngle = angleRad;
-
                         }
                         $("canvas")
                         .rotateCanvas({
@@ -478,26 +464,45 @@
                         done = true;
                     }
                 }
-
             }
+         
+            if ((elapsedTimeSec % cycleInSec < 0.5) && (!incrementedGoalNum)) {
+                goalNumCount++; //runs through four cycles
+                incrementedGoalNum = true;
+            }
+            else if (elapsedTimeSec % cycleInSec > 5){
+                incrementedGoalNum=false;
+            }
+            if (goalNumCount > 4) {
+                variableCount++;
+                goalNumCount = 0;
+                location.reload(true);
+            } 
             var e = 0.5;
             var angle = rAngle * 180 / Math.PI;
+           // console.log("goalAngle "+goalAngle+ "angle "+angle);
             if (Math.abs(goalAngle - angle) < e) {
                 GoalRecieved = true;
             }
             else {
                 GoalRecieved = false;
             }
-           // if (elapsedTimeSec > 5) { GoalRecieved = true;}
-            if (GoalRecieved && !hasLoggedData && testing) { //stores game time
+
+            var objAngle = rAngle * (180 / Math.PI);
+            objAngle = (objAngle);
+            resultsCount++;
+            if (testing) { //stores results
                 var state = JSON.parse(localStorage.getItem("test"));
-                // alert(JSON.stringify(state));
-                state.test.outcomes[state.currentRun] = elapsedTimeSec;
-                hasLoggedData = true;
-                state.currentRun++;
+                state.resultsCount = resultsCount;
+                state.goalNumCount = goalNumCount;
+                state.variableCount = variableCount;
+                state.test.time[resultsCount] = elapsedTimeSec; //stores time 
+                state.test.blockAngle[resultsCount] = objAngle;
+                state.test.goalAngle[resultsCount] = goalAngle;
                 localStorage.setItem("test", JSON.stringify(state));
+                
             }
-            console.log("goalAngle "+goalAngle);
+            //console.log("objAngle "+objAngle+" goalAngle "+goalAngle);
             if (!GoalRecieved) {
 
                 var Ko = 10;
@@ -518,11 +523,9 @@
                     varCont = false;
                 }
                 if (!varCont) {
-
                     var Ko = 10;
                     var sign = deltaTheta / Math.abs(deltaTheta);
                     if (Ko * Math.abs(deltaTheta) < objectWidth * 2 / 3)
-                        //if(Math.abs(Ko * deltaTheta) < objectWidth*2/3 )
                     {
                         goalX = blockCOM_x + Ko * deltaTheta * Math.sin(rAngle);
                         goalY = blockCOM_y - Ko * deltaTheta * Math.cos(rAngle);
@@ -539,22 +542,22 @@
                     }
                     else {
                         goalX = 0;
-                        goalY = 21;
+                        goalY = 33;
                     }
                 }
             }
             else {
-                if (goalAngle > 0) {
+                if (goalAngle > 0) 
+                {
                     goalX = 2;
                     goalY = 2;
                 }
                 else {
                     goalX = 2;
-                    goalY = 19;
+                    goalY = 33;
                 }
 
             }
-            console.log(elapsedTimeSec + " " + rAngle * 180 / Math.PI + " " + goalAngle);
             impulseV.y = Kgain * (goalY - mean_position_y) + Kderivative * (0 - mean_velocity_y);
             impulseV.x = Kgain * (goalX - mean_position_x) + Kderivative * (0 - mean_velocity_x);
             for (var i = 0; i < m_Robot.length; i++) {
