@@ -272,8 +272,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var mainMaps = new Array();
     var transferMaps = new Array();
     //controls for simulation tests
-    var testing = true; //tests parameters
-    var testRobots = true; //changes number of robots
+    var testing = false; //tests parameters
+    var testRobots = false; //changes number of robots
     var testNoise = false; //changes brownian noise
     var testObj = false; //changes obj's angular/linear Const
 
@@ -435,8 +435,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     ///////////////////////////
     //End Drawing Functions
     ///////////////////////////
-
-
     //vec2: Box2D.Common.Math.b2Vec2,
     //    AABB: Box2D.Collision.b2AABB,
     //bodyDef: Box2D.Dynamics.b2BodyDef,
@@ -490,7 +488,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+                        runs: [20,20,20,20,20,20,20,20,20,20,50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
                         outcomes: []
                     }
                 }
@@ -619,7 +617,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             new b2Vec2(0, 00) //gravity setting to zero removes gravity
             , true //allow sleep
             );
-        var canvas = $('canvas');
+        var canvas = $('#canvas');
         var context = canvas.get(0).getContext('2d');
         var timeStart = null;
         var timeFinish = null;
@@ -662,6 +660,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         bodyDef.position.Set(5, width * 2 / 3 / mapScale + 0.2); //BOTTOM
         world.CreateBody(bodyDef).CreateFixture(fixDef);
 
+        console.log("constants "+objAngularConst + " " + objLinearConst);
         //create an object to move
         if (Hexagon) {
             makeHexagon(world, 7, 15.5);
@@ -899,7 +898,6 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 impulseV.y = m_ControlInputY;
             }
             //apply Brownian noise:
-            
             var brownianImpulse = new b2Vec2(0, 0);
             var mag = 0;
             var ang = 0;
@@ -907,7 +905,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             if (testing) {//getting values to run simulations
                 var inputTest = JSON.parse(localStorage.getItem("test"));
                 if (inputTest.currentRun >= inputTest.test.runs.length) {
-                    window.stop();
+                    window.close();
                     console.log("window stopped");
                     windowStopped = true;
                 } else {
@@ -1073,21 +1071,20 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     radius: radius * mapScale
                 })
                 .restoreCanvas();
-                //make robots green
-               // $("canvas").rotateCanvas( 
-               //{
-               //    x: x * mapScale, y: y * mapScale,
-               //    rotate: angle
-               //})
-               //.drawArc(
-               //{
-               //    strokeStyle: "lightblue",
-               //    strokeWidth: 1,
-               //    fillStyle: "#39FF14",
-               //    x: x * mapScale, y: y * mapScale,
-               //    radius: radius * mapScale*.4
-               //})
-               //.restoreCanvas();
+                $("canvas").rotateCanvas(
+               {
+                   x: x * mapScale, y: y * mapScale,
+                   rotate: angle
+               })
+               .drawArc(
+               {
+                   strokeStyle: "lightblue",
+                   strokeWidth: 1,
+                   fillStyle: "#39FF14",
+                   x: x * mapScale, y: y * mapScale,
+                   radius: radius * mapScale*.4
+               })
+               .restoreCanvas();
             }
 
             //draw robots and obstacles
@@ -1129,20 +1126,20 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                     sides: 6,
                                     rotate: angle || 0
                                 }).restoreCanvas();
-                                //color = '#39FF14';
-                                //$("canvas")
-                                //.rotateCanvas({
-                                //    x: pos.x * mapScale, y: pos.y * mapScale,
-                                //    rotate: angle
-                                //})
-                                //.drawPolygon({
-                                //    fillStyle: color,
-                                //    x: pos.x * mapScale, y: pos.y * mapScale,
-                                //    radius: 1.3 * mapScale,
-                                //    sides: 6,
-                                //    rotate: angle || 0
-                                //})
-                                //        .restoreCanvas();
+                                color = '#39FF14';
+                                $("canvas")
+                                .rotateCanvas({
+                                    x: pos.x * mapScale, y: pos.y * mapScale,
+                                    rotate: angle
+                                })
+                                .drawPolygon({
+                                    fillStyle: color,
+                                    x: pos.x * mapScale, y: pos.y * mapScale,
+                                    radius: 1.3 * mapScale,
+                                    sides: 6,
+                                    rotate: angle || 0
+                                })
+                                        .restoreCanvas();
                             }
                             else if (Square) {
                                 $("canvas")
@@ -1279,6 +1276,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             if (overall_time == null) // set the start time
             {
                 overall_time = day.getTime();
+                goalStartTime = day.getTime();
             }
             var elapsedTimeSec = (day.getTime() - overall_time) / 1000;
 
@@ -1458,16 +1456,10 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     mostRobotRegion = adj2;
                 }
             }
-            minRobotCount = totalRobots / 2;
-           
+            minRobotCount=totalRobots/2;
             if (regionRobotCount < minRobotCount) {
                 robotVar = true;
             }
-
-            if (robotCornerCount >= (minRobotCount + 10) || timer_var) {
-                robotVar = false;
-            }
-            console.log(robotVar);
             if (robotVar) {
                 ///////////////////////////////go to best corner to recollect when robots<15 in region
                 var mostRobotMainRegion = null;
@@ -1489,22 +1481,21 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                         countMain2++;
                     }
                 }
-                console.log(countMain0 + " " + countMain1 + " " + countMain2);
-                if ((countMain0 >= countMain1)&&(countMain0 >= countMain2)) { //count0 is the biggest
+                if ((countMain0 >= countMain1)&&(countMain0 >= countMain2)) {
                     mostRobotMainRegion = 0;
-                    if (countMain1 > (countMain2+2)) {
+                    if (countMain1 >= countMain2) {
                         secondMostRobotMainRegion = 1;
                     } else secondMostRobotMainRegion = 2;
                 }
-                else if ((countMain1 >= countMain0 )&&(countMain1>= countMain2)) { //count1 is the biggest
+                else if ((countMain1 >= countMain0 )&&(countMain1>= countMain2)) {
                     mostRobotMainRegion = 1;
-                    if (countMain0 > (countMain2+2)) {
+                    if (countMain0 > countMain2) {
                         secondMostRobotMainRegion = 0;
                     } else secondMostRobotMainRegion = 2;
                 }
-                else if( (countMain2 > countMain0 )&&(countMain2> countMain1)) {
+                else if( (countMain2 >= countMain0 )&&(countMain2> countMain1)) {
                     mostRobotMainRegion = 2;
-                    if (countMain0 > (countMain1+2)) {
+                    if (countMain0 > countMain1) {
                         secondMostRobotMainRegion = 0;
                     } else secondMostRobotMainRegion = 1;
                 }
@@ -1542,6 +1533,9 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 console.log("corner: " + corner + " " + mostRobotMainRegion + " " + secondMostRobotMainRegion);
             }
 
+            if (robotCornerCount >= minRobotCount||timer_var) {
+                robotVar = false;
+            }
             //for init- prev mean pos, start_timer=false, stop_timer=true; var timer=0;
             //for global var prev_mean pos
             //variance control if the mean stays in the same place
@@ -1556,14 +1550,13 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 prev_mean_position_y = mean_position_y;
                 start_timer = false;
             }
-            if ((elapsedTimeSec - timer) > 5) {
+            if ((elapsedTimeSec - timer) > 10) {
                 var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
                 var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
                 //var mean_difference=Math.sqrt(mean_difference_x^2+mean_difference_y^2);
                 var mean_difference = lineDistance(mean_difference_x, mean_difference_y, 0, 0);
                 if (mean_difference < .1) {
                     flagVar = true;
-
                     timer_var = true;
                     stop_timer = true;
                 } else {
@@ -1659,19 +1652,48 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
 
                 }
                 if (!flagVar && !robotVar) {
+                    var r = 0.8;
+                    alphaWant = Math.atan2(policy_y[block_x][block_y], policy_x[block_x][block_y]);
+
+                    attPointX = blockCOM_x - r * Math.cos(alphaWant + Math.PI);
+                    attPointY = blockCOM_y - r * Math.sin(alphaWant + Math.PI);
+                    repPointX = blockCOM_x;
+                    repPointY = blockCOM_y;
+                    if (1000 < day.getTime() - goalStartTime || firstloop) {
+                        rho = lineDistance(mean_position_x, mean_position_y, repPointX, repPointY);
+
+                        inside = inside + 1;
+
+                        theta = Math.atan2(mean_position_y - repPointY, mean_position_x - repPointX);
+                        angdiff = alphaWant - theta;
+                        if (angdiff > Math.PI) { angdiff = angdiff - 2 * Math.PI };
+                        if (angdiff < -Math.PI) { angdiff = angdiff + 2 * Math.PI };
                         var CGoal = 1;
-                        var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-                        if (COMdist2swarm < 1.5) {
-                            var r = 0.1;
-                            goalX = blockCOM_x + r * policy_x[block_x][block_y];//change these lines
-                            goalY = blockCOM_y + r * policy_y[block_x][block_y];
-                        } else {
-                            var r = 0.8;
+
+                        if ((rho < rhoNot && Math.abs(angdiff) > (goalAngle)) && !robotVar) {
+                            FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointX - mean_position_x);//change these lines
+                            FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointY - mean_position_y);
+                            rho = lineDistance(mean_position_x, mean_position_y, attPointX, attPointY);
+                            FattX = zeta * (mean_position_x - attPointX) / rho;//change these lines
+                            FattY = zeta * (mean_position_y - attPointY) / rho;
+                            distX = -CGoal * Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX));
+                            distY = -CGoal * Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX));
+                            max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
+                            max_desired_var_y = max_desired_var_x;
+                        } else if (!robotVar) {
+                            var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+                            if (COMdist2swarm < 1.5) {
+                                var r = 0.1;
+                            } else var r = 0.8;
                             distX = CGoal * Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
                             distY = CGoal * Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
-                            goalX = mean_position_x + distX;
-                            goalY = mean_position_y + distY;
+                            max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
+                            max_desired_var_y = max_desired_var_x;
                         }
+                        goalStartTime = day.getTime();
+                    }
+                    goalX = mean_position_x + distX;
+                    goalY = mean_position_y + distY;
                 }
 
                 string = "Time = " + elapsedTimeSec + "s<br>inside # " + inside;
@@ -1721,7 +1743,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 location.reload(true);
                 state.currentRun++;
                 localStorage.setItem("test", JSON.stringify(state));
-            } else if ((elapsedTimeSec > 1000) && testing) { //runtime error
+            } else if ((elapsedTimeSec > 1800) && testing) { //runtime error
                 var state = JSON.parse(localStorage.getItem("test"));
                 //alert(JSON.stringify(state));
                 state.test.outcomes[state.currentRun] = state.test.runs[state.currentRun] + " run time error";
@@ -1730,7 +1752,41 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 state.currentRun++;
                 localStorage.setItem("test", JSON.stringify(state));
             }
-           if (firstloop) { firstloop = false; }
+            if (false&&DrawForce_DebugMode) {
+                for (var i = 0 ; i < mapXSize; i++) {
+                    for (var j = 0 ; j < mapYSize; j++) {
+                        rho = lineDistance((i + 0.5), (j + 0.5), attPointX, attPointY);
+                        FattX = zeta * ((i + 0.5) - attPointX) / rho;//change these lines
+                        FattY = zeta * ((j + 0.5) - attPointY) / rho;
+
+                        rho = lineDistance((i + 0.5), (j + 0.5), repPointX, repPointY)
+                        theta = Math.atan2((j + 0.5) - repPointY, (i + 0.5) - repPointX);
+                        angdiff = alphaWant - theta;
+                        if (angdiff > Math.PI) { angdiff = angdiff - 2 * Math.PI };
+                        if (angdiff < -Math.PI) { angdiff = angdiff + 2 * Math.PI };
+
+                        if (rho < rhoNot && Math.abs(angdiff) > (goalAngle)) {
+                            FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointX - (i + 0.5));//change these lines
+                            FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointY - (j + 0.5));
+                            $('canvas').drawVector({
+                                strokeStyle: '#00FFFF',
+                                strokeWidth: 2,
+                                rounded: true,
+                                endArrow: true,
+                                arrowRadius: 10,
+                                arrowAngle: 30,
+                                x: mapScale * (i + 0.5 + 0.5 * Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX))), y: mapScale * (j + 0.5 + 0.5 * Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX))),
+                                a1: (Math.atan2(FattY + FrepY, FattX + FrepX) * 180 / Math.PI) + 270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
+                            });
+                        }
+                        else {
+                            FrepX = 0;
+                            FrepY = 0;
+                        }
+                    }
+                }
+            }
+            if (firstloop) { firstloop = false; }
         }; //end update
     };
 </script>
