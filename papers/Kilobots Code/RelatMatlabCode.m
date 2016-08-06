@@ -1,6 +1,6 @@
 clear all
 
-a = arduino('COM5','uno');
+a = arduino('/dev/tty.usbmodem1421','uno');
 
 RELAY1 = 7;
 RELAY2 = 6;

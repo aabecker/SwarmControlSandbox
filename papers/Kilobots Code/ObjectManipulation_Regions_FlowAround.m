@@ -8,15 +8,15 @@ close all
 clear all
 
 %% Load maps from RegionCode.m and GridView
-load('MapDebug', 'movesX', 'movesY','corners');
-load('ThresholdMaps','transferRegion','mainRegion'); 
+load('MDPShot', 'movesX', 'movesY','corners');
+load('ThresholdMapsMac','transferRegion','mainRegion'); 
 
 
 %% Define webcam
-webcamShot = false;
+webcamShot = true;
 
 if webcamShot
-    cam = webcam(2);
+    cam = webcam(1);
     %% Using Arduino for our lamps, this is how we define arduino in Matlab:
     if (ispc==1)  
         a = arduino('Com5','uno');

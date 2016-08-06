@@ -6,10 +6,10 @@
 function MeanControlXY()
 
 % Using Arduino for our lamps, this is how we define arduino in Matlab:
-a = arduino('/dev/tty.usbmodem1411','uno');
+a = arduino('/dev/tty.usbmodem1421','uno');
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(2);
+cam = webcam(1);
 global q goalX goalY
 
 % We have 8 Relays.
@@ -121,8 +121,7 @@ BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
     
     if isnan(M)== false 
         if s < 95
-            filename = strcat('FailImage',s);
-            imwrite(orig,strcat(filename,'.png'));
+
         end
         
     if s > 5 
