@@ -53,7 +53,6 @@ currentRegionMap=mainRegion(:,:,regionNum); %init map
 
 while success == false  
     %% Read in a webcam snapshot.
-    success = true;
     if webcamShot
         if (again == true)
             relayOn(a,0);

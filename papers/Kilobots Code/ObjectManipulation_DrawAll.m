@@ -313,7 +313,7 @@ while success == false
                          
                     end
                 end
-                hq=quiver(X*scale,Y*scale,DX,DY,'color',[0 0.8 1]);%[0,0,0.5]); 
+                hq=quiver(X*scale,Y*scale,DX,DY,'color',[0.3 0.3 0.3]);%[0,0,0.5]); 
             end
         end
 
