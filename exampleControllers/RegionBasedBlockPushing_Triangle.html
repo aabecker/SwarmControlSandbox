@@ -463,7 +463,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         fixDef.restitution = 0.2;  //bouncing value
 
         fixDef.isSensor = false;
-        scale = 0.9;
+        scale = 1.1;
         var Mpoints = [
                             { x: 1 / 2 * scale, y: Math.sqrt(3) / 2 * scale },
                             { x: -1 * scale, y: 0 },
@@ -1125,7 +1125,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                 .drawPolygon({
                                     fillStyle: color,
                                     x: pos.x * mapScale, y: pos.y * mapScale,
-                                    radius: 1.6 * mapScale,
+                                    radius: 2.3 * mapScale,
                                     sides: 3,
                                     rotate: angle  || 0
                                 }).restoreCanvas();
