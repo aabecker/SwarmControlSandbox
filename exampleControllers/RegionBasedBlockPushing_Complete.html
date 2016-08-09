@@ -279,8 +279,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
 
     var TestShapes = false; //tests shapes
     var Circle = false;
-    var Square = false;
-    var Hexagon = true;
+    var Square = true;
+    var Hexagon = false;
     var shortRect = false;
     var longRect = false;
     var Triangle = false;
@@ -296,8 +296,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var min_desired_var_x = null; //was .663
     var max_desired_var_y = max_desired_var_x;
     var min_desired_var_y = min_desired_var_x;
-    var max_desired_var_x_constant = .9;
-    var min_desired_var_x_constant = .5;
+    var max_desired_var_x_constant = .6;
+    var min_desired_var_x_constant = .3;
     var objAngularConst = 1;
     var objLinearConst = 1;
     //determines variance corner based on regions
@@ -491,7 +491,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, ],
+                        runs: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 ],
                         outcomes: []
                     }
                 }
@@ -676,7 +676,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             bodyDef.position.Set(7, 15.5);
             bodyDef.userData = 'moveable';
             fixDef.shape = new b2PolygonShape;
-            fixDef.shape.SetAsBox(1.3, 1.3);
+            fixDef.shape.SetAsBox(1.2, 1.2);
             var obst = world.CreateBody(bodyDef);
             obst.CreateFixture(fixDef);
             obst.m_angularDamping = objAngularConst;
@@ -715,7 +715,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
             bodyDef.userData = 'moveable';
             bodyDef.position.x = 7;
             bodyDef.position.y = 15.5;
-            objectRad = 1.5;
+            objectRad = 1.36;
             fixDef.shape = new b2CircleShape(objectRad);
             var obst = world.CreateBody(bodyDef);
             obst.CreateFixture(fixDef);
@@ -1153,8 +1153,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                              .drawRect({
                                  fillStyle: color,
                                  x: pos.x * mapScale, y: pos.y * mapScale,
-                                 width: X * mapScale,
-                                 height: Y * mapScale,
+                                 width: 2.4 * mapScale,
+                                 height: 2.4 * mapScale,
                                  cornerRadius: 0
                              }).restoreCanvas();
                             }
@@ -1198,7 +1198,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                 strokeWidth: 1,
                                 fillStyle: color,
                                 x: pos.x * mapScale, y: pos.y * mapScale,
-                                radius: objRad * mapScale
+                                radius: 1.36 * mapScale
                               }).restoreCanvas();
                             }
                             continue;
