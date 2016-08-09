@@ -52,8 +52,8 @@
     var initial = true;
 
     var testing = true; //tests parameters
-    var testRobots = true; //changes number of robots
-    var testNoise = false; //changes brownian noise
+    var testRobots = false; //changes number of robots
+    var testNoise = true; //changes brownian noise
     var testObj = false; //changes obj's angular/linear Const
 
     function init() {
@@ -76,6 +76,22 @@
                 }
                 localStorage.setItem("test", JSON.stringify(test));
             }
+            if (testNoise) {
+                test = {
+                    resultsCount: 0,
+                    goalNumCount: 0,
+                    variableCount: 0,
+                    test: {
+                        variable: [10,10,10,10,10],    //needs variableCount       increments when goalNum>4
+                        goalNum: [],    //needs goalNumCount        increments when Time cycle ends
+                        time: [],       //needs resultsCount        increments with each update
+                        blockAngle: [], //needs resultsCount        increments with each update
+                        goalAngle: []   //needs resultsCount        increments with each update
+                    }
+                }
+                localStorage.setItem("test", JSON.stringify(test));
+            }
+
         }
         var numrobots = null;
         if (testing) {//getting values to run simulations
@@ -105,7 +121,7 @@
         var lessVariance = true;
         var GoalRecieved = false;
         var goButtom = false;
-        var maxVar = 3.5;
+        var maxVar = 3.5;//was3.5
         var minVar = 2.5;
 
         var b2Vec2 = Box2D.Common.Math.b2Vec2
@@ -417,7 +433,7 @@
 
                 }
             }
-            var cycleInSec = 70;
+            var cycleInSec = 100;
             var day = new Date();
 
 
@@ -469,6 +485,7 @@
             if ((elapsedTimeSec % cycleInSec < 0.5) && (!incrementedGoalNum)) {
                 goalNumCount++; //runs through four cycles
                 incrementedGoalNum = true;
+                console.log("goalNum "+goalNumCount+" time "+elapsedTimeSec);
             }
             else if (elapsedTimeSec % cycleInSec > 5){
                 incrementedGoalNum=false;
@@ -496,7 +513,7 @@
                 state.resultsCount = resultsCount;
                 state.goalNumCount = goalNumCount;
                 state.variableCount = variableCount;
-                state.test.time[resultsCount] = elapsedTimeSec; //stores time 
+                state.test.time[resultsCount] = Math.round(elapsedTimeSec*100000)/100000; //stores time 
                 state.test.blockAngle[resultsCount] = objAngle;
                 state.test.goalAngle[resultsCount] = goalAngle;
                 localStorage.setItem("test", JSON.stringify(state));
