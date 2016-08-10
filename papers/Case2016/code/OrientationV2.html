@@ -399,7 +399,7 @@
                         var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
                         var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
                         
-                        //console.log(X);
+                        console.log(X);
                         var pos = b.GetPosition();
                         var color = 'orange';
                         if (b.GetUserData() == 'obstacle')
@@ -433,6 +433,7 @@
 
                 }
             }
+       
             var cycleInSec = 100;
             var day = new Date();
 
@@ -520,10 +521,11 @@
                 
             }
             //console.log("objAngle "+objAngle+" goalAngle "+goalAngle);
+            rGoalAngle = goalAngle * Math.PI / 180;
             if (!GoalRecieved) {
 
                 var Ko = 10;
-                rGoalAngle = goalAngle * Math.PI / 180;
+                
                 // if (rGoalAngle<0)
 
                 deltaTheta = rGoalAngle - rAngle;
@@ -546,12 +548,15 @@
                     {
                         goalX = blockCOM_x + Ko * deltaTheta * Math.sin(rAngle);
                         goalY = blockCOM_y - Ko * deltaTheta * Math.cos(rAngle);
+                       
                     }
                     else {
                         goalX = blockCOM_x + sign * objectWidth * 2 / 3 * Math.sin(rAngle);
                         goalY = blockCOM_y - sign * objectWidth * 2 / 3 * Math.cos(rAngle);
                     }
+                    
                 }
+
                 else {
                     if (goalAngle > 0) {
                         goalX = 0;
@@ -575,6 +580,27 @@
                 }
 
             }
+            var repX = blockCOM_x + 8 * Math.sin(rAngle);
+            var repY = blockCOM_y - 8 * Math.cos(rAngle);
+            $("canvas").drawEllipse({
+                strokeStyle: "green",
+                strokeWidth: 5,
+                x: repX * mapScale, y: repY * mapScale,
+                width: 4, height: 4,
+                rotate: 0
+            })
+            .restoreCanvas();
+            var attX = -2 * (blockCOM_x + 8 * Math.sin(rAngle));
+            var attY = -2 * (blockCOM_y - 8 * Math.cos(rAngle));
+            $("canvas").drawEllipse({
+                strokeStyle: "green",
+                strokeWidth: 5,
+                x: attX * mapScale, y: attY * mapScale,
+                width: 4, height: 4,
+                rotate: 0
+            })
+            .restoreCanvas();
+
             impulseV.y = Kgain * (goalY - mean_position_y) + Kderivative * (0 - mean_velocity_y);
             impulseV.x = Kgain * (goalX - mean_position_x) + Kderivative * (0 - mean_velocity_x);
             for (var i = 0; i < m_Robot.length; i++) {
