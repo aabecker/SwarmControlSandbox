@@ -334,13 +334,13 @@ while success == false
         counter = counter+1;
 
         %% Title the Relay number lit up
-        switch Relay
-            case 0
-                title('All Relays on')
-            otherwise
-                str=sprintf('relay %d',Relay);
-                title(str)
-        end
+%         switch Relay
+%             case 0
+%                 %title('All Relays on')
+%             otherwise
+%                 str=sprintf('relay %d',Relay);
+%                 title(str)
+%         end
 
         hold off
         

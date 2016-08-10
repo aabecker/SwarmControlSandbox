@@ -233,7 +233,7 @@ while success == false
 
             indOX = floor(ObjectCentroidX/scale);
             indOY = floor(ObjectCentroidY/scale);
-            if indOY ==1
+            if indOY ==1 || indOY == 0
                 indOY = 2;
             end
 
