@@ -51,7 +51,14 @@
     var StartingBlockCOMY;
     var initial = true;
 
-    var testing = true; //tests parameters
+	var DrawForce_DebugMode = false;
+	var zeta = 2;//attractive
+    var eta = 75;//repulsive
+    var rhoNot = 6; //radius for flow around was 3
+    var rho = 0;
+    var flowAngle = Math.PI/2;
+
+    var testing = false; //tests parameters
     var testRobots = false; //changes number of robots
     var testNoise = true; //changes brownian noise
     var testObj = false; //changes obj's angular/linear Const
@@ -246,6 +253,15 @@
         })();
 
         // AREA QUERY
+		function lineDistance(x1, y1, x2, y2) {
+            var xs = 0;
+            var ys = 0;
+            xs = x1 - x2;
+            xs = xs * xs;
+            ys = y1 - y2;
+            ys = ys * ys;
+            return Math.sqrt(xs + ys);
+        }
 
         var udata = new Array(); //ARRAY TO STORE USERDATA
         function worldquery() {
@@ -522,6 +538,13 @@
             }
             //console.log("objAngle "+objAngle+" goalAngle "+goalAngle);
             rGoalAngle = goalAngle * Math.PI / 180;
+
+			attPointX=blockCOM_x;
+			attPointY=blockCOM_y;
+			repPoint1X=blockCOM_x + 8 * Math.sin(rAngle);
+			repPoint1Y=blockCOM_y - 8 * Math.cos(rAngle);
+			repPoint2X=blockCOM_x - 8 * Math.sin(rAngle);
+			repPoint2Y=blockCOM_y + 8 * Math.cos(rAngle);
             if (!GoalRecieved) {
 
                 var Ko = 10;
@@ -544,11 +567,45 @@
                 if (!varCont) {
                     var Ko = 10;
                     var sign = deltaTheta / Math.abs(deltaTheta);
-                    if (Ko * Math.abs(deltaTheta) < objectWidth * 2 / 3)
+                  
+                    rho1 = lineDistance((i + 0.5), (j + 0.5), repPoint1X, repPoint1Y)
+                    theta1 = Math.atan2((j + 0.5) - repPoint1Y, (i + 0.5) - repPoint1X);
+                    angdiff1 = (rAngle+Math.PI/2) - theta1;
+                    if (angdiff1 > Math.PI) { angdiff1 = angdiff1 - 2 * Math.PI };
+                    if (angdiff1 < -Math.PI) { angdiff1 = angdiff1 + 2 * Math.PI }; 
+
+                    rho2 = lineDistance((i + 0.5), (j + 0.5), repPoint2X, repPoint2Y)
+                    theta2 = Math.atan2((j + 0.5) - repPoint2Y, (i + 0.5) - repPoint2X);
+                    angdiff2 = (rAngle-Math.PI/2) - theta2;
+                    if (angdiff2 > Math.PI) { angdiff2 = angdiff2 - 2 * Math.PI };
+                    if (angdiff2 < -Math.PI) { angdiff2 = angdiff2 + 2 * Math.PI };
+
+                    
+                    if (rho1 < rhoNot && Math.abs(angdiff1) > (flowAngle)) 
+                    {
+                        FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho1) * (1 / rho1) * (repPoint1X - (i + 0.5));//change these lines
+                        FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho1) * (1 / rho1) * (repPoint1Y - (j + 0.5));  
+                    	rho = lineDistance((i + 0.5), (j + 0.5), attPointX, attPointY);
+	                    FattX = zeta * ((i + 0.5) - attPointX) / rho;//change these lines
+	                    FattY = zeta * ((j + 0.5) - attPointY) / rho;
+	                    goalX = mean_position_x + Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX));
+	                    goalY = mean_position_x + Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX));
+                    }
+
+                    else if (rho2 < rhoNot && Math.abs(angdiff2) > (flowAngle))
+                    {
+                        FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho2) * (1 / rho2) * (repPoint2X - (i + 0.5));//change these lines
+                        FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho2) * (1 / rho2) * (repPoint2Y - (j + 0.5));     
+                    	rho = lineDistance((i + 0.5), (j + 0.5), attPointX, attPointY);
+	                    FattX = zeta * ((i + 0.5) - attPointX) / rho;//change these lines
+	                    FattY = zeta * ((j + 0.5) - attPointY) / rho;
+	                    goalX = mean_position_x + Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX));
+	                    goalY = mean_position_x + Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX));
+                    }
+                    else if (Ko * Math.abs(deltaTheta) < objectWidth * 2 / 3)
                     {
                         goalX = blockCOM_x + Ko * deltaTheta * Math.sin(rAngle);
                         goalY = blockCOM_y - Ko * deltaTheta * Math.cos(rAngle);
-                       
                     }
                     else {
                         goalX = blockCOM_x + sign * objectWidth * 2 / 3 * Math.sin(rAngle);
@@ -580,26 +637,6 @@
                 }
 
             }
-            var repX = blockCOM_x + 8 * Math.sin(rAngle);
-            var repY = blockCOM_y - 8 * Math.cos(rAngle);
-            $("canvas").drawEllipse({
-                strokeStyle: "green",
-                strokeWidth: 5,
-                x: repX * mapScale, y: repY * mapScale,
-                width: 4, height: 4,
-                rotate: 0
-            })
-            .restoreCanvas();
-            var attX = -2 * (blockCOM_x + 8 * Math.sin(rAngle));
-            var attY = -2 * (blockCOM_y - 8 * Math.cos(rAngle));
-            $("canvas").drawEllipse({
-                strokeStyle: "green",
-                strokeWidth: 5,
-                x: attX * mapScale, y: attY * mapScale,
-                width: 4, height: 4,
-                rotate: 0
-            })
-            .restoreCanvas();
 
             impulseV.y = Kgain * (goalY - mean_position_y) + Kderivative * (0 - mean_velocity_y);
             impulseV.x = Kgain * (goalX - mean_position_x) + Kderivative * (0 - mean_velocity_x);
@@ -619,38 +656,108 @@
                 width: goalW * mapScale,
                 height: goalH * mapScale,
                 rotate: -(90 - goalAngle)
-            }).restoreCanvas();
-
-            $("canvas").drawEllipse({
+            }).drawEllipse({
                 strokeStyle: "red",
                 strokeWidth: 5,
                 x: mean_position_x * mapScale, y: mean_position_y * mapScale,
                 width: 3 * mapScale * Math.sqrt(var_xp), height: 3 * mapScale * Math.sqrt(var_yp),
                 rotate: angle2
-            })
-			.restoreCanvas();
-            $("canvas").drawArc({ //draw the average position
+            }).drawArc({ //draw the average position
                 strokeStyle: "red",
                 strokeWidth: 5,
                 x: mean_position_x * mapScale, y: mean_position_y * mapScale,
                 radius: radius * mapScale
-            }).restoreCanvas();
-            $("canvas").drawArc({
+            }).drawArc({
                 strokeStyle: "cyan",
                 strokeWidth: 5,
                 x: goalX * mapScale, y: goalY * mapScale,
                 radius: radius * mapScale
-            }).restoreCanvas();
-            $("canvas").drawArc({
+            }).drawArc({
                 strokeStyle: "orange",
                 strokeWidth: 5,
                 x: blockCOM_x * mapScale, y: blockCOM_y * mapScale,
                 radius: radius * mapScale
             }).restoreCanvas();
 
+			if (DrawForce_DebugMode) {
+
+				$("canvas").drawArc({
+	                strokeStyle: "RebeccaPurple",
+	                strokeWidth: 5,
+	                x: repPoint1X* mapScale, y: repPoint1Y* mapScale,
+	                radius: radius * mapScale
+	            }).restoreCanvas();
+
+	            $("canvas").drawArc({
+	                strokeStyle: "RebeccaPurple",
+	                strokeWidth: 5,
+	                x: repPoint2X* mapScale, y: repPoint2Y* mapScale,
+	                radius: radius * mapScale
+	            }).restoreCanvas();
+
+                for (var i = 0 ; i < canvasWidth/mapScale; i++) {
+                    for (var j = 0 ; j < canvasHeight/mapScale; j++) {                	
+                        rho = lineDistance((i + 0.5), (j + 0.5), attPointX, attPointY);
+                        FattX = zeta * ((i + 0.5) - attPointX) / rho;//change these lines
+                        FattY = zeta * ((j + 0.5) - attPointY) / rho;
+
+                        rho = lineDistance((i + 0.5), (j + 0.5), repPoint1X, repPoint1Y)
+                        theta = Math.atan2((j + 0.5) - repPoint1Y, (i + 0.5) - repPoint1X);
+                        angdiff = (rAngle+Math.PI/2) - theta;
+                        if (angdiff > Math.PI) { angdiff = angdiff - 2 * Math.PI };
+                        if (angdiff < -Math.PI) { angdiff = angdiff + 2 * Math.PI };
+
+                        if (rho < rhoNot && Math.abs(angdiff) > (flowAngle)) {
+                            FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPoint1X - (i + 0.5));//change these lines
+                            FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPoint1Y - (j + 0.5));     
+
+                            $('canvas').drawVector({
+	                            strokeStyle: '#222222',
+	                            strokeWidth: 2,
+	                            rounded: true,
+	                            endArrow: true,
+	                            arrowRadius: 10,
+	                            arrowAngle: 30,
+	                            x: mapScale * (i + 0.5 + 0.5 * Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX))), y: mapScale * (j + 0.5 + 0.5 * Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX))),
+	                            a1: (Math.atan2(FattY + FrepY, FattX + FrepX) * 180 / Math.PI) + 270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
+	                        });
+                        }
+                        else {
+                            FrepX = 0;
+                            FrepY = 0;
+                        }
+
+                        rho = lineDistance((i + 0.5), (j + 0.5), repPoint2X, repPoint2Y)
+                        theta = Math.atan2((j + 0.5) - repPoint2Y, (i + 0.5) - repPoint2X);
+                        angdiff = (rAngle-Math.PI/2) - theta;
+                        if (angdiff > Math.PI) { angdiff = angdiff - 2 * Math.PI };
+                        if (angdiff < -Math.PI) { angdiff = angdiff + 2 * Math.PI };
+
+                        if (rho < rhoNot && Math.abs(angdiff) > (flowAngle)) {
+                            FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPoint2X - (i + 0.5));//change these lines
+                            FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPoint2Y - (j + 0.5));     
+
+                            $('canvas').drawVector({
+	                            strokeStyle: '#222222',
+	                            strokeWidth: 2,
+	                            rounded: true,
+	                            endArrow: true,
+	                            arrowRadius: 10,
+	                            arrowAngle: 30,
+	                            x: mapScale * (i + 0.5 + 0.5 * Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX))), y: mapScale * (j + 0.5 + 0.5 * Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX))),
+	                            a1: (Math.atan2(FattY + FrepY, FattX + FrepX) * 180 / Math.PI) + 270, l1: mapScale // Fact, I don't know why Shiva has a plus 270 in her code here... but I added it
+	                        });
+                        }
+                        else {
+                            FrepX = 0;
+                            FrepY = 0;
+                        }
+                        
+                    }
+                }
+            }
+
         }; //end update
-
-
 
     };
 
