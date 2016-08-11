@@ -16,7 +16,7 @@ webcamShot = true;
 
 if webcamShot
     cam = webcam(1);
-    %% Using Arduino for our lamps, this is how we define arduino in Matlab:
+    %% Using Arduino for our lights, this is how we define arduino in Matlab:
     if (ispc==1)  
         a = arduino('Com5','uno');
     else 
@@ -95,11 +95,12 @@ while success == false
     BW = (I(:,:,1) >= channel1Min ) & (I(:,:,1) <= channel1Max) & ...
         (I(:,:,2) >= channel2Min ) & (I(:,:,2) <= channel2Max) & ...
         (I(:,:,3) >= channel3Min ) & (I(:,:,3) <= channel3Max);
+    
 
     [B,L] = bwboundaries(BW, 'noholes');
 
     stat = regionprops(L,'Centroid','Area','PixelIdxList','MajorAxisLength','MinorAxisLength');
-
+%% Find the object and put that out of the image
     [maxValue,index] = max([stat.Area]);
     centroids = cat(1, stat.Centroid);
     lengthsMajor = cat(1,stat.MajorAxisLength);
@@ -109,9 +110,6 @@ while success == false
     ObjectCentroidX = centroids(index,1);
     ObjectCentroidY = centroids(index,2);
     BW(stat(index).PixelIdxList)=0;
-    hold on
-    plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','black','linewidth',3);
-    hold off
 
     ObjCentX=floor(ObjectCentroidX/scale);
     ObjCentY=floor(ObjectCentroidY/scale);
@@ -146,7 +144,7 @@ while success == false
         end
     end
 
-%% threshold the image to remove shadows (and only show dark parts of kilobots)
+%% Finding the green circles on the image which are kilobots.
     if ispc
         [centers, radii] = imfindcircles(BW,[4 6],'ObjectPolarity','bright','Sensitivity',0.97); 
     else
@@ -183,20 +181,24 @@ while success == false
     V = var(cenArray);
     %Covariance
     C = cov(cenArray);
-    
+    % Drawing robots
     h = viscircles(centers,radii,'EdgeColor','b');
+    %s is number of detected robots
     [s, l] = size(centers);
     if s > 5 
         again = false;
         hold on
+        % Variance Control constants
         minDis = 10000;
         corInd = 0;
         maxVar = 12000; %was 16000
-        minVar = 10000; %was 12000
-    
-        %% Variance Control
-        if countMean<10
+        minVar = 10000; %was 12000  
+        %% Current region should at least have a minimum number of robots
+        minNumRobD = 10;
+        minNumRobU = 20;
+        if countMean<minNumRob
             NumRobotCont = true;
+            % finding the nearest corner
             for i = 1:size(corners)
                 dist = dist2points(corners(i,1),corners(i,2),ObjectCentroidX/scale,ObjectCentroidY/scale);
                 if minDis > dist
@@ -206,10 +208,10 @@ while success == false
             end
             currgoalX = (corners(corInd,1))*scale;
             currgoalY = (corners(corInd,2))*scale;
-        elseif countMean> 20
+        elseif countMean> minNumRobU
             NumRobotCont = false;
         end
-
+%% Variance Control
         if (V > maxVar)
             VarCont = true;
             for i = 1:size(corners)
@@ -224,6 +226,7 @@ while success == false
         elseif V< minVar
             VarCont = false;
         end
+        %% normal control
         if ~VarCont & ~NumRobotCont
             ep = 5;
             minDistance =  5*scale;
@@ -237,7 +240,7 @@ while success == false
                 indOY = 2;
             end
 
-    %% Flow Around Goal Algorithm
+    % Flow Around Goal Algorithm
             alphaWant=atan2(movesX(indOY,indOX),movesY(indOY,indOX));
             
             attPointX=ObjectCentroidX/scale - ObjectRadius/scale * cos(alphaWant);
@@ -257,7 +260,7 @@ while success == false
                 currgoalX=M(1,1)+currgoalX*scale;
                 currgoalY=M(1,2)+currgoalY*scale;
             else 
-            %% Old Goal Algorithm 
+            % Old Goal Algorithm 
                 epsilon = 1*scale;
                 if M(1,1) > ObjectCentroidX- minDistance && M(1,1) < ObjectCentroidX+minDistance && M(1,2) < ObjectCentroidY+minDistance && M(1,2) > ObjectCentroidY-minDistance
                     r = 0.1;
@@ -294,7 +297,7 @@ while success == false
                 hq=quiver(X*scale,Y*scale,DX,DY,'color',[0 0.8 1]);%[0,0,0.5]); 
             end
         end
-
+%% Draw everything
         plot(attPointX*scale, attPointY*scale,'o','Markersize',16,'color','blue','linewidth',3);
         plot(repPointX*scale, repPointY*scale,'o','Markersize',16,'color','cyan','linewidth',3);
         plot(M(1,1),M(1,2),'*','Markersize',16,'color','red', 'linewidth',0.5);
@@ -302,25 +305,14 @@ while success == false
         plot(ObjectCentroidX , ObjectCentroidY,'*','Markersize',16,'color','cyan','linewidth',3);
         circle(goalX*scale, goalY*scale,goalSize*scale);
         circle(ObjectCentroidX, ObjectCentroidY,ObjectRadius);
-
+%% show the corners
         for i = 1:size(corners)
             txt = int2str(i);
             text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
         end
-        %Current Mean and Covariance Ellipse
+%%Current Mean and Covariance Ellipse
         plot_gaussian_ellipsoid(M,C);
         counter = counter+1;
-
-        %% Title the Relay number lit up
-        switch Relay
-            case 0
-                title('All Relays on')
-            otherwise
-                str=sprintf('relay %d',Relay);
-                title(str)
-        end
-
-        hold off
         
         %% Turn on Lights
         if M(1,1) > currgoalX+epsilon

@@ -1,9 +1,8 @@
 %% REIGONCODE -- preprocessing for block pushing expirament
 % This code takes a snapshot from the webcam, then processes it to find 
-% obstacles. From these obstacles, the corners, regions, and a map to MDP 
+% obstacles. From these obstacles, the corners, regions, and a policy for MDP 
 % is calculated. It then draws the gradients, regions, and shows the grid
 % view to the user.
-%           See also OBJECTMANIPULATION_REGIONS_FLOWAROUND
 % By Shiva Shahrokhi and Lillian Lin Summer 2016
 close all
 clear all
@@ -13,11 +12,9 @@ webcamShot = true;
 obstacles = [];
 if webcamShot
     cam = webcam(1);
-
 end
 t0 = tic;
 results3= [];
-%while success == false
 if webcamShot
  originalImage = snapshot(cam);
      if (ispc)  
@@ -135,7 +132,7 @@ for i=1:sizeOfMap(1)         %Horizontal Grid (y-values)
         ReigonCount=1;
     end
 end
-%% Determining the Low Region
+%% Determining the Transfer Region
 for i=1:size(slope,1)
     lowx=xlim(1);
     highx=xlim(2);
@@ -196,7 +193,7 @@ end
 figure(2), imshow(transferRegion(:,:,1));
 figure(3), imshow(transferRegion(:,:,2));
 figure(4), imshow(mainRegion);
-
+%% Making the walls
 for i= 1:sizeOfMap(1)-1
     for j = 1:sizeOfMap(2)-1 
         found = false;
@@ -215,6 +212,7 @@ for i= 1:sizeOfMap(1)-1
     end
 end
 
+%% Finding corners
 for j = 2:sizeOfMap(2)-1
     for i = 2:sizeOfMap(1)-1
         if map(i,j) ~=1 
@@ -225,9 +223,10 @@ for j = 2:sizeOfMap(2)-1
         end
     end
 end
+%% Saving the results
 save('ThresholdMapsMac','transferRegion','mainRegion');
 
-%% Gradient Code
+%% Policy Iteration Code
 [probability, movesX, movesY] = MDPgridworldExample(map,goalX,goalY);
 %save('MDPShot', 'movesX', 'movesY','corners');
 
