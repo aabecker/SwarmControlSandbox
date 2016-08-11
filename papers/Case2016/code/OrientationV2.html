@@ -98,7 +98,6 @@
                 }
                 localStorage.setItem("test", JSON.stringify(test));
             }
-
         }
         var numrobots = null;
         if (testing) {//getting values to run simulations
@@ -145,7 +144,6 @@
       	, b2MouseJointDef = Box2D.Dynamics.Joints.b2MouseJointDef
         ;
 
-
         var world = new b2World(
                new b2Vec2(0, 00)    //gravity  setting to zero removes gravity
             , true                 //allow sleep
@@ -179,7 +177,6 @@
         world.CreateBody(bodyDef).CreateFixture(fixDef);
         bodyDef.position.Set(canvasWidth / mapScale + 1.8, 13); // right side
         world.CreateBody(bodyDef).CreateFixture(fixDef);
-
 
         //Creating the box
         bodyDef.type = b2Body.b2_dynamicBody;
@@ -218,7 +215,7 @@
             bodyDef.userData = 'robot';
 
             ///  put the robots in a loose rectangle
-            bodyDef.position.x = 0 + (i % rowLength) * 2 * robotrad;
+            bodyDef.position.x = 6 + (i % rowLength) * 2 * robotrad;
             bodyDef.position.y = 7 - Math.floor(i / rowLength) * 2 * robotrad; // for up it was 8. for straight it is 9, for down 10.
 
             m_Robot[i] = world.CreateBody(bodyDef);
@@ -545,6 +542,10 @@
 			repPoint1Y=blockCOM_y - 8 * Math.cos(rAngle);
 			repPoint2X=blockCOM_x - 8 * Math.sin(rAngle);
 			repPoint2Y=blockCOM_y + 8 * Math.cos(rAngle);
+
+			ThisThing = 3;
+
+			
             if (!GoalRecieved) {
 
                 var Ko = 10;
@@ -568,14 +569,14 @@
                     var Ko = 10;
                     var sign = deltaTheta / Math.abs(deltaTheta);
                   
-                    rho1 = lineDistance((i + 0.5), (j + 0.5), repPoint1X, repPoint1Y)
-                    theta1 = Math.atan2((j + 0.5) - repPoint1Y, (i + 0.5) - repPoint1X);
+                    rho1 = lineDistance(mean_position_x, mean_position_y, repPoint1X, repPoint1Y)
+                    theta1 = Math.atan2(mean_position_y - repPoint1Y, mean_position_x - repPoint1X);
                     angdiff1 = (rAngle+Math.PI/2) - theta1;
                     if (angdiff1 > Math.PI) { angdiff1 = angdiff1 - 2 * Math.PI };
                     if (angdiff1 < -Math.PI) { angdiff1 = angdiff1 + 2 * Math.PI }; 
 
-                    rho2 = lineDistance((i + 0.5), (j + 0.5), repPoint2X, repPoint2Y)
-                    theta2 = Math.atan2((j + 0.5) - repPoint2Y, (i + 0.5) - repPoint2X);
+                    rho2 = lineDistance(mean_position_x, mean_position_y, repPoint2X, repPoint2Y)
+                    theta2 = Math.atan2(mean_position_y - repPoint2Y, mean_position_x - repPoint2X);
                     angdiff2 = (rAngle-Math.PI/2) - theta2;
                     if (angdiff2 > Math.PI) { angdiff2 = angdiff2 - 2 * Math.PI };
                     if (angdiff2 < -Math.PI) { angdiff2 = angdiff2 + 2 * Math.PI };
@@ -583,60 +584,64 @@
                     
                     if (rho1 < rhoNot && Math.abs(angdiff1) > (flowAngle)) 
                     {
-                        FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho1) * (1 / rho1) * (repPoint1X - (i + 0.5));//change these lines
-                        FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho1) * (1 / rho1) * (repPoint1Y - (j + 0.5));  
-                    	rho = lineDistance((i + 0.5), (j + 0.5), attPointX, attPointY);
-	                    FattX = zeta * ((i + 0.5) - attPointX) / rho;//change these lines
-	                    FattY = zeta * ((j + 0.5) - attPointY) / rho;
-	                    goalX = mean_position_x + Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX));
-	                    goalY = mean_position_x + Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX));
+                        FrepX = eta * ((1 / rho1) - (1 / rhoNot)) * (1 / rho1) * (1 / rho1) * (repPoint1X - mean_position_x);//change these lines
+                        FrepY = eta * ((1 / rho1) - (1 / rhoNot)) * (1 / rho1) * (1 / rho1) * (repPoint1Y - mean_position_y);  
+                    	rho = lineDistance(mean_position_x, mean_position_y, attPointX, attPointY);
+	                    FattX = zeta * (mean_position_x - attPointX) / rho;//change these lines
+	                    FattY = zeta * (mean_position_y - attPointY) / rho;
+	                    distX=-Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX));
+	                    distY=-Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX));
                     }
 
                     else if (rho2 < rhoNot && Math.abs(angdiff2) > (flowAngle))
                     {
-                        FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho2) * (1 / rho2) * (repPoint2X - (i + 0.5));//change these lines
-                        FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho2) * (1 / rho2) * (repPoint2Y - (j + 0.5));     
-                    	rho = lineDistance((i + 0.5), (j + 0.5), attPointX, attPointY);
-	                    FattX = zeta * ((i + 0.5) - attPointX) / rho;//change these lines
-	                    FattY = zeta * ((j + 0.5) - attPointY) / rho;
-	                    goalX = mean_position_x + Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX));
-	                    goalY = mean_position_x + Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX));
+                        FrepX = eta * ((1 / rho2) - (1 / rhoNot)) * (1 / rho2) * (1 / rho2) * (repPoint2X - mean_position_x);//change these lines
+                        FrepY = eta * ((1 / rho2) - (1 / rhoNot)) * (1 / rho2) * (1 / rho2) * (repPoint2Y - mean_position_y);     
+                    	rho = lineDistance(mean_position_x, mean_position_y, attPointX, attPointY);
+	                    FattX = zeta * (mean_position_x - attPointX) / rho;//change these lines
+	                    FattY = zeta * (mean_position_y - attPointY) / rho;
+	                    distX=Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX));
+	                    distY=Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX));
                     }
                     else if (Ko * Math.abs(deltaTheta) < objectWidth * 2 / 3)
                     {
-                        goalX = blockCOM_x + Ko * deltaTheta * Math.sin(rAngle);
-                        goalY = blockCOM_y - Ko * deltaTheta * Math.cos(rAngle);
+                        distX=Math.cos(Math.atan2(blockCOM_y - Ko * deltaTheta * Math.cos(rAngle) - mean_position_y, 
+                        						  blockCOM_x + Ko * deltaTheta * Math.sin(rAngle) - mean_position_x));
+	                    distY=Math.sin(Math.atan2(blockCOM_y - Ko * deltaTheta * Math.cos(rAngle) - mean_position_y, 
+	                    						  blockCOM_x + Ko * deltaTheta * Math.sin(rAngle) - mean_position_x));
                     }
                     else {
-                        goalX = blockCOM_x + sign * objectWidth * 2 / 3 * Math.sin(rAngle);
-                        goalY = blockCOM_y - sign * objectWidth * 2 / 3 * Math.cos(rAngle);
+
+                        distX=Math.cos(Math.atan2(blockCOM_y - sign * objectWidth * 2 / 3 * Math.cos(rAngle) - mean_position_y, 
+                        						  blockCOM_x + sign * objectWidth * 2 / 3 * Math.sin(rAngle) - mean_position_x));
+	                    distY=Math.sin(Math.atan2(blockCOM_y - sign * objectWidth * 2 / 3 * Math.cos(rAngle) - mean_position_y, 
+	                    						  blockCOM_x + sign * objectWidth * 2 / 3 * Math.sin(rAngle) - mean_position_x));
                     }
                     
-                }
-
-                else {
+                }else {
                     if (goalAngle > 0) {
-                        goalX = 0;
-                        goalY = 0;
+                        distX=Math.cos(Math.atan2(0 - mean_position_y,0 - mean_position_x));
+	                    distY=Math.sin(Math.atan2(0 - mean_position_y,0 - mean_position_x));
                     }
                     else {
-                        goalX = 0;
-                        goalY = 33;
+                        distX=Math.cos(Math.atan2(33 - mean_position_y,0 - mean_position_x));
+	                    distY=Math.sin(Math.atan2(33 - mean_position_y,0 - mean_position_x));
                     }
                 }
-            }
-            else {
+            }else {
                 if (goalAngle > 0) 
                 {
-                    goalX = 2;
-                    goalY = 2;
+                        distX=Math.cos(Math.atan2(2 - mean_position_y,2 - mean_position_x));
+	                    distY=Math.sin(Math.atan2(2 - mean_position_y,2 - mean_position_x));
                 }
                 else {
-                    goalX = 2;
-                    goalY = 33;
+                        distX=Math.cos(Math.atan2(33 - mean_position_y,2 - mean_position_x));
+	                    distY=Math.sin(Math.atan2(33 - mean_position_y,2 - mean_position_x));
                 }
-
             }
+
+            goalX = mean_position_x + ThisThing*distX;
+			goalY = mean_position_y + ThisThing*distY;
 
             impulseV.y = Kgain * (goalY - mean_position_y) + Kderivative * (0 - mean_velocity_y);
             impulseV.x = Kgain * (goalX - mean_position_x) + Kderivative * (0 - mean_velocity_x);
@@ -686,9 +691,7 @@
 	                strokeWidth: 5,
 	                x: repPoint1X* mapScale, y: repPoint1Y* mapScale,
 	                radius: radius * mapScale
-	            }).restoreCanvas();
-
-	            $("canvas").drawArc({
+	            }).drawArc({
 	                strokeStyle: "RebeccaPurple",
 	                strokeWidth: 5,
 	                x: repPoint2X* mapScale, y: repPoint2Y* mapScale,
