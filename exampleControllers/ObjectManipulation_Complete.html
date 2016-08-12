@@ -272,8 +272,8 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
     var mainMaps = new Array();
     var transferMaps = new Array();
     //controls for simulation tests
-    var testing = false; //tests parameters
-    var testRobots = false; //changes number of robots
+    var testing = true; //tests parameters
+    var testRobots = true; //changes number of robots
     var testNoise = false; //changes brownian noise
     var testObj = false; //changes obj's angular/linear Const
 
@@ -491,7 +491,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+                        runs: [35,50,100,150],
 
                         outcomes: []
                     }
@@ -1078,27 +1078,27 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 })
                 .drawArc(
                 {
-                    strokeStyle: "lightblue",
-                    strokeWidth: 1,
-                    fillStyle: "blue",
+                    strokeStyle: "blue",
+                    strokeWidth: 3,
+                    fillStyle: "#39FF14",
                     x: x * mapScale, y: y * mapScale,
                     radius: radius * mapScale
                 })
                 .restoreCanvas();
-                /*$("canvas").rotateCanvas(
-               {
-                   x: x * mapScale, y: y * mapScale,
-                   rotate: angle
-               })
-               .drawArc(
-               {
-                   strokeStyle: "lightblue",
-                   strokeWidth: 1,
-                   fillStyle: "#39FF14",
-                   x: x * mapScale, y: y * mapScale,
-                   radius: radius * mapScale*.4
-               })
-               .restoreCanvas();*/
+               //  $("canvas").rotateCanvas(
+               //{
+               //    x: x * mapScale, y: y * mapScale,
+               //    rotate: angle
+               //})
+               //.drawArc(
+               //{
+               //    strokeStyle: "lightblue",
+               //    strokeWidth: 1,
+               //    fillStyle: "#39FF14",
+               //    x: x * mapScale, y: y * mapScale,
+               //    radius: radius * mapScale*.4
+               //})
+               //.restoreCanvas();
             }
 
             //draw robots and obstacles
@@ -1139,6 +1139,18 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                     sides: 6,
                                     rotate: angle || 0
                                 }).restoreCanvas();
+                                $("canvas")
+                               .rotateCanvas({
+                                   x: pos.x * mapScale, y: pos.y * mapScale,
+                                   rotate: angle
+                               })
+                               .drawPolygon({
+                                   fillStyle: "#39FF14",
+                                   x: pos.x * mapScale, y: pos.y * mapScale,
+                                   radius: 1.5 * mapScale*.85,
+                                   sides: 6,
+                                   rotate: angle || 0
+                               }).restoreCanvas();
 
                             }
                             else if (Square) {
