@@ -2,7 +2,7 @@
 // Author: Shiva Shahrocki, Mable Wan, Lillian Lin, and Aaron T. Becker
 // Started" 11/01/2014 -- present
 // Description: This simulation controls n holonomic disk robots to push an object through a maze using the robot's mean position as feedback
-/// uses a PD controller.
+/// in a PD controller.
 //
 ///////////////////////////////////////////////////////////////////////////////
 -->
@@ -44,13 +44,12 @@
     var blockCOM_x = 0;
     var blockCOM_y = 0;
 
-    // checking variables.
-    var flagVar = false;
-    var ifMDP = true;
-
-    var goalRecieved = false; //reaching the goal status
+    //Flag variables
+    var flagVar = false; //Activates variance control
+    var ifMDP = true; //Uses MDP path planning
+    var goalRecieved = false; //Reaches the goal 
     var timeFinished = 1000;
-    var wroteFinish = false;
+    var wroteFinish = false; //Writes time to screen
 
     var map = new Array(mapXSize);
     var map_MDP = new Array(mapXSize);
@@ -73,6 +72,7 @@
     var bestmove;
     var move;
 
+    //Directions to steer robots
     moves[0] = [1, 0];
     moves[1] = [1, 1];
     moves[2] = [0, 1];
@@ -86,15 +86,14 @@
     var zeta = 2;//attractive constant
     var eta = 75;//repulsive constant
     var rhoNot = 3; //radius for attractive point
-    var alphaWant = 0; //direction of object 
-    var inside = 0; 
+    var alphaWant = 0; //direction of object
+    var inside = 0;
     var goalStartTime = null;
 
-    var goalAngle = 2 / 8 * Math.PI;
+    var goalAngle = 2 / 8 * Math.PI; //to draw the potential fields
 
-    var k = [0, 2, 4, 6, 1, 3, 5, 7, 8];
-
-    for (var i = 0; i < mapXSize; i++) {   // mapping data arrays
+    // mapping data arrays
+    for (var i = 0; i < mapXSize; i++) {   
         map[i] = new Array(mapYSize);
         map_MDP[i] = new Array(mapYSize);
         map_R[i] = new Array(mapYSize);
@@ -103,9 +102,9 @@
         policy_y[i] = new Array(mapYSize);
         policy_angle[i] = new Array(mapYSize);
     }
-
     //.....policy_MDP...//
     //to determine the gradient for Markov Decision Process
+    var k = [0, 2, 4, 6, 1, 3, 5, 7, 8];
     function policy_MDP(x, y) {
         var moveR, moveL;
         bestpayoff = -200;
@@ -124,10 +123,7 @@
                 moveR = [0, 0];
                 moveL = [0, 0];
             }
-
             payoff = probStraight * (map_MDP[x + move[0]][y + move[1]]) + ((1 - probStraight) / 2) * (map_MDP[x + moveR[0]][y + moveR[1]]) + ((1 - probStraight) / 2) * (map_MDP[x + moveL[0]][y + moveL[1]]);
-            //alert(payoff);*/
-
             if (payoff > bestpayoff) {
                 bestpayoff = payoff;
                 bestmove = move;
@@ -135,50 +131,17 @@
         }
     }
 
-    //Discretized regions
+    //Discretizing the maze into regions: Main and Transfer
     var mainMaps = new Array(); //Main Region
     var transferMaps = new Array(); //Transfer Region
-    var regionNum = null; 
-    var regionMain = null; //The state the map is in
-    var mostRobotRegion = null;
-    var robotMain = null; 
-    //Finds adjacent regions
-    function findAdjRegion(regionMain, regionNum, x) {
-        var adjRegions = new Array(2);
-        if (regionMain) {
-            if (regionNum == 0) {
-                adjRegions[0] = 0; //adjacent region = transferRegion1
-                adjRegions[1] = null;
-            }
-            else if (regionNum == 1) {
-                adjRegions[0] = 0;
-                adjRegions[1] = 1;
-            } else if (regionNum == 2) {
-                adjRegions[0] = 1;
-                adjRegions[1] = null;
-            }
-        }
-        if (!regionMain) {
-            if (regionNum == 0) {
-                adjRegions[0] = 0; //adjacent region = mainRegion1&2
-                adjRegions[1] = 1;
-            }
-            else if (regionNum == 1) {
-                adjRegions[0] = 1;
-                adjRegions[1] = 2;
-            }
-        }
-        if (x == 0) {
-            return adjRegions[0];
-        } else if (x == 1) {
-            return adjRegions[1];
-        }
-
-    }
+    var regionNum = null; //The region the object is in
+    var regionMain = null; //The state that the object is in, main or transfer
+    var mostRobotRegion = null; //The region with the most robots
+    var robotMain = null; //The state that the most robots are in, main or transfer
 
     //Variance control variables
     var max_desired_var_x = null;
-    var min_desired_var_x = null; 
+    var min_desired_var_x = null;
     var max_desired_var_y = max_desired_var_x;
     var min_desired_var_y = min_desired_var_x;
 
@@ -188,9 +151,6 @@
 
     //Creates a Box2D hexagon
     function makeHexagon(world, x, y, userData) {
-        // create block
-        // This defines a hexagon in CCW order.
-        // http://blog.sethladd.com/2011/09/box2d-and-polygons-for-javascript.html
         var bodyDef = new Box2D.Dynamics.b2BodyDef;
         bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
         bodyDef.userData = userData;
@@ -225,11 +185,11 @@
     }
     //Initialization
     function init() {
-        var numrobots = 100; 
+        var numrobots = 100;
         var totalRobots = 100;
 
         //Creating Main Region Arrays
-        mainMaps[0] = new Array(); 
+        mainMaps[0] = new Array();
         mainMaps[1] = new Array();
         mainMaps[2] = new Array();
         for (i = 0; i <= 20; i++) {
@@ -266,7 +226,7 @@
             transferMaps[0][i] = new Array();
             transferMaps[1][i] = new Array();
         }
-        for (i = 0; i <= 20; i++) { //setting the background to 0
+        for (i = 0; i <= 20; i++) { 
             for (j = 0; j <= 20; j++) {
                 transferMaps[0][i][j] = 0;
                 transferMaps[1][i][j] = 0;
@@ -282,12 +242,9 @@
                 transferMaps[1][x][y] = 1;
             }
         }
-        
         regionNum = 0;
         regionMain = true;
-        var robotVar = false; 
-        var minRobotCount = 50;
-        var windowStopped = false;
+        var robotVar = false;
 
         //Goal Positions
         var infinity = mapXSize * mapYSize;
@@ -300,16 +257,16 @@
         var goalPositionYDraw = 3.5;
 
         // Control variables for getting the robots unstuck from a corner
-        var prev_mean_position_x = 0; 
+        var prev_mean_position_x = 0;
         var prev_mean_position_y = 0;
-        var start_timer = false;
+        var start_timer = false; 
         var stop_timer = true;
         var timer = 0;
         var timer_var = false;
         var robotVarTimer = false;
         var objMain = null;
         var corner = null;
-        var mostRobotMainRegion = null;
+        var mostRobotMainRegion = null; 
         var secondMostRobotMainRegion = null;
 
         //variance corners
@@ -317,7 +274,7 @@
         var CornerValuesY = [19, 19, 7, 13, 1, 100];
         var CornerValuesD = [51, 41, 30, 24, 17, 100];
 
-        //Box2D 
+        //Box2D
         var b2Vec2 = Box2D.Common.Math.b2Vec2
         , b2AABB = Box2D.Collision.b2AABB
         , b2BodyDef = Box2D.Dynamics.b2BodyDef
@@ -337,7 +294,7 @@
             );
         var canvas = $('#canvas');
         var context = canvas.get(0).getContext('2d');
-        var timeStart = null;
+        var timeStart = null; //Display timer
         var timeFinish = null;
         var timer = null;
         var passed = null;
@@ -345,7 +302,7 @@
         var firstloop = true;
         var boundaryHeight = 2;
         var boundaryWidth = 20;
-    
+
         //create enclosing boundary rectangles
         var fixDef = new b2FixtureDef;
         fixDef.density = 1.0;
@@ -380,7 +337,7 @@
 
         //create the robots
         bodyDef.type = b2Body.b2_dynamicBody;
-        var robotrad = 0.15; 
+        var robotrad = 0.15;
         fixDef.density = 10.0;
         fixDef.friction = 2;
         fixDef.restitution = .5; //bouncing value
@@ -394,7 +351,7 @@
             bodyDef.position.y = 18.5 - Math.floor(i / rowLength) * 2 * robotrad;
             m_Robot[i] = world.CreateBody(bodyDef);
             m_Robot[i].CreateFixture(fixDef);
-            m_Robot[i].m_angularDamping = 1; //was 1, we used 10 on SwarmControl
+            m_Robot[i].m_angularDamping = 1; 
             m_Robot[i].m_linearDamping = 1;
         }
         window.requestAnimFrame = (function () {
@@ -408,7 +365,7 @@
             };
         })();
 
-        //Calculates MDP
+        //Calculate MDP
         if (ifMDP) {
             for (var i = 0 ; i < mapXSize; i++) {
                 map_MDP[i][0] = -100;
@@ -427,7 +384,7 @@
                 map_prev[mapXSize - 1][i] = 0;
 
             }
-            // giving -100 to obstacles.(Down Maze)
+            // giving -100 to obstacles.(Bottom Maze)
             for (var i = 0 ; i < mazeSize; i++) {
                 map_MDP[i][mazeTopY] = -100;
                 map_R[i][mazeTopY] = -50;
@@ -472,6 +429,7 @@
             }
             ifMDP = false;
         }
+        //End MDP Calculation
 
         (function animloop() {
             requestAnimFrame(animloop);
@@ -491,9 +449,9 @@
             ys = ys * ys;
             return Math.sqrt(xs + ys);
         }
-        //Main loops
+        //Main loop
         function update() {
-            //
+            //Add force to the robots
             var impulseV = new b2Vec2(0, 0);
             var impulse = 3.0;
             if (m_controlState & ROBOT_INPUT.ROBOT_PROP) {
@@ -501,17 +459,16 @@
                 impulseV.y = m_ControlInputY;
             }
 
-            //Calculate min and max desired variance constants
-            var max_desired_var_x_constant = (.006) * vary + .45;
-            if (vary < 50) {
-                var min_desired_var_x_constant = max_desired_var_x_constant - .3;
-            } else var min_desired_var_x_constant = max_desired_var_x_constant - .4;
-
             //Apply Brownian noise:
             var brownianImpulse = new b2Vec2(0, 0);
             var mag = 0;
             var ang = 0;
             var vary = 5;
+            //Calculate min and max desired variance constants
+            var max_desired_var_x_constant = (.006) * vary + .45;
+            if (vary < 50) {
+                var min_desired_var_x_constant = max_desired_var_x_constant - .3;
+            } else var min_desired_var_x_constant = max_desired_var_x_constant - .4;
             for (var i = 0; i < m_Robot.length; i++) {
                 mag = vary * Math.random();
                 ang = 2 * Math.PI * Math.random();
@@ -540,7 +497,7 @@
             }).drawArc(
             {
                 strokeStyle: "#39FF14",
-                strokeWidth: 7, 
+                strokeWidth: 7,
                 x: goalPositionXDraw * mapScale, y: goalPositionYDraw * mapScale,
                 radius: 2.3 * mapScale
             }).drawText(
@@ -576,6 +533,7 @@
                 var userData = b.GetUserData();
                 var pos = b.GetPosition();
                 for (f = b.GetFixtureList() ; f; f = f.GetNext()) {
+                    //Draws robots
                     if (userData == 'robot') {
                         var radius = f.GetShape().GetRadius();
                         _drawRobot(pos.x, pos.y, angle, radius);
@@ -585,7 +543,7 @@
                             var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x;
                             var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
                         }
-
+                        //Draws hexagon
                         if (userData == 'moveable') {
                             var color = 'black';
                             blockCOM_x = pos.x;
@@ -612,7 +570,6 @@
                         } else if (userData == 'obstacle') {
                             var color = 'brown';
                         }
-
                         $("canvas").rotateCanvas({
                             x: pos.x * mapScale, y: pos.y * mapScale,
                             rotate: angle
@@ -654,19 +611,18 @@
             })
             .restoreCanvas();
 
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // END DRAWING FUNCTIONS
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////
- 
-            /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // CONTROLLER
-            ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-            //Timer
+            /*
+             END DRAWING FUNCTIONS
+            */
+
+            /*
+             CONTROLLER
+            */
+            //Display Timer
             var day = new Date();
             if (timeFinish == null && false)
             { timeFinish = day.getTime(); }
-            if (overall_time == null) 
-            {
+            if (overall_time == null) {
                 overall_time = day.getTime();
                 goalStartTime = day.getTime();
             }
@@ -678,8 +634,8 @@
             var offsetY = 5;
             var amplitudeX = 5;
             var offsetX = 5;
-            
-            //Mean and covariance
+
+            //Mean and covariance variables
             var sum_position_x = 0;
             var sum_position_y = 0;
             var sum2_x = 0;
@@ -689,395 +645,386 @@
             var block_x = Math.floor(blockCOM_x);
             var block_y = Math.floor(blockCOM_y);
 
-            if (!isNaN(block_y)) { //Enters only if values are valid
-                /*
-                This section switches states in the state machine whenever the object moves out of the current region. 
-                This section also calculates the number of robots in each region.
-                */
-                if (regionMain) { //If the state machine is in the main state
-                    var blockPosition = mainMaps[regionNum][block_x][block_y];
-                }
-                if (!regionMain) {//If the state machine is in the transfer state
-                    var blockPosition = transferMaps[regionNum][block_x][block_y];
-                }
-                if (blockPosition == 0) {
-                    if (regionMain) {//if it's in the main region
-                        regionMain = false; //switch to transfer regions
-                        if (transferMaps[0][block_x][block_y] == 1) {
-                            regionNum = 0; //checking which region the block is in
-                        }
-                        else if (transferMaps[1][block_x][block_y] == 1) {
-                            regionNum = 1;
-                        }
-                    } else if (!regionMain) {
-                        regionMain = true;
-                        if (mainMaps[0][block_x][block_y] == 1) {
-                            regionNum = 0;
-                        } else if (mainMaps[1][block_x][block_y] == 1) {
-                            regionNum = 1;
-                        } else if (mainMaps[2][block_x][block_y] == 1) {
-                            regionNum = 2;
-                        }
+            /*
+            This section toggles states in the state machine when the object moves out of the current region.
+            */
+            if (regionMain) { //If the state machine is in the main state
+                var blockPosition = mainMaps[regionNum][block_x][block_y];
+            }
+            if (!regionMain) {//If the state machine is in the transfer state
+                var blockPosition = transferMaps[regionNum][block_x][block_y];
+            }
+            if (blockPosition == 0) {
+                if (regionMain) {//If it's in the main region
+                    regionMain = false; //switch to transfer regions
+                    if (transferMaps[0][block_x][block_y] == 1) {
+                        regionNum = 0; //Checking which region the block is in
+                    }
+                    else if (transferMaps[1][block_x][block_y] == 1) {
+                        regionNum = 1;
+                    }
+                } else if (!regionMain) {
+                    regionMain = true;
+                    if (mainMaps[0][block_x][block_y] == 1) {
+                        regionNum = 0;
+                    } else if (mainMaps[1][block_x][block_y] == 1) {
+                        regionNum = 1;
+                    } else if (mainMaps[2][block_x][block_y] == 1) {
+                        regionNum = 2;
                     }
                 }
-                numrobots = totalRobots;
-                var regionRobotCount = 0;
-                if (regionMain) {
-                    for (var i = 0; i < numrobots; ++i) {
-                        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-                        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-                        var pos = mainMaps[regionNum][pos_x][pos_y];
-                        if (pos == 1) {
-                            sum_position_x += m_Robot[i].GetPosition().x;
-                            sum_position_y += m_Robot[i].GetPosition().y;
-                            regionRobotCount = regionRobotCount + 1;
-                        }
+            }
+            //Counts the robots in the region for mean and covariance calculations
+            var regionRobotCount = 0;
+            if (regionMain) {
+                for (var i = 0; i < totalRobots; ++i) {
+                    var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+                    var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+                    var pos = mainMaps[regionNum][pos_x][pos_y];
+                    if (pos == 1) {
+                        sum_position_x += m_Robot[i].GetPosition().x;
+                        sum_position_y += m_Robot[i].GetPosition().y;
+                        regionRobotCount = regionRobotCount + 1;
                     }
                 }
-                if (!regionMain) {
-                    for (var i = 0; i < numrobots; ++i) {
-                        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-                        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-                        var pos = transferMaps[regionNum][pos_x][pos_y];
-                        if (pos == 1) {
-                            sum_position_x += m_Robot[i].GetPosition().x;
-                            sum_position_y += m_Robot[i].GetPosition().y;
-                            regionRobotCount = regionRobotCount + 1;
-                        }
+            }
+            if (!regionMain) {
+                for (var i = 0; i < totalRobots; ++i) {
+                    var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+                    var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+                    var pos = transferMaps[regionNum][pos_x][pos_y];
+                    if (pos == 1) {
+                        sum_position_x += m_Robot[i].GetPosition().x;
+                        sum_position_y += m_Robot[i].GetPosition().y;
+                        regionRobotCount = regionRobotCount + 1;
                     }
                 }
-                numrobots = regionRobotCount;
-                var mean_position_x = sum_position_x / numrobots;
-                var mean_position_y = sum_position_y / numrobots;
-                //Calculating covariance
-                if (regionMain) {
-                    for (var i = 0; i < numrobots; ++i) {
-                        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-                        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-                        var pos = mainMaps[regionNum][pos_x][pos_y];
-                        if (pos == 1) {
-                            sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
-                            sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
-                            cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
-                        }
+            }
+            numrobots = regionRobotCount;
+            var mean_position_x = sum_position_x / numrobots;
+            var mean_position_y = sum_position_y / numrobots;
+            //Calculating covariance
+            if (regionMain) {
+                for (var i = 0; i < numrobots; ++i) {
+                    var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+                    var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+                    var pos = mainMaps[regionNum][pos_x][pos_y];
+                    if (pos == 1) {
+                        sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
+                        sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
+                        cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
                     }
                 }
-                if (!regionMain) {
-                    for (var i = 0; i < numrobots; ++i) {
-                        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-                        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-                        var pos = transferMaps[regionNum][pos_x][pos_y];
-                        if (pos == 1) {
-                            sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
-                            sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
-                            cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
-                        }
+            }
+            if (!regionMain) {
+                for (var i = 0; i < numrobots; ++i) {
+                    var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+                    var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+                    var pos = transferMaps[regionNum][pos_x][pos_y];
+                    if (pos == 1) {
+                        sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
+                        sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
+                        cov_xy = cov_xy + (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().y - mean_position_y) / numrobots;
                     }
                 }
-                max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;
-                min_desired_var_x = numrobots * robotrad * min_desired_var_x_constant; 
-                max_desired_var_y = max_desired_var_x;
-                min_desired_var_y = min_desired_var_x;
-
-                var var_x = sum2_x / numrobots;
-                var var_y = sum2_y / numrobots;
-                var diffeq = Math.sqrt((var_x - var_y) * (var_x - var_y) / 4 + cov_xy * cov_xy);
-                var var_xp = (var_x + var_y) / 2 + diffeq;
-                var var_yp = (var_x + var_y) / 2 - diffeq;
-                var angle2 = 180 / Math.PI * 1 / 2 * Math.atan2(2 * cov_xy, var_x - var_y);
-                var angle_min_variance = 180 / Math.PI * 1 / 2 * Math.atan2(2 * cov_xy, min_desired_var_x - min_desired_var_y);
-                var angle_max_variance = 180 / Math.PI * 1 / 2 * Math.atan2(2 * cov_xy, max_desired_var_x - max_desired_var_y);
-                var index_x = Math.floor(mean_position_x);
-                var index_y = Math.floor(mean_position_y);
-                
-                //Controller to keep the number of robots in the region above zero. 
-                //Having zero robots causes calculation errors
-                minRobotCount = totalRobots / 2; //Threshold for minimum number of robots
-                if ((regionRobotCount < minRobotCount)) {
-                    robotVar = true;
+            }
+            //Calculating variance limits
+            max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;
+            min_desired_var_x = numrobots * robotrad * min_desired_var_x_constant;
+            max_desired_var_y = max_desired_var_x;
+            min_desired_var_y = min_desired_var_x;
+            var var_x = sum2_x / numrobots;
+            var var_y = sum2_y / numrobots;
+            var diffeq = Math.sqrt((var_x - var_y) * (var_x - var_y) / 4 + cov_xy * cov_xy);
+            var var_xp = (var_x + var_y) / 2 + diffeq;
+            var var_yp = (var_x + var_y) / 2 - diffeq;
+            var angle2 = 180 / Math.PI * 1 / 2 * Math.atan2(2 * cov_xy, var_x - var_y);
+            var angle_min_variance = 180 / Math.PI * 1 / 2 * Math.atan2(2 * cov_xy, min_desired_var_x - min_desired_var_y);
+            var angle_max_variance = 180 / Math.PI * 1 / 2 * Math.atan2(2 * cov_xy, max_desired_var_x - max_desired_var_y);
+            /*
+            Controller to keep the number of robots inside the region above zero.
+            Having zero robots causes calculation errors
+            */
+            minRobotCount = totalRobots / 2; //trigger for increasing number of robots in the region
+            if ((regionRobotCount < minRobotCount)) {
+                robotVar = true;
+            } else {
+                robotVar = false;
+                robotVarTimer = false;
+            }
+            //Directs the robots to a corner that can recollect the most robots
+            if (robotVar && !robotVarTimer) {
+                robotVarTimer = true;
+                var countMain0 = 0;
+                var countMain1 = 0;
+                var countMain2 = 0;
+                for (i = 0; i < totalRobots; i++) {
+                    var pos_x = Math.floor(m_Robot[i].GetPosition().x);
+                    var pos_y = Math.floor(m_Robot[i].GetPosition().y);
+                    var pos0 = mainMaps[0][pos_x][pos_y];
+                    var pos1 = mainMaps[1][pos_x][pos_y];
+                    var pos2 = mainMaps[2][pos_x][pos_y];
+                    if (pos0 == 1) {
+                        countMain0++;
+                    } else if (pos1 == 1) {
+                        countMain1++;
+                    } else if (pos2 == 1) {
+                        countMain2++;
+                    }
+                }
+                if ((countMain0 >= countMain1) && (countMain0 >= countMain2)) {
+                    mostRobotMainRegion = 0;
+                    if (countMain1 >= countMain2) {
+                        secondMostRobotMainRegion = 1;
+                    } else secondMostRobotMainRegion = 2;
+                }
+                else if ((countMain1 >= countMain0) && (countMain1 >= countMain2)) {
+                    mostRobotMainRegion = 1;
+                    if (countMain0 > countMain2) {
+                        secondMostRobotMainRegion = 0;
+                    } else secondMostRobotMainRegion = 2;
+                }
+                else if ((countMain2 >= countMain0) && (countMain2 > countMain1)) {
+                    mostRobotMainRegion = 2;
+                    if (countMain0 > countMain1) {
+                        secondMostRobotMainRegion = 0;
+                    } else secondMostRobotMainRegion = 1;
+                }
+                var objPos0 = mainMaps[0][Math.floor(blockCOM_x)][Math.floor(blockCOM_y)];
+                var objPos1 = mainMaps[1][Math.floor(blockCOM_x)][Math.floor(blockCOM_y)];
+                var objPos2 = mainMaps[2][Math.floor(blockCOM_x)][Math.floor(blockCOM_y)];
+                if (objPos0 == 1) { objMain = 0; }
+                else if (objPos1 == 1) { objMain = 1; }
+                else { objMain = 2; }
+            }
+            if (robotVar) {
+                if (objMain == 0) {
+                    corner = 1;
+                } else if (objMain == 1) {
+                    if (((mostRobotMainRegion == 0) || (secondMostRobotMainRegion == 0)) && ((mostRobotMainRegion == 1) || (secondMostRobotMainRegion == 1))) {
+                        corner = 2;
+                    } else if (((mostRobotMainRegion == 1) || (secondMostRobotMainRegion == 1)) && ((mostRobotMainRegion == 2) || (secondMostRobotMainRegion == 2)))
+                        corner = 3;
+                } else corner = 4;
+                IndexMinDist = corner;
+                goalX = mean_position_x + Math.cos(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
+                goalY = mean_position_y + Math.sin(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
+            }
+            //These timers check if the mean is stuck in a corner.
+            //If so, it directs the robots to an adjacent corner.
+            if (stop_timer) {
+                timer = 0;
+                start_timer = true;
+                stop_timer = false;
+                robotVarTime = false; //Flag for robots getting stuck
+            }
+            if (start_timer) {
+                timer = elapsedTimeSec;
+                prev_mean_position_x = mean_position_x;
+                prev_mean_position_y = mean_position_y;
+                start_timer = false;
+            }
+            if ((elapsedTimeSec - timer) > 5) {
+                var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
+                var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
+                var mean_difference = lineDistance(mean_difference_x, mean_difference_y, 0, 0);
+                if (mean_difference < .1) {
+                    flagVar = true;
+                    timer_var = true;
+                    stop_timer = true;
                 } else {
-                    robotVar = false;
-                    robotVarTimer = false;
+                    stop_timer = true;
+                    flagVar = false;
+                    timer_var = false;
                 }
-                if (robotVar && !robotVarTimer) {
-                    ///////////////////////////////go to best corner to recollect when robots<15 in region
-                    robotVarTimer = true;
-                    var countMain0 = 0;
-                    var countMain1 = 0;
-                    var countMain2 = 0;
-                    for (i = 0; i < totalRobots; i++) {
-                        var pos_x = Math.floor(m_Robot[i].GetPosition().x);
-                        var pos_y = Math.floor(m_Robot[i].GetPosition().y);
-                        var pos0 = mainMaps[0][pos_x][pos_y];
-                        var pos1 = mainMaps[1][pos_x][pos_y];
-                        var pos2 = mainMaps[2][pos_x][pos_y];
-                        if (pos0 == 1) {
-                            countMain0++;
-                        } else if (pos1 == 1) {
-                            countMain1++;
-                        } else if (pos2 == 1) {
-                            countMain2++;
+            }
+            //Drawing display for reaching goal
+            if (!goalRecieved) {
+                $("canvas").drawEllipse({
+                    strokeStyle: "red",
+                    strokeWidth: 5,
+                    setLineDash: 6,
+                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                    width: 3 * 30 * Math.sqrt(var_xp), height: 3 * 30 * Math.sqrt(var_yp),
+                    rotate: angle2
+                })
+                .restoreCanvas();
+            } else {
+                var winstring = "Success,\n " + totalRobots + " robots in " + Math.floor(timeFinished) + "s";
+                goalRecieved = true;
+                $("canvas").drawText(
+                {
+                    strokeStyle: "blue",
+                    strokeWidth: 4,
+                    x: 9 * mapScale, y: 10 * mapScale,
+                    fontSize: 40,
+                    fontFamily: 'Verdana, sans-serif',
+                    text: winstring
+                }).restoreCanvas();
+            }
+            if (Math.abs(blockCOM_x - goalPositionX) < 2 && Math.abs(blockCOM_y - goalPositionY) < 2) {
+                goalRecieved = true;
+
+                if (wroteFinish == false) {
+                    timeFinished = elapsedTimeSec;
+                    wroteFinish = true;
+                }
+                m_controlState = ROBOT_INPUT.ROBOT_IDLE;
+            }
+            //End drawing
+            var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+
+            //Functions to direct the robots to the goal
+            if (!goalRecieved) {
+                //Calculating variance limits
+                if (timer_var && (block_difference < 4) && (!robotVar)) {
+                    //If robots are not stuck, set a small variance limit that will always trigger flagVar
+                    min_desired_var_x = .1;
+                    min_desired_var_y = min_desired_var_x;
+                } else if (!robotVar) {
+                    max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;
+                    min_desired_var_x = numrobots * robotrad * min_desired_var_x_constant;
+                    max_desired_var_y = max_desired_var_x;
+                    min_desired_var_y = min_desired_var_x;
+                }
+
+                if (var_x < min_desired_var_x && var_y < min_desired_var_y) {
+                    flagVar = false;
+                }
+                if (var_x > max_desired_var_x || var_y > max_desired_var_y) {
+                    flagVar = true;
+                }
+                //Variance Control
+                if (flagVar && !robotVar) {
+                    if (!timer_var) {
+                        //Goes to corners inside the region to prevent the number of robots from reaching zero
+                        if (regionMain) {
+                            if (regionNum == 0) {
+                                IndexMinDist = 0;
+                            } else if (regionNum == 1) {
+                                IndexMinDist = 2;
+                            } else {
+                                IndexMinDist = 4;
+                            }
+                        }
+                        else {
+                            if (regionNum == 0) {
+                                IndexMinDist = 1;
+                            } else {
+                                IndexMinDist = 3;
+                            }
+                        }
+                    } else {
+                        if (regionMain) {
+                            if (regionNum == 0) {
+                                IndexMinDist = 1;
+                            } else if (regionNum == 1) {
+                                IndexMinDist = 3;
+                            } else {
+                                IndexMinDist = 5;
+                            }
+                        }
+                        else {
+                            if (regionNum == 0) {
+                                IndexMinDist = 2;
+                            } else {
+                                IndexMinDist = 4;
+                            }
                         }
                     }
-                    if ((countMain0 >= countMain1) && (countMain0 >= countMain2)) {
-                        mostRobotMainRegion = 0;
-                        if (countMain1 >= countMain2) {
-                            secondMostRobotMainRegion = 1;
-                        } else secondMostRobotMainRegion = 2;
-                    }
-                    else if ((countMain1 >= countMain0) && (countMain1 >= countMain2)) {
-                        mostRobotMainRegion = 1;
-                        if (countMain0 > countMain2) {
-                            secondMostRobotMainRegion = 0;
-                        } else secondMostRobotMainRegion = 2;
-                    }
-                    else if ((countMain2 >= countMain0) && (countMain2 > countMain1)) {
-                        mostRobotMainRegion = 2;
-                        if (countMain0 > countMain1) {
-                            secondMostRobotMainRegion = 0;
-                        } else secondMostRobotMainRegion = 1;
-                    }
-                    //finding which main region the block is in
-                    var objPos0 = mainMaps[0][Math.floor(blockCOM_x)][Math.floor(blockCOM_y)];
-                    var objPos1 = mainMaps[1][Math.floor(blockCOM_x)][Math.floor(blockCOM_y)];
-                    var objPos2 = mainMaps[2][Math.floor(blockCOM_x)][Math.floor(blockCOM_y)];
-                    if (objPos0 == 1) { objMain = 0; }
-                    else if (objPos1 == 1) { objMain = 1; }
-                    else { objMain = 2; }
-                    //finding the right var corner
-                }
-                if (robotVar) {
-                    if (objMain == 0) {
-                        corner = 1;
-                    } else if (objMain == 1) {
-                        if (((mostRobotMainRegion == 0) || (secondMostRobotMainRegion == 0)) && ((mostRobotMainRegion == 1) || (secondMostRobotMainRegion == 1))) {
-                            corner = 2;
-                        } else if (((mostRobotMainRegion == 1) || (secondMostRobotMainRegion == 1)) && ((mostRobotMainRegion == 2) || (secondMostRobotMainRegion == 2)))
-                            corner = 3;
-                    } else corner = 4;
-                    ////////////////////////////////////////
-                    IndexMinDist = corner;
                     goalX = mean_position_x + Math.cos(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
                     goalY = mean_position_y + Math.sin(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
                 }
+                if (!flagVar && !robotVar) {
+                    //Potential field calculations
+                    var r = 0.8;
+                    alphaWant = Math.atan2(policy_y[block_x][block_y], policy_x[block_x][block_y]);
+                    attPointX = blockCOM_x - r * Math.cos(alphaWant + Math.PI); //Attractive point
+                    attPointY = blockCOM_y - r * Math.sin(alphaWant + Math.PI);
+                    repPointX = blockCOM_x; //Repulsive point
+                    repPointY = blockCOM_y;
+                    if (1000 < day.getTime() - goalStartTime || firstloop) {
+                        rho = lineDistance(mean_position_x, mean_position_y, repPointX, repPointY);
+                        inside = inside + 1;
+                        theta = Math.atan2(mean_position_y - repPointY, mean_position_x - repPointX);
+                        angdiff = alphaWant - theta;
+                        if (angdiff > Math.PI) { angdiff = angdiff - 2 * Math.PI };
+                        if (angdiff < -Math.PI) { angdiff = angdiff + 2 * Math.PI };
+                        var CGoal = 1;
 
-                //for init- prev mean pos, start_timer=false, stop_timer=true; var timer=0;
-                //for global var prev_mean pos
-                //variance control if the mean stays in the same place
-                if (stop_timer) {
-                    timer = 0;
-                    start_timer = true; //starts timer
-                    stop_timer = false;
-                    robotVarTime = false;
-                }
-                if (start_timer) {
-                    timer = elapsedTimeSec; //gets starting point
-                    prev_mean_position_x = mean_position_x; //get previous pos
-                    prev_mean_position_y = mean_position_y;
-                    start_timer = false;
-                }
-                if ((elapsedTimeSec - timer) > 5) {
-                    var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
-                    var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
-                    //var mean_difference=Math.sqrt(mean_difference_x^2+mean_difference_y^2);
-                    var mean_difference = lineDistance(mean_difference_x, mean_difference_y, 0, 0);
-
-                    timer_var = false;
-                    if (mean_difference < .1) {
-                        flagVar = true;
-                        timer_var = true;
-                        stop_timer = true;
-                    } else {
-                        stop_timer = true; //stops timer
-                        flagVar = false;
-                    }
-                }
-
-                ////////////////////////////////
-                if (!goalRecieved) {
-                    $("canvas").drawEllipse({
-                        strokeStyle: "red",
-                        strokeWidth: 5,
-                        setLineDash: 6,
-                        x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                        width: 3 * 30 * Math.sqrt(var_xp), height: 3 * 30 * Math.sqrt(var_yp),
-                        rotate: angle2
-                    })
-                    .restoreCanvas();
-                } else {
-                    var winstring = "Success,\n " + totalRobots + " robots in " + Math.floor(timeFinished) + "s";
-                    goalRecieved = true;
-                    $("canvas").drawText(
-                    {
-                        strokeStyle: "blue",
-                        strokeWidth: 4,
-                        x: 9 * mapScale, y: 10 * mapScale,
-                        fontSize: 40,
-                        fontFamily: 'Verdana, sans-serif',
-                        text: winstring
-                    }).restoreCanvas();
-                }
-                if (Math.abs(blockCOM_x - goalPositionX) < 2 && Math.abs(blockCOM_y - goalPositionY) < 2) {
-                    goalRecieved = true;
-
-                    if (wroteFinish == false) {
-                        timeFinished = elapsedTimeSec;
-                        wroteFinish = true;
-                    }
-                    m_controlState = ROBOT_INPUT.ROBOT_IDLE;
-                }
-                var block_difference = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-
-                if (!goalRecieved) {
-                    if (timer_var && (block_difference < 4) && (!robotVar)) {
-                        min_desired_var_x = .1;
-                        min_desired_var_y = min_desired_var_x;
-                    } else if (!robotVar) {
-                        max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
-                        min_desired_var_x = numrobots * robotrad * min_desired_var_x_constant; //was .663
-                        max_desired_var_y = max_desired_var_x;
-                        min_desired_var_y = min_desired_var_x;
-                    }
-
-                    if (var_x < min_desired_var_x && var_y < min_desired_var_y) {
-                        flagVar = false;
-                    }
-                    if (var_x > max_desired_var_x || var_y > max_desired_var_y) {
-                        flagVar = true;
-                    }
-
-                    if (flagVar && !robotVar) {
-                        if (!timer_var) {
-                            if (regionMain)//if the object is in a main region
-                            {
-                                if (regionNum == 0) {
-                                    IndexMinDist = 0;
-                                } else if (regionNum == 1) {
-                                    IndexMinDist = 2;
-                                } else {
-                                    IndexMinDist = 4;
-                                }
-                            }
-                            else //if the object is in a transfer region
-                            {
-                                if (regionNum == 0) {
-                                    IndexMinDist = 1;
-                                } else {
-                                    IndexMinDist = 3;
-                                }
-                            }
-                        } else {
-                            if (regionMain)//if the object is in a main region
-                            {
-                                if (regionNum == 0) {
-                                    IndexMinDist = 1;
-                                } else if (regionNum == 1) {
-                                    IndexMinDist = 3;
-                                } else {
-                                    IndexMinDist = 5;
-                                }
-                            }
-                            else //if the object is in a transfer region
-                            {
-                                if (regionNum == 0) {
-                                    IndexMinDist = 2;
-                                } else {
-                                    IndexMinDist = 4;
-                                }
-                            }
+                        //Goes into loop if mean is rho distance away from the object
+                        if ((rho < rhoNot && Math.abs(angdiff) > (goalAngle)) && !robotVar) {
+                            //Creating the repulsive and attractive field vectors
+                            FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointX - mean_position_x);
+                            FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointY - mean_position_y);
+                            rho = lineDistance(mean_position_x, mean_position_y, attPointX, attPointY);
+                            FattX = zeta * (mean_position_x - attPointX) / rho;
+                            FattY = zeta * (mean_position_y - attPointY) / rho;
+                            distX = -CGoal * Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX));
+                            distY = -CGoal * Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX));
+                            max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;
+                            max_desired_var_y = max_desired_var_x;
+                        } else if (!robotVar) {
+                            var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
+                            if (COMdist2swarm < 1.5) {
+                                var r = 0.1;
+                            } else var r = 0.8;
+                            distX = CGoal * Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
+                            distY = CGoal * Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
+                            max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;
+                            max_desired_var_y = max_desired_var_x;
                         }
-                        goalX = mean_position_x + Math.cos(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
-                        goalY = mean_position_y + Math.sin(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
-
+                        goalStartTime = day.getTime();
                     }
-                    if (!flagVar && !robotVar) {
-                        var r = 0.8;
-                        alphaWant = Math.atan2(policy_y[block_x][block_y], policy_x[block_x][block_y]);
-
-                        attPointX = blockCOM_x - r * Math.cos(alphaWant + Math.PI);
-                        attPointY = blockCOM_y - r * Math.sin(alphaWant + Math.PI);
-                        repPointX = blockCOM_x;
-                        repPointY = blockCOM_y;
-                        if (1000 < day.getTime() - goalStartTime || firstloop) {
-                            rho = lineDistance(mean_position_x, mean_position_y, repPointX, repPointY);
-
-                            inside = inside + 1;
-
-                            theta = Math.atan2(mean_position_y - repPointY, mean_position_x - repPointX);
-                            angdiff = alphaWant - theta;
-                            if (angdiff > Math.PI) { angdiff = angdiff - 2 * Math.PI };
-                            if (angdiff < -Math.PI) { angdiff = angdiff + 2 * Math.PI };
-                            var CGoal = 1;
-
-                            if ((rho < rhoNot && Math.abs(angdiff) > (goalAngle)) && !robotVar) {
-                                FrepX = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointX - mean_position_x);//change these lines
-                                FrepY = eta * ((1 / rho) - (1 / rhoNot)) * (1 / rho) * (1 / rho) * (repPointY - mean_position_y);
-                                rho = lineDistance(mean_position_x, mean_position_y, attPointX, attPointY);
-                                FattX = zeta * (mean_position_x - attPointX) / rho;//change these lines
-                                FattY = zeta * (mean_position_y - attPointY) / rho;
-                                distX = -CGoal * Math.cos(Math.atan2(FattY + FrepY, FattX + FrepX));
-                                distY = -CGoal * Math.sin(Math.atan2(FattY + FrepY, FattX + FrepX));
-                                max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
-                                max_desired_var_y = max_desired_var_x;
-                            } else if (!robotVar) {
-                                var COMdist2swarm = lineDistance(blockCOM_x, blockCOM_y, mean_position_x, mean_position_y);
-                                if (COMdist2swarm < 1.5) {
-                                    var r = 0.1;
-                                } else var r = 0.8;
-                                distX = CGoal * Math.cos(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
-                                distY = CGoal * Math.sin(Math.atan2(blockCOM_y + r * policy_y[block_x][block_y] - mean_position_y, blockCOM_x + r * policy_x[block_x][block_y] - mean_position_x));
-                                max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
-                                max_desired_var_y = max_desired_var_x;
-                            }
-                            goalStartTime = day.getTime();
-                        }
-                        goalX = mean_position_x + distX;
-                        goalY = mean_position_y + distY;
-                    }
-
-                    string = "Time = " + elapsedTimeSec + "s<br>inside # " + inside;
-                    $('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
-
-                    $("canvas").drawArc({ //draw the average position
-                        strokeStyle: "red",
-                        strokeWidth: 5,
-                        x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                        radius: radius * mapScale
-                    })
-                    .drawEllipse({
-                        strokeStyle: "green",
-                        strokeWidth: 5,
-                        setLineDash: 6,
-                        x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                        width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
-                        rotate: angle2
-                    })
-                    .drawEllipse({
-                        strokeStyle: "green",
-                        strokeWidth: 5,
-                        setLineDash: 6,
-                        x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                        width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
-                        rotate: angle2
-                    }).restoreCanvas();
-
-                    var Kgain = 10; //faster=bigger
-                    var Kderivative = 1; //smaller=faster
-                    var sum_velocity_x = 0;
-                    var sum_velocity_y = 0;
-                    for (var i = 0; i < numrobots; ++i) {
-                        sum_velocity_x += m_Robot[i].GetLinearVelocity().x;
-                        sum_velocity_y += m_Robot[i].GetLinearVelocity().y;
-                    }
-                    var mean_velocity_x = sum_velocity_x / numrobots;
-                    var mean_velocity_y = sum_velocity_y / numrobots;
-                    m_ControlInputY = Kgain * (goalY - mean_position_y) + Kderivative * (0 - mean_velocity_y);
-                    m_ControlInputX = Kgain * (goalX - mean_position_x) + Kderivative * (0 - mean_velocity_x);
-                    m_controlState = ROBOT_INPUT.ROBOT_PROP;
+                    goalX = mean_position_x + distX;
+                    goalY = mean_position_y + distY;
                 }
 
-                if (firstloop) { firstloop = false; }
-            } else console.log("IsNAN");
+                //Begin drawing time
+                string = "Time = " + elapsedTimeSec + "s<br>inside # " + inside;
+                $('#cc').html(string); //USERDATA WILL SHOWN IN "div" WITH ID "cc"
+
+                $("canvas").drawArc({ //draw the average position
+                    strokeStyle: "red",
+                    strokeWidth: 5,
+                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                    radius: radius * mapScale
+                })
+                .drawEllipse({
+                    strokeStyle: "green",
+                    strokeWidth: 5,
+                    setLineDash: 6,
+                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                    width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
+                    rotate: angle2
+                })
+                .drawEllipse({
+                    strokeStyle: "green",
+                    strokeWidth: 5,
+                    setLineDash: 6,
+                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                    width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
+                    rotate: angle2
+                }).restoreCanvas();
+                //end drawing time
+
+                //Setting velocities of robots
+                var Kgain = 10;
+                var Kderivative = 1;
+                var sum_velocity_x = 0;
+                var sum_velocity_y = 0;
+                for (var i = 0; i < numrobots; ++i) {
+                    sum_velocity_x += m_Robot[i].GetLinearVelocity().x;
+                    sum_velocity_y += m_Robot[i].GetLinearVelocity().y;
+                }
+                var mean_velocity_x = sum_velocity_x / numrobots;
+                var mean_velocity_y = sum_velocity_y / numrobots;
+                m_ControlInputY = Kgain * (goalY - mean_position_y) + Kderivative * (0 - mean_velocity_y);
+                m_ControlInputX = Kgain * (goalX - mean_position_x) + Kderivative * (0 - mean_velocity_x);
+                m_controlState = ROBOT_INPUT.ROBOT_PROP;
+            }
+
+            if (firstloop) { firstloop = false; }
         }; //end update
     };
 </script>
