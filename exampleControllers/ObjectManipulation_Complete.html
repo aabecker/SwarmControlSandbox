@@ -159,8 +159,6 @@
         }
     }
 
-
-
     function Gradient(x, y) {  // computes the x and y gradient of cell(x,y)  requires a map with distance values.
         var dist = map[x][y];
         if (dist == -1) {
@@ -337,7 +335,7 @@
                         outcomes: []
                     }
                 }
-            } else if (testObj) {
+            } else if (testObj) { //Tests object density
                 test = {
                     currentRun: 0,
                     test: {
@@ -363,10 +361,10 @@
                 objAngularConst = value;
                 objLinearConst = objAngularConst;
             }
-        } else
-        var numrobots = 100; //Counter for number of robots in regions
-        var totalRobots = 100; //Total number of robots in simulation
-
+        } else {
+            var numrobots = 100; //Counter for number of robots in regions
+            var totalRobots = 100; //Total number of robots in simulation
+        }
         //region Arrays
         var mainMaps = new Array();
         var transferMaps = new Array();
@@ -728,7 +726,7 @@
             return Math.sqrt(xs + ys);
         }
 
-        var hasLoggedData = false; //control variable for localStorage
+        var hasLoggedData = false; //Flag to show that result is stored in Local Storage
         function update() {
             var impulseV = new b2Vec2(0, 0);
             var impulse = 3.0;
@@ -762,6 +760,7 @@
             //Calculates the min/max variance limit based on vary
             var max_desired_var_x_constant = (.006) * vary + .45;
             var min_desired_var_x_constant = (max_desired_var_x_constant - (.005 * vary + .3));
+            //Applies velocity to robots
             for (var i = 0; i < m_Robot.length; i++) {
                 mag = vary * Math.random();
                 ang = 2 * Math.PI * Math.random();
@@ -946,9 +945,9 @@
                                 rotate: angle
                             })
                             .drawPolygon({
-                                strokeStyle: 'black',
+                                strokeStyle: 'black', //Black perimeter
                                 strokeWidth: 8,
-                                fillStyle: "#39FF14",
+                                fillStyle: "#39FF14", //Inside color
                                 x: pos.x * mapScale, y: pos.y * mapScale,
                                 radius: 1.5 * mapScale,
                                 sides: 6,
@@ -1128,7 +1127,7 @@
                 state.currentRun++;
                 localStorage.setItem("test", JSON.stringify(state));
             }
-            ////////////switching regions
+            //Toggles state machine and switches regions
             if (regionMain) {
                 var blockPosition = mainMaps[regionNum][block_x][block_y];
             }
@@ -1156,6 +1155,7 @@
                 }
             }
             var regionRobotCount = 0; //Number of robots in current region
+            //Get sum of all robots in region
             if (regionMain) {
                 for (var i = 0; i < totalRobots; ++i) {
                     var pos_x = Math.floor(m_Robot[i].GetPosition().x);
@@ -1184,7 +1184,7 @@
             //Mean calculation
             var mean_position_x = sum_position_x / numrobots;
             var mean_position_y = sum_position_y / numrobots;
-            //Covariance calculation
+            //Covariance calculation for robots in region
             if (regionMain) {
                 for (var i = 0; i < numrobots; ++i) {
                     var pos_x = Math.floor(m_Robot[i].GetPosition().x);
@@ -1209,7 +1209,7 @@
                     }
                 }
             }
-            //Set variance control min/max
+            //Calculate variance control min/max
             max_desired_var_x = numrobots * robotrad * max_desired_var_x_constant;//numrobots * robotrad * .20; //was 1.91
             min_desired_var_x = numrobots * robotrad * min_desired_var_x_constant; //was .663
             max_desired_var_y = max_desired_var_x;
@@ -1234,9 +1234,11 @@
                 robotVar = false;
                 robotVarTimer = false;
             }
-            //When robotVar=true, loops once and robotVarTimer sets this as a goal for five seconds.
-            //Calculate appropriate corner to regroup.
+            /*When robotVar=true, loops once and robotVarTimer sets this as a goal for five seconds.
+            robotVarTimer solves the bouncing back and forth issue.
+            Calculate appropriate corner to regroup.*/
             if (robotVar && !robotVarTimer) {
+                //Counts robots in each region
                 robotVarTimer = true;
                 var countMain0 = 0;
                 var countMain1 = 0;
@@ -1255,6 +1257,7 @@
                         countMain2++;
                     }
                 }
+                //Finds the main regions with the most and second most robots
                 if ((countMain0 >= countMain1) && (countMain0 >= countMain2)) {
                     mostRobotMainRegion = 0;
                     if (countMain1 >= countMain2) {
@@ -1280,9 +1283,9 @@
                 if (objPos0 == 1) { objMain = 0; }
                 else if (objPos1 == 1) { objMain = 1; }
                 else { objMain = 2; }
-                //finding the right var corner
             }
-            //Checks this every time and goes to appropriate corner 
+            /*Checks this every time and goes to appropriate corner 
+            finding the right var corner*/
             if (robotVar) {
                 if (objMain == 0) {
                     corner = 1;
@@ -1296,6 +1299,9 @@
                 goalX = mean_position_x + Math.cos(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
                 goalY = mean_position_y + Math.sin(Math.atan2(CornerValuesY[IndexMinDist] - mean_position_y, CornerValuesX[IndexMinDist] - mean_position_x));
             }
+
+            //Checks if mean has been stuck for five seconds
+            //Timers
             if (stop_timer) {
                 timer = 0;
                 start_timer = true; //starts timer
@@ -1308,8 +1314,7 @@
                 prev_mean_position_y = mean_position_y;
                 start_timer = false;
             }
-            //Checks if mean has been stuck for five seconds
-            if ((elapsedTimeSec - timer) > 5) {
+            if ((elapsedTimeSec - timer) > 5) {//Timer to get mean position every five seconds
                 var mean_difference_x = Math.abs(prev_mean_position_x - mean_position_x);
                 var mean_difference_y = Math.abs(prev_mean_position_y - mean_position_y);
                 var mean_difference = lineDistance(mean_difference_x, mean_difference_y, 0, 0);
@@ -1508,14 +1513,15 @@
                 m_ControlInputX = Kgain * (goalX - mean_position_x) + Kderivative * (0 - mean_velocity_x);
                 m_controlState = ROBOT_INPUT.ROBOT_PROP;
             }
-            if (goalRecieved && !hasLoggedData && testing) { //stores game time
-                var state = JSON.parse(localStorage.getItem("test"));
-                state.test.outcomes[state.currentRun] = elapsedTimeSec;
+            //Saves results in Local Storage
+            if (goalRecieved && !hasLoggedData && testing) { 
+                var state = JSON.parse(localStorage.getItem("test")); //Saves Local Storage object
+                state.test.outcomes[state.currentRun] = elapsedTimeSec; //Stores results
                 hasLoggedData = true;
-                location.reload(true);
-                state.currentRun++;
-                localStorage.setItem("test", JSON.stringify(state));
-            } else if ((elapsedTimeSec > 1000) && testing) { //runtime error
+                location.reload(true); //Reloads page for a new simulation
+                state.currentRun++; //Increments input array runs:[]
+                localStorage.setItem("test", JSON.stringify(state)); //Puts the adjusted objected back into Local Storage
+            } else if ((elapsedTimeSec > 1000) && testing) { //Records run time error
                 var state = JSON.parse(localStorage.getItem("test"));
                 state.test.outcomes[state.currentRun] = state.test.runs[state.currentRun] + " run time error";
                 hasLoggedData = true;
