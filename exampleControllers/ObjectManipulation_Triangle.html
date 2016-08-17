@@ -465,9 +465,15 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
         fixDef.isSensor = false;
         scale = 1.1;
         var Mpoints = [
+        /*
                             { x: 1 / 2 * scale, y: Math.sqrt(3) / 2 * scale },
                             { x: -1 * scale, y: 0 },
                             { x: 1 / 2 * scale, y: -Math.sqrt(3) / 2 * scale }];
+        */
+
+                            { x: Math.sqrt(3) / 2 * scale, y: 1/2* scale },
+                            { x: -Math.sqrt(3) / 2 * scale, y: 1/2*scale},
+                            { x: 0 * scale, y: -1 * scale }];
         var points = Mpoints.map(function _makeVecBased(pt) {
             return new Box2D.Common.Math.b2Vec2(2 * pt.x, 2 * pt.y);
         });
@@ -1065,29 +1071,14 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                 })
                 .drawArc(
                 {
-                    strokeStyle: "lightblue",
-                    strokeWidth: 1,
-                    fillStyle: "blue",
+                    strokeStyle: "blue",
+                    strokeWidth: 3,
+                    fillStyle: "#39FF14",
                     x: x * mapScale, y: y * mapScale,
                     radius: radius * mapScale
                 })
                 .restoreCanvas();
-                /*$("canvas").rotateCanvas(
-               {
-                   x: x * mapScale, y: y * mapScale,
-                   rotate: angle
-               })
-               .drawArc(
-               {
-                   strokeStyle: "lightblue",
-                   strokeWidth: 1,
-                   fillStyle: "#39FF14",
-                   x: x * mapScale, y: y * mapScale,
-                   radius: radius * mapScale*.4
-               })
-               .restoreCanvas();*/
             }
-
             //draw robots and obstacles
             for (b = world.GetBodyList() ; b; b = b.GetNext()) {
                 var angle = b.GetAngle() * (180 / Math.PI);
@@ -1119,7 +1110,7 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                 $("canvas")
                                 .rotateCanvas({
                                     x: pos.x * mapScale, y: pos.y * mapScale,
-                                    rotate: angle
+                                    //rotate: angle
 
                                 })
                                 .drawPolygon({
@@ -1127,9 +1118,9 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                                     strokeWidth:8,
                                     fillStyle: '#39FF14',
                                     x: pos.x * mapScale, y: pos.y * mapScale,
-                                    radius: 2.3 * mapScale,
+                                    radius: 2.05 * mapScale,
                                     sides: 3,
-                                    rotate: angle  || 0
+                                    rotate: angle  
                                 }).restoreCanvas();
                                 //color = '#39FF14';
                                 //$("canvas")
@@ -1728,23 +1719,23 @@ try a hysteresis based on time (go to corner for 5 seconds, then push.   If push
                     strokeWidth: 5,
                     x: mean_position_x * mapScale, y: mean_position_y * mapScale,
                     radius: radius * mapScale
-                })
-                .drawEllipse({
-                    strokeStyle: "green",
-                    strokeWidth: 5,
-                    setLineDash: 6,
-                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                    width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
-                    rotate: angle2
-                })
-                .drawEllipse({
-                    strokeStyle: "green",
-                    strokeWidth: 5,
-                    setLineDash: 6,
-                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                    width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
-                    rotate: angle2
                 }).restoreCanvas();
+                // .drawEllipse({
+                //     strokeStyle: "green",
+                //     strokeWidth: 5,
+                //     setLineDash: 6,
+                //     x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                //     width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
+                //     rotate: angle2
+                // })
+                // .drawEllipse({
+                //     strokeStyle: "green",
+                //     strokeWidth: 5,
+                //     setLineDash: 6,
+                //     x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                //     width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
+                //     rotate: angle2
+                // }).restoreCanvas();
                 var Kgain = 10; //faster=bigger
                 var Kderivative = 1; //smaller=faster
                 var sum_velocity_x = 0;

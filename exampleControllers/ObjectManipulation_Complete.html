@@ -250,16 +250,16 @@
     }
 
     //Variables for simulation tests
-    var testing = true; //Turn on to simulate and save results
-    var testRobots = true; //Changes number of robots
+    var testing = false; //Turn on to simulate and save results
+    var testRobots = false; //Changes number of robots
     var testNoise = false; //Changes brownian noise
     var testObj = false; //Changes obj's angular/linear Const
 
     var TestShapes = false; //Turn on to save results
     var Circle = false; //Set the desired shape to true
     var Square = false;
-    var Hexagon = true;
-    var shortRect = false;
+    var Hexagon = false;
+    var shortRect = true;
     var longRect = false;
     //Triangle doesn't work here. Go to file ObjectManipulation Triangle for simulation
     var Triangle = false; 
@@ -1482,23 +1482,23 @@
                     strokeWidth: 5,
                     x: mean_position_x * mapScale, y: mean_position_y * mapScale,
                     radius: radius * mapScale
-                })
-                .drawEllipse({
-                    strokeStyle: "green",
-                    strokeWidth: 5,
-                    setLineDash: 6,
-                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                    width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
-                    rotate: angle2
-                })
-                .drawEllipse({
-                    strokeStyle: "green",
-                    strokeWidth: 5,
-                    setLineDash: 6,
-                    x: mean_position_x * mapScale, y: mean_position_y * mapScale,
-                    width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
-                    rotate: angle2
                 }).restoreCanvas();
+                // .drawEllipse({
+                //     strokeStyle: "green",
+                //     strokeWidth: 5,
+                //     setLineDash: 6,
+                //     x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                //     width: 3 * 30 * Math.sqrt(min_desired_var_x), height: 3 * 30 * Math.sqrt(min_desired_var_y),
+                //     rotate: angle2
+                // })
+                // .drawEllipse({
+                //     strokeStyle: "green",
+                //     strokeWidth: 5,
+                //     setLineDash: 6,
+                //     x: mean_position_x * mapScale, y: mean_position_y * mapScale,
+                //     width: 3 * 30 * Math.sqrt(max_desired_var_x), height: 3 * 30 * Math.sqrt(max_desired_var_y),
+                //     rotate: angle2
+                // }).restoreCanvas();
                 var Kgain = 10; //faster=bigger
                 var Kderivative = 1; //smaller=faster
                 var sum_velocity_x = 0;
