@@ -63,7 +63,7 @@
                 test = {
                     currentRun: 0,
                     test: {
-                        runs: [20,50,100, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
+                        runs: [144,20,50,100, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
                         outcomes: []
                     }
                 }
@@ -100,8 +100,8 @@
                 objLinearConst = objAngularConst;
             }
         } else
-            var numrobots = 100; //getting value for robots
-
+            var numrobots = 144; //getting value for robots
+            var numrobots=144;
         var overall_time = null;
         var cov_desired_negative = -3;
         var cov_desired_positive = 3;
@@ -290,8 +290,8 @@
                         totalRobots = value;
                     } else if (testNoise) {
                         vary = value; //getting value for brownian noise
-                        numrobots = 100; //getting value for robots
-                        totalRobots = 100;
+                        numrobots = 144; //getting value for robots
+                        totalRobots = 144;
                     }
                 }
             }

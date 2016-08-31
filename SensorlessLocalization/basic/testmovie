@@ -1,3 +1,0 @@
-#!/bin/sh
-ezmake && ./loc prob8.in --movie frames | tee out
-# ezmake && rm frames/* && ./loc prob8.in --movie frames && ./makemovie frames ../prob8.mpeg && mplayer prob8.mpeg

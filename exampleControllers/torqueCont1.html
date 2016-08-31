@@ -401,9 +401,9 @@
 		{
 			var Rad = rAngle * Math.PI / 180;
 			var addedAngle = Math.atan2(0.5,objectWidth);
-			var addedLength = objectWidth /4;
-			goalX = blockCOM_x + Math.sin(Rad+ addedAngle) * (addedLength);
-			goalY = blockCOM_y - Math.cos(Rad+ addedAngle) * (addedLength);
+			var addedLength = 3/4*objectWidth;
+			goalX = blockCOM_x + Math.sin(Rad+ addedAngle) * (addedLength)+1;
+			goalY = blockCOM_y - Math.cos(Rad+ addedAngle) * (addedLength)+1;
 
 			//if(mean_position_x < goalX + e && mean_position_x > goalX-e && mean_position_y < goalY + e && mean_position_y > goalY-e )
 			if(var_x > maxVar || var_y > maxVar||(mean_position_x < goalX + e && mean_position_x > goalX-e && mean_position_y < goalY + e && mean_position_y > goalY-e ))

@@ -1,8 +1,0 @@
-To compile:
-g++ loc.cpp point.cpp fig.cpp util.cpp 
-
-To run:
-./a.out prob8.in --movie frames | tee out
-
-./a.out prob8.in --movie frames && ./makemovie frames ../prob8.mpeg && mplayer prob8.mpeg
-./a.out prob7.in --movie frames && ./makemovie frames ../prob8.mpeg && mplayer prob8.mpeg
