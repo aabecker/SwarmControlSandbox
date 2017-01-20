@@ -3,10 +3,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[         0,          0]
-NotebookDataLength[     79553,       1817]
-NotebookOptionsPosition[     78722,       1783]
-NotebookOutlinePosition[     79082,       1799]
-CellTagsIndexPosition[     79039,       1796]
+NotebookDataLength[     80071,       1835]
+NotebookOptionsPosition[     79169,       1798]
+NotebookOutlinePosition[     79526,       1814]
+CellTagsIndexPosition[     79483,       1811]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -21,7 +21,7 @@ the simulation because it is buggy.\
   3.651402902589365*^9, 3.6514029170911627`*^9}}],
 
 Cell[TextData[{
- StyleBox["Shiva Shakrockhi and Aaron Becker", "Subsubsection"],
+ StyleBox["Shiva Shahrokhi and Aaron Becker", "Subsubsection"],
  "\n\nAssume friction is inifinite:  a robot touching top wall will not move \
 in ",
  StyleBox["x",
@@ -33,7 +33,7 @@ to choose which function to use\nsimulate the inputs."
 }], "Text",
  CellChangeTimes->{{3.642115601949304*^9, 3.642115760596417*^9}, {
   3.642149838083499*^9, 3.642149854093453*^9}, {3.651274536610463*^9, 
-  3.651274568457918*^9}}],
+  3.651274568457918*^9}, {3.6900297323369513`*^9, 3.690029734372902*^9}}],
 
 Cell[BoxData[
  RowBox[{"\[IndentingNewLine]", 
@@ -268,7 +268,7 @@ Cell[BoxData[
                RowBox[{"moveOK", ",", 
                 RowBox[{"pos", "+", "move"}], ",", "pos"}], "]"}]}]}], 
             "\[IndentingNewLine]", "]"}], ",", " ", "pos"}], "]"}]}]}], 
-       "\[IndentingNewLine]", "]"}]}], "]"}]}], "\[IndentingNewLine]", "\n", 
+       "\[IndentingNewLine]", "]"}]}], "]"}]}], "\n", "\[IndentingNewLine]", 
    RowBox[{
     RowBox[{"achieveDesiredXspacing", "[", 
      RowBox[{"ps1_", ",", "ps2_", ",", "pe1_", ",", "pe2_"}], "]"}], ":=", 
@@ -577,7 +577,7 @@ Cell[BoxData[
          RowBox[{
          "moves", ",", "currPosTop", ",", "currPosBottom", ",", "endPosTop", 
           ",", "endPosBottom"}], "}"}], "]"}], ";"}]}], "\[IndentingNewLine]",
-      "]"}]}], "\n", "\[IndentingNewLine]", 
+      "]"}]}], "\[IndentingNewLine]", "\n", 
    RowBox[{
     RowBox[{"achieveDesiredYspacing", "[", 
      RowBox[{"ps1_", ",", "ps2_", ",", "pe1_", ",", "pe2_"}], "]"}], ":=", 
@@ -1558,13 +1558,17 @@ Cell[BoxData[
 Cell[BoxData[
  TagBox[
   StyleBox[
-   DynamicModuleBox[{$CellContext`pe1$$ = {0.198, 
-    0.592}, $CellContext`pe2$$ = {0.488, 0.67}, $CellContext`progress$$ = 
-    1, $CellContext`ps1$$ = {0.795, 0.52}, $CellContext`ps2$$ = {
-    0.6666666666666666, 0.25}, Typeset`show$$ = True, 
-    Typeset`bookmarkList$$ = {}, Typeset`bookmarkMode$$ = "Menu", 
-    Typeset`animator$$, Typeset`animvar$$ = 1, Typeset`name$$ = 
-    "\"untitled\"", Typeset`specs$$ = {{{
+   DynamicModuleBox[{$CellContext`pe1$$ = {
+     Rational[1, 8], 
+     Rational[1, 7]}, $CellContext`pe2$$ = {
+     Rational[1, 5], 
+     Rational[1, 9]}, $CellContext`progress$$ = 1, $CellContext`ps1$$ = {
+     Rational[1, 3], 
+     Rational[1, 8]}, $CellContext`ps2$$ = {
+     Rational[2, 3], 
+     Rational[1, 4]}, Typeset`show$$ = True, Typeset`bookmarkList$$ = {}, 
+    Typeset`bookmarkMode$$ = "Menu", Typeset`animator$$, Typeset`animvar$$ = 
+    1, Typeset`name$$ = "\"untitled\"", Typeset`specs$$ = {{{
        Hold[$CellContext`progress$$], 1}, 0, 1}, {{
        Hold[$CellContext`ps1$$], {
         Rational[1, 3], 
@@ -1579,10 +1583,9 @@ Cell[BoxData[
         Rational[1, 5], 
         Rational[1, 9]}}, {0, 0}, {1, 1}}}, Typeset`size$$ = {
     360., {177., 182.}}, Typeset`update$$ = 0, Typeset`initDone$$, 
-    Typeset`skipInitDone$$ = True, $CellContext`progress$1295498$$ = 
-    0, $CellContext`ps1$1295499$$ = {0, 0}, $CellContext`ps2$1295500$$ = {0, 
-    0}, $CellContext`pe1$1295501$$ = {0, 0}, $CellContext`pe2$1295502$$ = {0, 
-    0}}, 
+    Typeset`skipInitDone$$ = True, $CellContext`progress$6997$$ = 
+    0, $CellContext`ps1$6998$$ = {0, 0}, $CellContext`ps2$6999$$ = {0, 
+    0}, $CellContext`pe1$7000$$ = {0, 0}, $CellContext`pe2$7001$$ = {0, 0}}, 
     DynamicBox[Manipulate`ManipulateBoxes[
      1, StandardForm, "Variables" :> {$CellContext`pe1$$ = {
           Rational[1, 8], 
@@ -1594,11 +1597,11 @@ Cell[BoxData[
           Rational[1, 8]}, $CellContext`ps2$$ = {
           Rational[2, 3], 
           Rational[1, 4]}}, "ControllerVariables" :> {
-        Hold[$CellContext`progress$$, $CellContext`progress$1295498$$, 0], 
-        Hold[$CellContext`ps1$$, $CellContext`ps1$1295499$$, {0, 0}], 
-        Hold[$CellContext`ps2$$, $CellContext`ps2$1295500$$, {0, 0}], 
-        Hold[$CellContext`pe1$$, $CellContext`pe1$1295501$$, {0, 0}], 
-        Hold[$CellContext`pe2$$, $CellContext`pe2$1295502$$, {0, 0}]}, 
+        Hold[$CellContext`progress$$, $CellContext`progress$6997$$, 0], 
+        Hold[$CellContext`ps1$$, $CellContext`ps1$6998$$, {0, 0}], 
+        Hold[$CellContext`ps2$$, $CellContext`ps2$6999$$, {0, 0}], 
+        Hold[$CellContext`pe1$$, $CellContext`pe1$7000$$, {0, 0}], 
+        Hold[$CellContext`pe2$$, $CellContext`pe2$7001$$, {0, 0}]}, 
       "OtherVariables" :> {
        Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
         Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
@@ -1717,14 +1720,25 @@ $CellContext`mv$]; AppendTo[$CellContext`path1$, $CellContext`pm1$];
    3.65129015760419*^9, 3.651290339347382*^9, {3.651290833584909*^9, 
    3.651290857516622*^9}, 3.651290902558279*^9, 3.651290993145546*^9, 
    3.651291088318185*^9, 3.651291174024581*^9, 3.6512912356953297`*^9, 
-   3.651291356817165*^9, 3.651291633105466*^9, 3.65129176028323*^9}]
+   3.651291356817165*^9, 3.651291633105466*^9, 3.65129176028323*^9, {
+   3.690029725976514*^9, 3.6900297262364473`*^9}}]
 }, Open  ]],
+
+Cell[CellGroupData[{
 
 Cell[BoxData[
  RowBox[{"Somehow", " ", "it", " ", 
   RowBox[{"isn", "'"}], "t", " ", "finding", " ", "the", " ", 
   "bottom"}]], "Input",
  CellChangeTimes->{{3.651289039372992*^9, 3.651289048326487*^9}}],
+
+Cell[BoxData[
+ RowBox[{"bottom", " ", "finding", " ", "it", " ", "Somehow", " ", "t", " ", 
+  "the", " ", 
+  SuperscriptBox["isn", "\[Prime]",
+   MultilineFunction->None]}]], "Output",
+ CellChangeTimes->{3.690029726327395*^9}]
+}, Open  ]],
 
 Cell[BoxData[
  RowBox[{
@@ -1778,11 +1792,12 @@ Cell[BoxData[
     RowBox[{"{", 
      RowBox[{"0", ",", "0"}], "}"}], ",", 
     RowBox[{"{", 
-     RowBox[{"1", ",", "1"}], "}"}], ",", "Locator"}], "}"}]}]], "Input"]
+     RowBox[{"1", ",", "1"}], "}"}], ",", "Locator"}], "}"}]}]], "Input",
+ EmphasizeSyntaxErrors->True]
 }, Open  ]]
 },
-WindowSize->{1263, 694},
-WindowMargins->{{Automatic, -8}, {Automatic, 383}},
+WindowSize->{1280, 687},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
 FrontEndVersion->"10.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (September 9, \
 2014)",
 StyleDefinitions->"Default.nb"
@@ -1800,17 +1815,20 @@ CellTagsIndex->{}
 Notebook[{
 Cell[CellGroupData[{
 Cell[422, 15, 262, 5, 44, "Subsection"],
-Cell[687, 22, 668, 13, 189, "Text"],
-Cell[1358, 37, 45958, 1065, 2705, "Input",
+Cell[687, 22, 715, 13, 189, "Text"],
+Cell[1405, 37, 45958, 1065, 2705, "Input",
  InitializationCell->True],
-Cell[47319, 1104, 165, 3, 28, "Input"],
+Cell[47366, 1104, 165, 3, 28, "Input"],
 Cell[CellGroupData[{
-Cell[47509, 1111, 21077, 444, 828, "Input",
+Cell[47556, 1111, 21077, 444, 828, "Input",
  InitializationCell->True],
-Cell[68589, 1557, 8385, 162, 470, "Output"]
+Cell[68636, 1557, 8492, 166, 470, "Output"]
 }, Open  ]],
-Cell[76989, 1722, 203, 4, 28, "Input"],
-Cell[77195, 1728, 1511, 52, 80, "Input"]
+Cell[CellGroupData[{
+Cell[77165, 1728, 203, 4, 28, "Input"],
+Cell[77371, 1734, 226, 5, 30, "Output"]
+}, Open  ]],
+Cell[77612, 1742, 1541, 53, 80, "Input"]
 }, Open  ]]
 }
 ]
