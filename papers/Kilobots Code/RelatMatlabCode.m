@@ -1,7 +1,7 @@
 clear all
 
 
-a = arduino('/dev/tty.usbmodem1421','uno');
+a = arduino('/dev/tty.usbmodem1411','uno');
 
 
 RELAY1 = 7;
@@ -13,6 +13,6 @@ RELAY6 = 2;
 RELAY7 = 8;
 RELAY8 = 9;
         
-relayOn(a,0);
+relayOn(a,1); 
       
 pause(2);

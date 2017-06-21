@@ -6,14 +6,27 @@
 
 clear all
 
+
+makeMovie = true;
+if makeMovie
+    global G
+    MOVIE_NAME = ['Torque',datestr(now)];
+    G.fig = figure(1);
+    clf
+    set(G.fig,'Units','normalized','outerposition',[0 0 1 1],'NumberTitle','off','MenuBar','none','color','w');
+    writerObj = VideoWriter(MOVIE_NAME,'MPEG-4');%http://www.mathworks.com/help/matlab/ref/videowriterclass.html
+    set(writerObj,'Quality',100);
+    open(writerObj);
+end
+
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
 webcam1 = true;
-relay = true;
+relay = false;
 inDebug = false;
 success = false;
 first = true;
-delayTime = 10;
+delayTime = 1;
 load('EmptyMap', 'corners');
 
 % We have 8 Relays.
@@ -43,7 +56,7 @@ VarCont = false;
 frameCount = 1;
 again = true;
 scale = 30;
-bigEpsilon = 2 ;
+bigEpsilon = 30;
 smallEpsilon = 1;
 epsilon = bigEpsilon;
 obstacles = [];
@@ -71,7 +84,7 @@ while success == false
 %         writeDigitalPin(a, RELAY8,0);
 %         writeDigitalPin(a,RELAY5,0);
 %         writeDigitalPin(a,RELAY7,0);
-     pause (delayTime);
+     pause (10);
     end 
     end
     % Read in a webcam snapshot.
@@ -79,8 +92,8 @@ while success == false
         rgbIm = snapshot(cam);
     else
         rgbIm = imread('test.png');
-        figure
-        imshow(rgbIm)
+%         figure(1)
+%         imshow(rgbIm)
     end
     %crop to have just the table view.
     if webcam1
@@ -97,17 +110,16 @@ while success == false
     I2 = rgb2hsv(originalImage);
     
 % Define thresholds for channel 1 based on histogram settings
-channel1Min2 = 0.902;
-channel1Max2 = 0.938;
+channel1Min2 = 0.824;
+channel1Max2 = 0.996;
 
 % Define thresholds for channel 2 based on histogram settings
-channel2Min2 = 0.205;
+channel2Min2 = 0.088;
 channel2Max2 = 1.000;
 
 % Define thresholds for channel 3 based on histogram settings
-channel3Min2 = 0.795;
+channel3Min2 = 0.275;
 channel3Max2 = 1.000;
-
 % % Define thresholds for channel 1 based on histogram settings
 % channel1Min2 = 0.907;
 % channel1Max2 = 0.933;
@@ -169,8 +181,13 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
     ObjectCentroidY = centroids(index,2);
     ObjectOrientation = orientations(index);
     ObjectLength = majorLength(index);
+    figure(1);clf;
     imshow(originalImage);
     hold on
+    t = (-01:.01:1)*100;
+    line(centroids(index,1)+t*sin(orientations(index)*pi/180+pi/2),centroids(index,2)+t*cos(orientations(index)*pi/180+pi/2) , 'Color', 'black','linewidth',3);
+    plot(centroids(index,1), centroids(index,2),'*','Markersize',16,'color','white','linewidth',3);
+    %plot(centroids(index,1) + cos(orientations(index)*pi/180)* majorLength(index)/2.3,centroids(index,2) - sin(orientations(index)*pi/180)* majorLength(index)/2.3 ,'*','Markersize',16,'color','white','linewidth',3);
     for i = 1:size(corners)
         txt = int2str(i);
         text(corners(i,1)* scale,corners(i,2)*scale,txt,'HorizontalAlignment','right')
@@ -188,9 +205,9 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
    end
    size(obstacles)
    for i = 1: size(obstacles)
-       hold on
+      
        plot(centroids(obstacles(i),1) , centroids(obstacles(i),2),'*','Markersize',16,'color','black','linewidth',3);
-       t = (-01:.01:1)*100;
+       
        line(centroids(obstacles(i),1)+t*sin(orientations(obstacles(i))*pi/180+pi/2),centroids(obstacles(i),2)+t*cos(orientations(obstacles(i))*pi/180+pi/2) , 'Color', 'black','linewidth',3);
        plot(centroids(obstacles(i),1) + cos(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3,centroids(obstacles(i),2) - sin(orientations(obstacles(i))*pi/180)* majorLength(obstacles(i))/2.3 ,'*','Markersize',16,'color','white','linewidth',3);
    end
@@ -231,41 +248,54 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
     
     [s, l] = size(centers);
     h = viscircles(centers,radii,'EdgeColor','b');
-    if s > 5 
+ %   if s > 5 
         again = false;
         
-        if (V > maxVar)
-            VarCont = true;
-            epsilon = bigEpsilon;
-%             for i = 1:size(corners)
-%                 dist = sqrt((M(1,1)/scale - corners(i,1)) * (M(1,1)/scale - corners(i,1)) + (M(1,2)/scale- corners(i,2)) * (M(1,2)/scale- corners(i,2)));
-%                 if minDis > dist
-%                     minDis = dist;
-%                     corInd = i;
-%                 end   
-%             end
-            corInd = 1;
-            currgoalX = (corners(corInd,1))*scale;
-            currgoalY = (corners(corInd,2))*scale;
-    
-        end
-   if V< minVar
-      VarCont = false;
-   end
+%         if (V > maxVar)
+%             VarCont = true;
+%             epsilon = bigEpsilon;
+% %             for i = 1:size(corners)
+% %                 dist = sqrt((M(1,1)/scale - corners(i,1)) * (M(1,1)/scale - corners(i,1)) + (M(1,2)/scale- corners(i,2)) * (M(1,2)/scale- corners(i,2)));
+% %                 if minDis > dist
+% %                     minDis = dist;
+% %                     corInd = i;
+% %                 end   
+% %             end
+%             corInd = 1;
+%             currgoalX = (corners(corInd,1))*scale;
+%             currgoalY = (corners(corInd,2))*scale;
+%     
+%         end
+%    if V< minVar
+%       VarCont = false;
+%    end
    if ~VarCont
-       CL =1/4;
+       CL =0.2;
        currgoalX = ObjectCentroidX + cos(ObjectOrientation*pi/180)*ObjectLength * CL;
        currgoalY = ObjectCentroidY - sin(ObjectOrientation*pi/180)* ObjectLength*CL;
    end
+   if s>5
    plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red', 'linewidth',3);
+  
     plot(currgoalX , currgoalY,'*','Markersize',16,'color','cyan','linewidth',3);
     
     plot_gaussian_ellipsoid(M,C);
     newDot = [ObjectOrientation, toc(t0)];
     drawTime = [drawTime;newDot];
+   
     %M(frameCount)=getframe(gcf); 
      frameCount = frameCount +1;
       hold off
+     drawnow
+    %add video frame
+    if makeMovie
+        for k =0:30
+        figure(G.fig)
+        F = getframe;
+        writeVideo(writerObj,F.cdata);
+        frameCount = frameCount+1;
+        end
+    end
      if relay 
       if M(1,1) > currgoalX+epsilon
         if M(1,2) > currgoalY + epsilon
@@ -312,9 +342,10 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
                 else       
         %VarCont = true;
         again = true;
-        epsilon = smallEpsilon;
+        epsilon = bigEpsilon;
                 end
             end
+        end
         end
       end
 
@@ -357,14 +388,16 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
 %             end
 %         end
 %         end
-    save('July26CQuarter10min', 'drawTime');
-    if (toc(t0) > 600 && relay)
+
+    if (toc(t0) > 1800)
         success = true;
+        FileName=['FreeObject',datestr(now)];
+        save(FileName, 'drawTime');
+        close(writerObj);
         
-        
-        figure
+        figure(2)
         plot(drawTime(:,2),drawTime(:,1));
     end
      end
-    end
+ %   end
 end

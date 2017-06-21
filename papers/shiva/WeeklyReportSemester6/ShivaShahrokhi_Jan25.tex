@@ -1,0 +1,48 @@
+%%%% Weekly Report Information %%%%
+\newcommand{\handoutName}{Weekly report}
+\newcommand{\handoutdate}{\today}
+%\newcommand{\duedate}{}
+\input{Header.tex}
+
+\section{My \emph{Objectives} this week: Optimal Solution for the algorithm for two robots positioning using friction}
+\begin{itemize}
+\item Compute reachable regions for the optimal solution.
+\item Write down the code of optimal solution.
+\end{itemize}
+
+
+
+\section{My \emph{Accomplishments} this week}
+
+
+\begin{itemize}
+\item learnt more about mathematica, coding and understanding.
+\item the code for reachable regions for all 4 walls.
+\end{itemize}
+The reachable regions with regard to $\Delta x ,\Delta y$ is shown here. \\
+For horizontal (top and bottom) walls: $\Delta x \in [r2_x - r1_x -1 , 1]$ and $\Delta y \in [r2_y - r1_y , 0]$.\\
+For vertical (right and left) walls: $\Delta x \in [0 , r2_x - r1_x]$ and $\Delta y \in [-1 , r2_y - r1_y +1]$.\\
+This figure shows the snapshot of the reachable sets:
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=10cm]{ReachableSet.png}
+\caption{The two rectangles shows the reachable sets of the robots.}
+\end{center}
+\end{figure}
+
+
+\section{My \emph{Plan} for next week}
+
+\begin{itemize}
+\item complete the dynamic programming part of the new solution. Is this possible to get to the goal with 5 moves? Can we get near to the optimal solution by our current idea? 
+\item write down the new algorithm if it worked and was optimal, and make the first draft for IROS.
+\item have fun with kilobots for the outreach on Saturday!
+\end{itemize}
+
+\subsection{Meeting with Dr. Becker  }
+
+\begin{itemize}
+\item Get help on the implementation of the algorithm to make sure it is ok. 
+\end{itemize}
+
+\end{document}

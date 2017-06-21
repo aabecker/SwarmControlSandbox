@@ -20,7 +20,7 @@ relay = true;
 success = false;
 flowDebug = true;
 first = true;
-delayTime = 10;
+delayTime = 1;
 load('EmptyMapMac', 'corners');
 
 Relay=1;

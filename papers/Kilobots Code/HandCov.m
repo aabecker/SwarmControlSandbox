@@ -3,10 +3,10 @@
 %%% Shahrokhi and Aaron T. Becker @ University of Houston, Robotic Swarm
 %%% Control Lab.
 
-function HandCov()
+%function HandCov()
 %Define webcam --the input may be 1 or 2 depending on which webcam of your laptop
 %is the default webcam.
-cam = webcam(1);
+cam = webcam(2);
 global q goalX
 % this is the mean y goal
 goalYM = 434;
@@ -15,25 +15,25 @@ goalXM = 600;
 
 
 %These are the goal covariance matrices.
-goalC1 = [100 2000; 2000 100];
-goalC2 = [100 -2000; -2000 100];
+% goalC1 = [100 2000; 2000 100];
+% goalC2 = [100 -2000; -2000 100];
 %Goal Covariances.
-goal1x = goalC1(1,2);
-goal2x = goalC2(1,2);
-goalX = goal1x;
+% goal1x = goalC1(1,2);
+% goal2x = goalC2(1,2);
+% goalX = goal1x;
 t0 = tic;
 q = zeros(1,2);
 
 success = false;
 
-tHandle = timer('TimerFcn',...
-    {@sqWave_callback_fcn, goal1x, goal2x,t0}, ...
-    'Period' , 100, 'TasksToExecute' , 8, 'ExecutionMode', 'fixedDelay');
- 
-start(tHandle);
+% tHandle = timer('TimerFcn',...
+%     {@sqWave_callback_fcn, goal1x, goal2x,t0}, ...
+%     'Period' , 100, 'TasksToExecute' , 8, 'ExecutionMode', 'fixedDelay');
+%  
+% start(tHandle);
 
 
-drawTime=[goalX,0];
+drawTime=[0,0];
 while success == false
 
     
@@ -89,7 +89,7 @@ stat = regionprops(L,'Centroid','Area','PixelIdxList');
     imshow(originalImage);
     h = viscircles(centers,radii,'EdgeColor','b');
     [s, l] = size(centers);
-    goalC = [12000 goalX; goalX 12000];
+  %  goalC = [12000 goalX; goalX 12000];
     
     if isnan(M)== false 
         
@@ -97,55 +97,55 @@ stat = regionprops(L,'Centroid','Area','PixelIdxList');
     hold on
     
     plot(M(1,1) , M(1,2),'*','Markersize',16,'color','red');
-    newDot = [C(1,2), toc(t0)];
-    drawTime = [drawTime;newDot];
+%    newDot = [C(1,2), toc(t0)];
+%    drawTime = [drawTime;newDot];
     %Current Mean and Covariance Ellipse
-    plot_gaussian_ellipsoid(M,C);
+%    plot_gaussian_ellipsoid(M,C);
 %     disp('Goal: ');
 %     disp(goalX);
 %     disp('Current: ');
 %     disp(C(1,2));
     %Goal Mean and Covariance Ellipse
-    plot_gaussian_ellipsoid2(M,goalC);
+%    plot_gaussian_ellipsoid2(M,goalC);
     %plot(centers(:,1),centers(:,2),'+','Markersize',16);
     %Goal X.
     %line([goalXM goalXM], ylim,'color','green','linewidth', 3.0);
     hold off
     end
     end
-
-    if(toc(t0) > 800)
-        success = true;
-        figure(2)
-       plot(q(:,1),q(:,2));
-        xlabel('time (s)');
-        ylabel('Covariance (pixels)');
-        
-        hold on 
-        plot(drawTime(:,2), drawTime(:,1));
-        save('Cov4','drawTime');
-        hold off
-        
-       clear('cam')
-    end
+% 
+%     if(toc(t0) > 800)
+%         success = true;
+%         figure(2)
+%        plot(q(:,1),q(:,2));
+%         xlabel('time (s)');
+%         ylabel('Covariance (pixels)');
+%         
+%         hold on 
+%         plot(drawTime(:,2), drawTime(:,1));
+%         save('Cov4','drawTime');
+%         hold off
+%         
+%        clear('cam')
+%     end
 end
 
 stop(tHandle)
  
-function  sqWave_callback_fcn(src,evt, goal1x, goal2x,t0) %#ok<DEFNU>
-
-   tval = toc(t0);
-    q= [q;[tval, goalX]];
-    
-    if goalX == goal1x
-        goalX = goal2x;
-    else
-        goalX = goal1x;
-    end
-    q= [q;[tval, goalX]];
-
-
-end
-end
+% function  sqWave_callback_fcn(src,evt, goal1x, goal2x,t0) %#ok<DEFNU>
+% 
+%    tval = toc(t0);
+%     q= [q;[tval, goalX]];
+%     
+%     if goalX == goal1x
+%         goalX = goal2x;
+%     else
+%         goalX = goal1x;
+%     end
+%     q= [q;[tval, goalX]];
+% 
+% 
+% end
+%end
 
 
