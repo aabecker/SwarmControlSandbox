@@ -389,7 +389,7 @@ BW2 = (I2(:,:,1) >= channel1Min2 ) & (I2(:,:,1) <= channel1Max2) & ...
 %         end
 %         end
 
-    if (toc(t0) > 1800)
+    if (toc(t0) > 900)
         success = true;
         FileName=['FreeObject',datestr(now)];
         save(FileName, 'drawTime');
