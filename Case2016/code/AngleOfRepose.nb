@@ -1,0 +1,201 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 10.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      7382,        192]
+NotebookOptionsPosition[      6976,        172]
+NotebookOutlinePosition[      7332,        188]
+CellTagsIndexPosition[      7289,        185]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[TextData[{
+ "Angle of Repose\n",
+ StyleBox["Shiva Shahrokhi and Aaron T. Becker", "Subsubsection"],
+ "\n",
+ StyleBox["when granular media is dropped in a pile, it forms a cone.  The \
+maximum slope of the cone depends on the material used, but is very \
+repeatable (due to CLT) and is called the angle of repose.  I believe \
+kilobots also have an angle of repose, but we must test this", "Text"]
+}], "Subchapter",
+ CellChangeTimes->{{3.683824312938307*^9, 3.6838243915394907`*^9}, {
+  3.683824998055793*^9, 3.683825027831605*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"l", " ", "=", " ", "1"}], ";"}], " ", 
+   RowBox[{"(*", 
+    RowBox[{"width", " ", "of", " ", "bar", " ", "holding", " ", "material"}],
+     "*)"}], "\[IndentingNewLine]", 
+   RowBox[{"Manipulate", "[", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"Graphics", "[", " ", 
+      RowBox[{"{", "\[IndentingNewLine]", 
+       RowBox[{"White", ",", 
+        RowBox[{"Rectangle", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"-", "l"}], "/", "2"}], ",", 
+            RowBox[{
+             RowBox[{"-", "l"}], "/", "2"}]}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"l", "/", "2"}], ",", "1.5"}], "}"}]}], "]"}], ",", 
+        "\[IndentingNewLine]", "\[IndentingNewLine]", "Pink", ",", 
+        RowBox[{"Rotate", "[", 
+         RowBox[{
+          RowBox[{"Rectangle", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"-", "l"}], "/", "2"}], ",", 
+              RowBox[{"-", ".1"}]}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"l", "/", "2"}], ",", "0"}], "}"}]}], "]"}], ",", 
+          RowBox[{
+           RowBox[{"-", "\[Theta]"}], " ", 
+           RowBox[{"\[Pi]", "/", "180"}]}], ",", 
+          RowBox[{"{", 
+           RowBox[{"0", ",", "0"}], "}"}]}], "]"}]}], "}"}], "]"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{"granular", " ", "media"}], "*)"}], "\[IndentingNewLine]", 
+     "\[IndentingNewLine]", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+      "measure", " ", "weight", " ", "of", " ", "granular", " ", "media"}], 
+      "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+      "measure", " ", "torque", " ", "of", " ", "granulat", " ", "media"}], 
+      "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{"draw", " ", "a", " ", "scale"}], "*)"}], "\[IndentingNewLine]",
+      "\[IndentingNewLine]", 
+     RowBox[{"(*", " ", 
+      RowBox[{
+      "draw", " ", "piles", " ", "of", " ", "stuff", " ", "on", " ", 
+       "grount"}], "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{"(*", 
+      RowBox[{
+      "add", " ", "slide", " ", "so", " ", "you", " ", "can", " ", "select", 
+       " ", "the", " ", "material", " ", "to", " ", "use"}], "*)"}], 
+     "\[IndentingNewLine]", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"aor", ",", "30", ",", "\"\<Angle of Repose\>\""}], "}"}], 
+       " ", ",", "1", ",", "75", ",", "1", ",", 
+       RowBox[{"Appearance", "\[Rule]", "\"\<Labeled\>\""}]}], "}"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"\[Theta]", ",", "0"}], "}"}], " ", ",", 
+       RowBox[{"-", " ", "80"}], ",", "80", ",", " ", "1", ",", 
+       RowBox[{"Appearance", "\[Rule]", "\"\<Labeled\>\""}]}], "}"}]}], 
+    "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.683824401215151*^9, 3.68382445489931*^9}, {
+  3.6838244893881083`*^9, 3.683824984886327*^9}, {3.683825045289194*^9, 
+  3.68382507722012*^9}}],
+
+Cell[BoxData[
+ TagBox[
+  StyleBox[
+   DynamicModuleBox[{$CellContext`aor$$ = 30, $CellContext`\[Theta]$$ = -3, 
+    Typeset`show$$ = True, Typeset`bookmarkList$$ = {}, 
+    Typeset`bookmarkMode$$ = "Menu", Typeset`animator$$, Typeset`animvar$$ = 
+    1, Typeset`name$$ = "\"untitled\"", Typeset`specs$$ = {{{
+       Hold[$CellContext`aor$$], 30, "Angle of Repose"}, 1, 75, 1}, {{
+       Hold[$CellContext`\[Theta]$$], 0}, -80, 80, 1}}, Typeset`size$$ = {
+    222., {214., 218.}}, Typeset`update$$ = 0, Typeset`initDone$$, 
+    Typeset`skipInitDone$$ = True, $CellContext`aor$1322984$$ = 
+    0, $CellContext`\[Theta]$1322985$$ = 0}, 
+    DynamicBox[Manipulate`ManipulateBoxes[
+     1, StandardForm, 
+      "Variables" :> {$CellContext`aor$$ = 30, $CellContext`\[Theta]$$ = 0}, 
+      "ControllerVariables" :> {
+        Hold[$CellContext`aor$$, $CellContext`aor$1322984$$, 0], 
+        Hold[$CellContext`\[Theta]$$, $CellContext`\[Theta]$1322985$$, 0]}, 
+      "OtherVariables" :> {
+       Typeset`show$$, Typeset`bookmarkList$$, Typeset`bookmarkMode$$, 
+        Typeset`animator$$, Typeset`animvar$$, Typeset`name$$, 
+        Typeset`specs$$, Typeset`size$$, Typeset`update$$, Typeset`initDone$$,
+         Typeset`skipInitDone$$}, "Body" :> Graphics[{White, 
+         Rectangle[{(-$CellContext`l)/2, (-$CellContext`l)/
+           2}, {$CellContext`l/2, 1.5}], Pink, 
+         Rotate[
+          
+          Rectangle[{(-$CellContext`l)/2, -0.1}, {$CellContext`l/2, 
+            0}], (-$CellContext`\[Theta]$$) (Pi/180), {0, 0}]}], 
+      "Specifications" :> {{{$CellContext`aor$$, 30, "Angle of Repose"}, 1, 
+         75, 1, Appearance -> "Labeled"}, {{$CellContext`\[Theta]$$, 0}, -80, 
+         80, 1, Appearance -> "Labeled"}}, "Options" :> {}, 
+      "DefaultOptions" :> {}],
+     ImageSizeCache->{351., {272., 277.}},
+     SingleEvaluation->True],
+    Deinitialization:>None,
+    DynamicModuleValues:>{},
+    SynchronousInitialization->True,
+    UndoTrackedVariables:>{Typeset`show$$, Typeset`bookmarkMode$$},
+    UnsavedVariables:>{Typeset`initDone$$},
+    UntrackedVariables:>{Typeset`size$$}], "Manipulate",
+   Deployed->True,
+   StripOnInput->False],
+  Manipulate`InterpretManipulate[1]]], "Output",
+ CellChangeTimes->{{3.683824625275751*^9, 3.683824650191224*^9}, {
+   3.6838246882201147`*^9, 3.683824702384492*^9}, {3.6838247503827763`*^9, 
+   3.683824777535624*^9}, 3.6838248181510572`*^9, {3.6838248501074533`*^9, 
+   3.6838248650574207`*^9}, {3.683824904276123*^9, 3.683824935281951*^9}, 
+   3.683824980244133*^9}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{808, 619},
+WindowMargins->{{4, Automatic}, {Automatic, 4}},
+FrontEndVersion->"10.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (September 9, \
+2014)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 536, 10, 142, "Subchapter"],
+Cell[CellGroupData[{
+Cell[1141, 36, 3278, 82, 386, "Input"],
+Cell[4422, 120, 2526, 48, 566, "Output"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

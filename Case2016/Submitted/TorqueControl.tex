@@ -1,0 +1,278 @@
+%  links for CASE 2016, http://case2016.org/  
+% https://ras.papercept.net/conferences/scripts/login.pl      to submit
+% https://ras.papercept.net/conferences/scripts/pdftest.pl  to test pdf
+
+% obstacles: brown
+% robots: blue
+
+%(Note:   Similar games are SuperFruitfall and Denki Blocks). 
+
+
+\documentclass[letterpaper, 10 pt, conference]{ieeeconf}
+\IEEEoverridecommandlockouts
+%\documentclass[12pt]{article}
+%\usepackage{times}
+\usepackage{calc}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks =true,
+  urlcolor = black,
+  linkcolor = black
+}
+\usepackage{graphicx}
+\usepackage[cmex10]{amsmath}
+\usepackage{bm}
+\usepackage{amssymb}
+\usepackage{rotating}
+
+
+%\usepackage{xfrac}
+\usepackage{nicefrac}
+\usepackage{cite}
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage[usenames, dvipsnames]{color}
+\usepackage{colortbl}
+%\usepackage{caption}
+
+%\usepackage{wrapfig}
+\usepackage{overpic}
+%\usepackage{subfigure}
+%\usepackage{textcomp}
+\graphicspath{{./pictures/pdf/},{./pictures/ps/},{./pictures/png/},{./pictures/jpg/},{./code/Data/}}
+\usepackage{breqn} %for breaking equations automatically
+\usepackage[ruled]{algorithm}
+\usepackage{algpseudocode}
+%\usepackage{algorithmic}
+\usepackage{multirow}
+\usepackage{todonotes}
+
+%\newcommand{\todo}[1]{\vspace{5 mm}\par \noindent \framebox{\begin{minipage}[c]{0.98 \columnwidth} \ttfamily\flushleft \textcolor{red}{#1}\end{minipage}}\vspace{5 mm}\par}
+% uncomment this to hide all red todos
+%\renewcommand{\todo}{}
+
+%% ABBREVIATIONS
+\newcommand{\qstart}{q_{\text{start}}}
+\newcommand{\qgoal}{q_{\text{goal}}}
+\newcommand{\pstart}{p_{\text{start}}}
+\newcommand{\pgoal}{p_{\text{goal}}}
+\newcommand{\xstart}{x_{\text{start}}}
+\newcommand{\xgoal}{x_{\text{goal}}}
+\newcommand{\ystart}{y_{\text{start}}}
+\newcommand{\ygoal}{y_{\text{goal}}}
+\newcommand{\gammastart}{\gamma_{\text{start}}}
+\newcommand{\gammagoal}{\gamma_{\text{goal}}}
+\providecommand{\proc}[1]{\textsc{#1}}
+
+
+\newcommand{\ARLfull}{Aero\-space Ro\-bot\-ics La\-bora\-tory }
+\newcommand{\ARL}{\textsc{arl}}
+\newcommand{\JPL}{\textsc{jpl}}
+\newcommand{\PRM}{\textsc{prm}}
+
+\newcommand{\CM}{\textsc{cm}}
+\newcommand{\SVM}{\textsc{svm}}
+\newcommand{\NN}{\textsc{nn}}
+\newcommand{\prm}{\textsc{prm}}
+\newcommand{\lemur}{\textsc{lemur}}
+\newcommand{\Lemur}{\textsc{Lemur}}
+\newcommand{\LP}{\textsc{lp}} 
+\newcommand{\SOCP}{\textsc{socp}}
+\newcommand{\SDP}{\textsc{sdp}}
+\newcommand{\NP}{\textsc{np}}
+\newcommand{\SAT}{\textsc{sat}}
+\newcommand{\LMI}{\textsc{lmi}}
+\newcommand{\hrp}{\textsc{hrp\nobreakdash-2}}
+\newcommand{\DOF}{\textsc{dof}}
+\newcommand{\UIUC}{\textsc{uiuc}}
+%% MACROS
+
+
+\providecommand{\abs}[1]{\left\lvert#1\right\rvert}
+\providecommand{\norm}[1]{\left\lVert#1\right\rVert}
+\providecommand{\normn}[2]{\left\lVert#1\right\rVert_#2}
+\providecommand{\dualnorm}[1]{\norm{#1}_\ast}
+\providecommand{\dualnormn}[2]{\norm{#1}_{#2\ast}}
+\providecommand{\set}[1]{\lbrace\,#1\,\rbrace}
+\providecommand{\cset}[2]{\lbrace\,{#1}\nobreak\mid\nobreak{#2}\,\rbrace}
+\providecommand{\lscal}{<}
+\providecommand{\gscal}{>}
+\providecommand{\lvect}{\prec}
+\providecommand{\gvect}{\succ}
+\providecommand{\leqscal}{\leq}
+\providecommand{\geqscal}{\geq}
+\providecommand{\leqvect}{\preceq}
+\providecommand{\geqvect}{\succeq}
+\providecommand{\onevect}{\mathbf{1}}
+\providecommand{\zerovect}{\mathbf{0}}
+\providecommand{\field}[1]{\mathbb{#1}}
+\providecommand{\C}{\field{C}}
+\providecommand{\R}{\field{R}}
+\newcommand{\Cspace}{\mathcal{Q}}
+\newcommand{\Uspace}{\mathcal{U}}
+\providecommand{\Fspace}{\Cspace_\text{free}}
+\providecommand{\Hcal}{$\mathcal{H}$}
+\providecommand{\Vcal}{$\mathcal{V}$}
+\DeclareMathOperator{\conv}{conv}
+\DeclareMathOperator{\cone}{cone}
+\DeclareMathOperator{\homog}{homog}
+\DeclareMathOperator{\domain}{dom}
+\DeclareMathOperator{\range}{range}
+\DeclareMathOperator{\sign}{sgn}
+\providecommand{\polar}{\triangle}
+\providecommand{\ainner}{\underline{a}}
+\providecommand{\aouter}{\overline{a}}
+\providecommand{\binner}{\underline{b}}
+\providecommand{\bouter}{\overline{b}}
+\newcommand{\D}{\nobreakdash-\textsc{d}}
+%\newcommand{\Fspace}{\mathcal{F}}
+\providecommand{\Fspace}{\Cspace_\text{free}}
+\providecommand{\free}{\text{\{}\mathsf{free}\text{\}}}
+\providecommand{\iff}{\Leftrightarrow}
+\providecommand{\subinner}[1]{#1_{\text{inner}}}
+\providecommand{\subouter}[1]{#1_{\text{outer}}}
+\providecommand{\Ppoly}{\mathcal{X}}
+\providecommand{\Pproj}{\mathcal{Y}}
+\providecommand{\Pinner}{\subinner{\Pproj}}
+\providecommand{\Pouter}{\subouter{\Pproj}}
+\DeclareMathOperator{\argmax}{arg\,max}
+\providecommand{\Aineq}{B}
+\providecommand{\Aeq}{A}
+\providecommand{\bineq}{u}
+\providecommand{\beq}{t}
+\DeclareMathOperator{\area}{area}
+\newcommand{\contact}[1]{\Cspace_{#1}}
+\newcommand{\feasible}[1]{\Fspace_{#1}}
+\newcommand{\dd}{\; \mathrm{d}}
+\newcommand{\figwid}{0.22\columnwidth}
+\newcommand{\TRUE}{\textbf{true}}
+\newcommand{\FALSE}{\textbf{false}}
+\DeclareMathOperator{\atan2}{atan2}
+
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\begin{document}
+
+%%%%%%%%%%%%%% For debugging purposes, I like to display the TOC
+%    \tableofcontents
+%    \setcounter{tocdepth}{3}
+%\newpage
+%\mbox{}
+%\newpage
+%\mbox{}
+%\newpage
+
+%%%%%% END TOC %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{\LARGE \bf 
+Object Manipulation and Position Control \\Using a Swarm With Global Inputs
+%Force and Torque Control using a Swarm With Global Inputs
+}
+\author{Shiva Shahrokhi and  Aaron T. Becker%, 
+\thanks{{S. Shahrokhi and A. Becker are with the Department of Electrical and Computer Engineering,  University of Houston, Houston, TX 77204-4005 USA {\tt\small  \{sshahrokhi2, atbecker\}@uh.edu}
+}
+} %\end thanks
+} % end author block
+\maketitle
+
+\begin{abstract}
+Manipulating objects with a swarm of simple robots with global control inputs is difficult because they are highly under-actuated, the number of robots in contact with object changes dynamically, the robots contacting each other changes dynamically, and because the robots disperse over time they must be recollected.
+
+Micro and nano robots are suited for targeted drug delivery and micro scale manufacturing because they are small enough to navigate the passageways of the body. 
+However, due to their small size, micro robots cannot contain onboard processing for autonomy nor onboard power. 
+Instead they are controlled by an external signal such as a magnetic field. 
+Because each robot can only provide a small amount of force or transport a small amount of material, large swarms of robots are required, all controlled by the same external field. 
+
+This work presents controllers and algorithms for steering such an under-actuated swarm to manipulate objects. 
+Previous work showed that mean and variance of the swarm is controllable. 
+This was used to manipulate convex polygonal objects through a simple maze. 
+A key remaining challenge is controlling the torque applied to an object. 
+Torque control is necessary for manipulating objects as well as for aligning sensors, emitters, or redirecting an incoming signal.
+This work first proves that swarm torque control is possible, then presents algorithms to automate the task. 
+The paper concludes with experimental results using 97 hardware robots to manipulate rectangles with large aspect ratios.
+
+%
+%Micro- and nano-robots can be manufactured in large numbers. Large numbers of micro robots are required in order to deliver sufficient payloads, but the small size of these robots makes it difficult to perform onboard computation.  Instead, these robots are often controlled by a global, broadcast signal. 
+%In our previous work we focused on a block-pushing task, where a swarm of robots pushed a larger block through a 2D maze. One surprising result was that humans that only knew the swarm's mean and covariance completed the task faster that humans who knew the position of every robot~\cite{Becker2013b}. 
+%Inspired by that work, we proved that we can control the mean position of a swarm and that with an obstacle we can control the swarm's position variance ($\sigma_x$ and $\sigma_y$). 
+%We then wrote automatic controllers which could complete a block pushing task, but these controllers had some limitations~\cite{ShahrokhiIROS2015}. 
+%One of the limitations was that we could only compress our swarm along the world $x$ and $y$ axes, and could not navigate workspaces with narrow corridors with other orientations. 
+%One solution to these problems would be a controller that regulates the swarm's position covariance, $\sigma_{xy}$. 
+%For controlling $\sigma_{xy}$, we prove that the swarm position covariance $\sigma_{xy}$ is controllable given boundaries with non-zero friction. 
+%We then prove that two orthogonal boundaries with high friction are sufficient to arbitrarily position a swarm of robots. 
+%We conclude by designing controllers that efficiently regulate $\sigma_{xy}$.
+\end{abstract}
+
+%TODO: new outline
+
+%%%%%%%%%%% PAPER OUTLINE
+% INTRODUCTION, Related work
+%      micro/nano applications
+%	open questions in swarm control
+% 	difficulties in obtaining experimental data
+% Theory:
+%% Wall friction shape
+%% Control 2 robots
+% Simulation:
+%% Use wall friction to control covariance 1. Make variances small(feedback), 2. Move Swarm to wall, 3. drag out swarm to achieve covariance(feedback) 4. Move to goal.
+%% Algorithm to control position of 2 robots using friction
+%%%%%%% Algorithm to control position of n robots using friction
+% Experiment
+%% Use wall friction to control covariance
+%% Algorithm to control position of 2 robots using friction
+%%Future Work
+
+%%%%%%%%%%%%%%%
+%\todo{image 1 should be the kilobots pushing an interesting object.  Current images 1 and 2 are not attractive, have the same caption, and the robots look like ellipses}
+\input{intro}
+%%%%%%%%%%%%%%%
+\input{relatedWork}
+%%%%%%%%%%%%%%%
+\input{theory}
+%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%
+\input{simulation}
+%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%
+\input{experiment}
+%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%
+\input{conclusion}
+%%%%%%%%%%%%%%%
+
+
+
+%\missingfigure[figwidth=6cm]{Intro: image of real kilobots making torque to a rectangular object}
+%\missingfigure[figwidth=6cm]{Theory: drawing of an object that illustrates what torque and force is}
+%\missingfigure[figwidth=6cm]{Simulation: snapshots of the simulation doing torque control with blue disks}
+%\missingfigure[figwidth=6cm]{Simulation: plot showing angular velocity of the object and the goal angles}
+%\missingfigure[figwidth=6cm]{Experiment:plot showing angular velocity of the object and the goal angles }
+%\missingfigure[figwidth=6cm]{Experiment: snapshots of the kilobots doing torque control of a rectangular object}
+
+
+
+    
+\section{Acknowledgements}
+%RULES: http://www.nsf.gov/pubs/policydocs/pappguide/nsf16001/aag_6.jsp
+This material is based upon work supported by the National Science Foundation under Grant No.\ 
+\href{http://nsf.gov/awardsearch/showAward?AWD_ID=1553063}{ IIS-1553063}.
+%Optional disclaimer (mandatory for non-scientific)
+Any opinions, findings, and conclusions or recommendations expressed in this material are those of the authors and do not necessarily reflect the views of the National Science Foundation.
+%We acknowledge many \href{http://mrsl.rice.edu/}{mrsl.rice.edu} lab members who helped beta test \href{http://www.swarmcontrol.net}{SwarmControl.net}; helpful discussion with \href{http://www.jmtour.com/}{James Tour}, \href{http://slink.rice.edu/}{Stephan Link}, and Victor Garc\`ia L\`opez on fabrication and visualization challenges at the nanoscale with nanocars; and the \href{http://cttl.rice.edu/}{Rice Center for Technology in Teaching and Learning}.
+%This work was partially supported by the National Science Foundation under 
+%\href{http://www.nsf.gov/awardsearch/showAward?AWD_ID=1035716}{CPS-1035716}.  
+   
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,TorqueControl,../../../RoboticSwarmControlLab/bib/aaronrefs}
+\end{document}
+
+
+%/Users/ab55/Desktop/svn/MRSL-Papers/Drafts-Current/2013-03-13-IROS-MassiveUniformManipulation/document
+%/Users/ab55/Desktop/svn/ensemble/bib
+
+
+
+
+

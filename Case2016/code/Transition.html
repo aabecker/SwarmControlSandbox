@@ -1,0 +1,546 @@
+
+<html>
+
+
+<head>
+	<title>Demonstration of pure transition</title>
+</head>
+
+
+<body onload="init();">
+	<!--aspect ratio for HD is 16:9 -->
+
+	<canvas id="canvas" width="2240" height="1260" style="background-color:#EEEEEE;" ></canvas>
+</body>
+<script type="text/javascript" src="../shared/Box2dWeb-2.1.a.3.min.js"></script> <!-- box2d -->
+<script type="text/javascript" src="../shared/jquery.min.js"></script> <!-- forms & strings, @ https://ajax.googleapis.com/ajax/libs/jquery/1.8.0/jquery.min.js -->
+<script type="text/javascript" src="../shared/jcanvas.min.js"></script>
+<script type="text/javascript">
+      // in Chrome, to view the console: Use the keyboard shortcut Command - Option - J (Mac) or Control -Shift -J (Windows/Linux).
+      // TODO:
+      // use selection box to change # of robots
+      // scale the force applied by the robot size. so that all # of robots have equal force.
+      // detect when robots at goals, stop timer
+      var ROBOT_INPUT = {
+      	ROBOT_IDLE : 0x0,
+      	ROBOT_LEFT    : 0x1,
+      	ROBOT_RIGHT   : 0x2,
+      	ROBOT_FWD     : 0x4,
+      	ROBOT_BWD     : 0x8,
+      	IMPULSE_ROT   : 0x10,
+      	IMPULSE_TRANS : 0x20,
+      	WAIT          : 0x40
+      }; 
+
+      var m_controlState = ROBOT_INPUT.ROBOT_IDLE;
+      var mapScale = 30;
+      var canvasWidth = 1120 *2 ;
+      var canvasHeight = 630* 2;
+      var blockCOM_x = 0;
+	  var blockCOM_y = 0;
+	  var objectWidth = 8;
+	  var objectHeight = 0.8;
+	  var rAngle;
+	  var varCont = false;
+
+	  var testing = false; //tests parameters
+	  var testRobots = false; //changes number of robots
+	  var testNoise = true; //changes brownian noise
+	  var testObj = false; //changes obj's angular/linear Const
+
+      function init() {
+          var test = localStorage.getItem("test"); //creates object for localStorage
+          if (test == null) {
+              if (testRobots) {
+                  test = {
+                      currentRun: 0,
+                      test: {
+                          runs: [20, 50, 100, 20, 20, 20, 20, 20, 20, 20, 20, 20, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150],
+                          outcomes: []
+                      }
+                  }
+              } else if (testNoise) { //changing brownian noise 0,.1,.5,1,5
+                  test = {
+                      currentRun: 0,
+                      test: {
+                          runs: [5,10,50, 5, 5, 5, 5, 5, 5, 5, 5, 5, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35, 35, 35, 35, 35, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+                          outcomes: []
+                      }
+                  }
+              } else if (testObj) {
+                  test = {
+                      currentRun: 0,
+                      test: {
+                          runs: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                          //runs: [.5, .5, .5, .5, .5, .5, .5, .5, .5, .5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5,2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+                          outcomes: []
+                      }
+                  }
+              }
+              localStorage.setItem("test", JSON.stringify(test));
+          }
+          var vary = null;
+          var numrobots=null;
+          if (testing) {//getting values to run simulations
+              var inputTest = JSON.parse(localStorage.getItem("test"));
+              var value = JSON.parse(inputTest.test.runs[inputTest.currentRun]);
+              if (testRobots) {
+                  numrobots = value; //getting value for robots
+              } else if (testObj) {
+                  numrobots = 100; //getting value for robots
+                  objAngularConst = value;
+                  objLinearConst = objAngularConst;
+              } else if (testNoise) {
+                  numrobots = 100;
+                  vary = value;
+              }
+          } else {
+              numrobots = 100; //getting value for robots
+              vary = 5;
+          }
+          numrobots = 144;
+      	var overall_time= null;
+      	var cov_desired_negative = -3;
+      	var cov_desired_positive = 3;
+      	var cov_desired = cov_desired_positive;
+      	var done = false;
+      	var covChange = false;
+      	var goCenter = false;
+      	var lessVariance = true;
+      	var GoalRecieved = false;
+      	var goButtom = false;
+
+      	var   b2Vec2 = Box2D.Common.Math.b2Vec2
+      	,  b2AABB = Box2D.Collision.b2AABB
+      	,	b2BodyDef = Box2D.Dynamics.b2BodyDef
+      	,	b2Body = Box2D.Dynamics.b2Body
+      	,	b2FixtureDef = Box2D.Dynamics.b2FixtureDef
+      	,	b2Fixture = Box2D.Dynamics.b2Fixture
+      	,	b2World = Box2D.Dynamics.b2World
+      	,	b2MassData = Box2D.Collision.Shapes.b2MassData
+      	,	b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+      	,	b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
+      	,	b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+      	,  b2MouseJointDef =  Box2D.Dynamics.Joints.b2MouseJointDef
+      	;
+
+
+      	var world = new b2World(
+               new b2Vec2(0, 00)    //gravity  setting to zero removes gravity
+            ,  true                 //allow sleep
+            );
+      	var canvas = $('#canvas');
+      	var context = canvas.get(0).getContext('2d');
+
+
+      	var timeStart = null;
+      	var timeFinish = null;
+
+	 // used for?
+	 var fixDef = new b2FixtureDef;
+	 fixDef.density = 1.0;
+	 fixDef.friction = .5;
+         fixDef.restitution = 1.0;  //bouncing value
+         
+         var bodyDef = new b2BodyDef;
+         //create enclosing boundary rectangles
+	 bodyDef.userData = 'obstacle';  // canvas is {1120, 630}
+	 bodyDef.type = b2Body.b2_staticBody;
+	 fixDef.shape = new b2PolygonShape;
+         fixDef.shape.SetAsBox(canvasWidth/mapScale, 2);//width, height
+         bodyDef.position.Set(10, canvasHeight/ mapScale + 1.8); //bottom
+         var bodyBottom = world.CreateBody(bodyDef);
+         bodyBottom.CreateFixture(fixDef);
+         bodyDef.position.Set(2, -1.8); //top
+         world.CreateBody(bodyDef).CreateFixture(fixDef);
+         fixDef.shape.SetAsBox(2, canvasHeight/mapScale);//width, height
+         bodyDef.position.Set(-1.8, 13); //left
+         world.CreateBody(bodyDef).CreateFixture(fixDef);
+         bodyDef.position.Set(canvasWidth/mapScale+1.8, 13); // right side
+         world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+
+         //Creating the box
+         bodyDef.type = b2Body.b2_dynamicBody;
+		fixDef.density = 100.0;
+		fixDef.friction = 0.0;
+    fixDef.restitution = 0.2;  //bouncing value
+    bodyDef.position.Set(10,13);
+    bodyDef.userData = 'moveable';
+    bodyDef.angle= 30 * Math.PI / 180;
+    fixDef.shape = new b2PolygonShape;
+    //fixDef.shape.b2PolygonShape(6.0);
+    fixDef.shape.SetAsBox(objectHeight,objectWidth);
+    var obst = world.CreateBody(bodyDef);
+    obst.CreateFixture(fixDef);
+    obst.m_angularDamping = 8.0;
+    obst.m_linearDamping = 8.0;
+
+
+
+         
+         //create some robots
+         bodyDef.type = b2Body.b2_dynamicBody;
+
+         function rnd2() {
+         	return ((Math.random() + Math.random() + Math.random() + Math.random() + Math.random() + Math.random()) - 3) / 3;
+         }
+
+
+         var robotrad = 0.2;
+	  var rowLength = 12;//Math.floor(5/(2*robotrad));
+
+
+	  fixDef.density = 1.0;
+	  fixDef.friction = 5.0;
+         fixDef.restitution = 0.1;  //bouncing value
+         var m_Robot = new Array();
+
+         for(var i = 0; i < numrobots; ++i) {
+         	fixDef.shape = new b2CircleShape(
+                  robotrad //Math.random() + 0.1 //radius
+                  );
+         	bodyDef.userData = 'robot';
+
+            // start the robots in a Gaussian distribution
+            // bodyDef.position.x = 1120/60+10*rnd2();
+            // bodyDef.position.y = 630/60+10*rnd2();
+
+              ///  put the robots in a loose rectangle
+              bodyDef.position.x = 1+(i%rowLength)*2*robotrad;
+              bodyDef.position.y = 12-Math.floor(i/rowLength)*2*robotrad; // for up it was 8. for straight it is 9, for down 10.
+
+             ///  put the robots in a tight rectangle
+         //   bodyDef.position.x = 0.5+(i%rowLength)*2*robotrad;
+         //   bodyDef.position.y = 19.5-Math.floor(i/rowLength)*2*robotrad;
+         m_Robot[i] = world.CreateBody(bodyDef);
+         m_Robot[i].CreateFixture(fixDef);
+         m_Robot[i].m_angularDamping = 1;
+         m_Robot[i].m_linearDamping = 1;
+
+     }
+
+
+         //setup debug draw
+         var debugDraw = new b2DebugDraw();
+         debugDraw.SetSprite(document.getElementById("canvas").getContext("2d"));
+         debugDraw.SetDrawScale(mapScale);
+         debugDraw.SetFillAlpha(0.5);
+         debugDraw.SetLineThickness(1.0);
+         debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+         world.SetDebugDraw(debugDraw);
+         
+        // window.setInterval(update, 1000 / 60); // not the way to do this!  http://blog.sethladd.com/2011/09/box2d-javascript-example-walkthrough.html
+        window.requestAnimFrame = (function(){
+        	return  window.requestAnimationFrame       || 
+        	window.webkitRequestAnimationFrame || 
+        	window.mozRequestAnimationFrame    || 
+        	window.oRequestAnimationFrame      || 
+        	window.msRequestAnimationFrame     || 
+        	function(/* function */ callback, /* DOMElement */ element){
+        		window.setTimeout(callback, 1000 / 60);
+        	};
+        })();
+        (function animloop(){
+        	requestAnimFrame(animloop);
+        	update();
+        })();
+
+	 // AREA QUERY
+
+		var udata = new Array(); //ARRAY TO STORE USERDATA
+		function worldquery()	{
+		   var aabb2 = new b2AABB(); //CREATE AABB, axis-aligned bounding box
+		   aabb2.lowerBound.Set(10, 0); //TOP LEFT
+		   aabb2.upperBound.Set(20, 7); //BOTTOM RIGHT
+		   // Query the world for overlapping shapes.
+		   world.QueryAABB(getBodyCB2, aabb2);
+		   function getBodyCB2(fixture) {
+			   if(fixture)	{ //THIS WILL ITERATE THROUGH ALL THE FIXTURES IN THE PARTICULAR AREA
+			   	udata.push(fixture.GetBody().GetUserData()); //STORING ALL THE FIXTURES IN THE ARRAY
+			   	return true;
+			   }
+			}
+		}
+
+
+
+		function lineDistance( x1,y1,x2,y2)
+		{
+			var xs = 0;
+			var ys = 0;
+
+			xs = x1 - x2;
+			xs = xs * xs;
+
+			ys = y1- y2;
+			ys = ys * ys;
+
+			return Math.sqrt( xs + ys );
+		}
+		var countRobotsAtGoal;
+		var hasLoggedData = false; //control variable for localStorage
+
+         function update() {//called each animation round
+                 var impulseV = new b2Vec2(0, 0);
+                 var impulse = 3.0;
+                 if (m_controlState & ROBOT_INPUT.ROBOT_PROP) {
+                     impulseV.x = m_ControlInputX;
+                     impulseV.y = m_ControlInputY;
+                 }
+                 //apply Brownian noise:
+                 var brownianImpulse = new b2Vec2(0, 0);
+                 var mag = 0;
+                 var ang = 0;
+                 for (var i = 0; i < m_Robot.length; i++) {
+                     mag = vary * Math.random();
+                     ang = 2 * Math.PI * Math.random();
+                     brownianImpulse.x = mag * Math.cos(ang) + impulseV.x;
+                     brownianImpulse.y = mag * Math.sin(ang) + impulseV.y;
+                     m_Robot[i].ApplyForce(brownianImpulse, m_Robot[i].GetWorldPoint(new b2Vec2(0, 0)));
+                 }
+		
+		world.Step(1 / 60, 10, 10);
+		world.DrawDebugData();
+		world.ClearForces();
+
+		var sum_position_x = 0;
+		var sum_position_y = 0;
+		var sum2_x = 0;
+		var sum2_y = 0;
+		var desired_var_x;
+		var cov_xy = 0;
+	    // try http://gamedev.stackexchange.com/questions/1366/box2d-get-bounding-box-of-a-body
+	    for(var i = 0; i < numrobots; ++i) {
+	    	sum_position_x += m_Robot[i].GetPosition().x;
+	    	sum_position_y += m_Robot[i].GetPosition().y;
+	    }
+	    var mean_position_x = sum_position_x / numrobots;
+	    var mean_position_y = sum_position_y / numrobots;
+	    for(var i = 0; i < numrobots; ++i) {
+	    	sum2_x += (m_Robot[i].GetPosition().x - mean_position_x) * (m_Robot[i].GetPosition().x - mean_position_x);
+	    	sum2_y += (m_Robot[i].GetPosition().y - mean_position_y) * (m_Robot[i].GetPosition().y - mean_position_y);
+	    	cov_xy=  cov_xy+ (m_Robot[i].GetPosition().x- mean_position_x)*(m_Robot[i].GetPosition().y - mean_position_y)/numrobots;
+	    }
+	    var var_x = sum2_x / numrobots;
+	    var var_y = sum2_y / numrobots;
+	    var min_desired_var_x = 6;
+	    var min_desired_var_y = 6;
+	    var goalX = 18.5;
+	    var goalY = 10.5;
+
+
+	    var diffeq = Math.sqrt( (var_x-var_y)*(var_x-var_y)/4 + cov_xy*cov_xy);
+	    var mindiffeq1 = Math.sqrt((min_desired_var_x -min_desired_var_y )*(min_desired_var_x-min_desired_var_y)/4 + cov_desired_positive*cov_desired_positive);
+	    var mindiffeq2 = Math.sqrt((min_desired_var_x -min_desired_var_y )*(min_desired_var_x-min_desired_var_y)/4 + cov_desired_negative*cov_desired_negative);
+	    var var_xp = (var_x+var_y)/2 + diffeq;
+	    var var_yp = (var_x+var_y)/2 - diffeq;
+	    var minvar_xp1 = (min_desired_var_x + min_desired_var_y)/2 + mindiffeq1 ;
+	    var minvar_yp1 = (min_desired_var_x + min_desired_var_y)/2 - mindiffeq1 ;
+
+	    var minvar_xp2 = (min_desired_var_x + min_desired_var_y)/2 + mindiffeq2 ;
+	    var minvar_yp2 = (min_desired_var_x + min_desired_var_y)/2 - mindiffeq2 ;
+
+	    var angle2 = 180/Math.PI*1/2*Math.atan2( 2*cov_xy, var_x-var_y);
+	    var angle_min_variance1 = 180/Math.PI*1/2*Math.atan2( 2*cov_desired_positive, min_desired_var_x-min_desired_var_y);
+	    var angle_min_variance2 = 180/Math.PI*1/2*Math.atan2( 2*cov_desired_negative, min_desired_var_x-min_desired_var_y);
+
+
+
+	$("canvas").clearCanvas();
+
+	$("canvas")
+	.rotateCanvas({
+		x: 5 * mapScale, y: 5 * mapScale,
+		rotate: angle
+	})
+	.drawArc({
+		fillStyle: "orange",						  
+		x: 5 * mapScale, y: 5 * mapScale,
+		radius: radius * mapScale
+	})
+	.restoreCanvas();
+
+
+		//draw robots and obstacles
+		for (b = world.GetBodyList() ; b; b = b.GetNext())
+		{
+			var angleRad = b.GetAngle();
+			var angle = angleRad*(180/Math.PI);
+			for(f = b.GetFixtureList(); f; f = f.GetNext()) {
+
+				if (b.GetUserData() == 'robot')
+				{
+					var radius = f.GetShape().GetRadius();
+					var pos = b.GetPosition();
+					$("canvas")
+					.rotateCanvas(
+					{
+						x: pos.x * mapScale, y: pos.y * mapScale,
+						rotate: angle
+					})
+					.drawArc(
+					{
+						strokeStyle: "lightblue",
+						strokeWidth: 1,
+						fillStyle: "blue",
+						x: pos.x * mapScale, y: pos.y * mapScale,
+						radius: radius * mapScale
+					})
+					.restoreCanvas();
+				}
+
+				else if (b.GetUserData() == 'obstacle' || b.GetUserData() == 'moveable' || b.GetUserData() == 'rectangle_ground')
+				{	
+					var X = f.GetShape().GetVertices()[1].x - f.GetShape().GetVertices()[0].x; 
+					var Y = f.GetShape().GetVertices()[2].y - f.GetShape().GetVertices()[1].y;
+
+					
+
+					  //console.log(X);		
+					  var pos = b.GetPosition();
+					  var color = 'orange';
+					  if(b.GetUserData() == 'obstacle')
+					  	color = 'brown';;
+					  if(b.GetUserData() == 'moveable')
+					  {
+					  	color = 'pink';
+					  	blockCOM_x = pos.x;
+						blockCOM_y = pos.y;
+						rAngle = angleRad;
+
+					  }
+					  $("canvas")
+					  .rotateCanvas({
+					  	x: pos.x *mapScale, y: pos.y * mapScale,
+					  	rotate: angle
+					  })
+					  .drawRect({
+					  	fillStyle: color,
+					  	x: pos.x * mapScale, y: pos.y * mapScale,
+					  	width: X * mapScale,
+					  	height: Y * mapScale,
+					  	cornerRadius: 0
+					  })
+					  .restoreCanvas();
+					}
+
+				}
+			}
+			var cycleInSec = 40;
+			var day = new Date();
+
+			if(overall_time == null) // set the start time
+			{
+				overall_time = day.getTime();
+			}
+			var elapsedTimeSec = (day.getTime()- overall_time )/1000;
+
+			var Kgain = 12;
+	var Kderivative = 0.5;
+	var sum_velocity_x = 0;
+	var sum_velocity_y = 0;
+
+	for(var i = 0; i < numrobots; ++i) {
+		sum_velocity_x += m_Robot[i].GetLinearVelocity().x;
+		sum_velocity_y += m_Robot[i].GetLinearVelocity().y;
+	}
+
+	//console.log(elapsedTimeSec + " " + blockCOM_x); //need to adjust goalRecieved conditions
+	if (rAngle > 88) {
+	    GoalRecieved = true;
+	}
+	else {
+	    GoalRecieved = false;
+	}
+    if (elapsedTimeSec > 5) { GoalRecieved = true; }
+	if (GoalRecieved && !hasLoggedData && testing) { //stores game time
+	    var state = JSON.parse(localStorage.getItem("test"));
+	    // alert(JSON.stringify(state));
+	    state.test.outcomes[state.currentRun] = elapsedTimeSec;
+	    hasLoggedData = true;
+	    location.reload(true);
+	    state.currentRun++;
+	    localStorage.setItem("test", JSON.stringify(state));
+	}
+
+	var mean_velocity_x = sum_velocity_x / numrobots;
+	var mean_velocity_y = sum_velocity_y / numrobots;
+			         	var impulseV=new b2Vec2(0,0);
+
+
+         	var day = new Date();
+         	var CycleForCov = 18;
+         	var speed = 100;
+         	var epsilon = 1;
+
+
+			if(overall_time == null) // set the start time
+			{
+				overall_time = day.getTime();
+			}
+			var elapsedTimeSec = (day.getTime()- overall_time )/1000;
+
+
+			if(!GoalRecieved){
+				deltaTheta =  rAngle;
+				C = 7;
+			if (var_x > 7|| var_y > 7)
+			{
+				varCont = false;
+			}
+			if(var_x < 3 && var_y < 3)
+			{
+				varCont = false;
+			}
+         	if(!varCont){
+				goalY = C * deltaTheta + blockCOM_y;
+				goalX = blockCOM_x;
+			}
+			else{
+				goalX = 0;
+				goalY = 0;
+			}	
+			
+			impulseV.y =  Kgain*(goalY - mean_position_y) + Kderivative*(0-mean_velocity_y) ;
+			impulseV.x = Kgain*(goalX - mean_position_x) + Kderivative * (0-mean_velocity_x);
+
+				
+			
+		}
+
+		
+		for(var i =0; i<m_Robot.length; i++) {
+			m_Robot[i].SetLinearVelocity( new b2Vec2(0,0) );
+			m_Robot[i].ApplyForce(impulseV,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
+		}
+
+			$("canvas").drawEllipse({
+				strokeStyle: "red",
+				strokeWidth: 5,
+				x: mean_position_x* mapScale, y: mean_position_y * mapScale,
+				width: 3 * mapScale*Math.sqrt(var_xp), height: 3 * mapScale*Math.sqrt(var_yp),
+				rotate: angle2
+			})
+			.restoreCanvas();
+			
+
+         }; //end update
+         
+
+
+     };
+
+
+ </script>
+ <style>
+ #cc	{
+ 	top: 600px;
+ 	width: 600px;
+ 	height: 200px;
+ 	margin: 0;
+ 	overflow: auto;
+ }
+ </style>
+
+ </html>
