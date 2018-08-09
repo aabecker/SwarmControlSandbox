@@ -1,11 +1,7 @@
-
 <html>
-
-
 <head>
 	<title>Demonstration of orientation and pose control</title>
 </head>
-
 
 <body onload="init();">
 	<!--aspect ratio for HD is 16:9 -->
@@ -43,10 +39,11 @@
 	  var goalAngleNegative = -30;
 	  var goalAnglePositive = 30;
 	  var varCont = false;
-	  var objectWidth = 6;
+	  var objectWidth = 8;
 	  var jointWidth = 0.25;
 	  var goalX = 18.5;
 	  var goalY = 10.5;
+	  var elapsedTimeSec60 = 0;
 
 
       function init() 
@@ -69,6 +66,49 @@
 		var joint;
 		var jointBox;
 		var collect = false;
+
+						// original
+				// goal 0.8, 60D at 12.77s, 12.72
+				// goal 0.66, 60D at 11.09s, 11.05
+				// goal 0.5, 60D at 10.11s, 10.14
+				// goal 0.25, 60D at 11.91
+
+				// try using particle velocity
+				// goal 0.5, 60D at 12.91, 12.72
+				// goal 0.66, 60D at 14.19
+
+
+				// try using initial y height at canvasHeight/mapScale - objectWidth*2* goalC
+			// goal 0.66, 60D at 13.18, 12.86, 12.89
+			// goal 0.5, 60D at 11.77
+
+			//longer bar
+			// goal 0.5, 60D at 14.49
+			// goal 0.66 at 17.13
+
+				// robot density at 0.9;
+				// .66 17.76 17.27
+				// .5     14.54
+
+				// robot density at 1.2;
+				// .66  17.31
+				// .5   14.41  
+
+					// robot density at 1.2;
+				// .66   34.04 31.77
+				// .5   25.55
+
+				//.66 24.05, .5 19.45
+
+				// .5 21.39 20.32; 0.66 in 25.0  
+				//.66 29.64, .5 in 22.57
+
+//.66 23.38, .5 19.40
+//.5 25.33
+
+//using only impulses
+// 0.66 25.18, 25.02, 0.5 29.19, 29.06
+				var goalC = 0.5;
 		
 
       	var   b2Vec2 = Box2D.Common.Math.b2Vec2
@@ -128,8 +168,8 @@
 
          //Creating the box
          bodyDef.type = b2Body.b2_dynamicBody;
-		fixDef.density = 100.0;//1000000.0;  0.01 moves very easily
-		fixDef.friction = 100.0;//10000000.0;
+		fixDef.density = 1.0;//1000000.0;  0.01 moves very easily
+		fixDef.friction = 10.0;//10000000.0;
 	    fixDef.restitution = 0.1;  //bouncing value
 
 	    bodyDef.position.Set(canvasWidth/mapScale/2,canvasHeight/mapScale - objectWidth-0.2- jointWidth);
@@ -141,14 +181,14 @@
 	    fixDef.filter.maskBits =  catRobot;     // masked bits do collide
 	    var obst = world.CreateBody(bodyDef);
 	    obst.CreateFixture(fixDef);
-	    obst.m_angularDamping =120.0;// 1200000;//120.0;
-	    obst.m_linearDamping = 120.0;//120.0;
+	    obst.m_angularDamping =12.0;// 1200000;//120.0;
+	    obst.m_linearDamping = 12.0;//120.0;
 
 
 	    //Creating the Joint
 	    bodyDef.type = b2Body.b2_staticBody;
-		fixDef.density = 200.0;
-		fixDef.friction = 0.0;
+		fixDef.density = 20.0;
+		fixDef.friction = 10.0;
 	    fixDef.restitution = 0;  //bouncing value
 	    fixDef.filter.categoryBits = catSolid;          // used to determine collision
 	    fixDef.filter.maskBits =  catRobot;     // masked bits do collide
@@ -161,6 +201,22 @@
 	    joi.m_angularDamping = 5.0; //5.0;
 	    joi.m_linearDamping = 5.0;
 
+
+	    var joint_def = new b2RevoluteJointDef();
+		joint_def.bodyA = obst;
+		joint_def.bodyB = joi;
+		joint_def.localAnchorA = new b2Vec2(0, objectWidth);
+		joint_def.localAnchorB = new b2Vec2(0, 0);
+		// using a motor didn't work
+		//joint_def.enableMotor = true;
+		//joint_def.maxMotorTorque = 400;
+		//joint_def.motorSpeed = 160; //1 turn per second counter-clockwise
+		world.CreateJoint(joint_def);
+
+	    //revoluteJointDef.enableMotor = true;
+  		//revoluteJointDef.maxMotorTorque = 20;
+  		//revoluteJointDef.motorSpeed = 360 * DEGTORAD; //1 turn per second counter-clockwise
+
 	    //Creating the joint blocker
 	    //   bodyDef.userData = 'joint';  // canvas is {1120, 630}
 		// bodyDef.type = b2Body.b2_staticBody;
@@ -171,10 +227,10 @@
          bodyDef.type = b2Body.b2_dynamicBody;
          var robotrad = 0.08;
 		 var numrobots = 100;// Math.floor(20/(4*robotrad*robotrad));
-		 var rowLength = 100;//Math.floor(5/(2*robotrad));
+		 var rowLength = 10;//Math.floor(5/(2*robotrad));
 	     fixDef.filter.categoryBits = catRobot;          // used to determine collision
 	     fixDef.filter.maskBits = catSolid | catRobot;     // masked bits do collide
-		 fixDef.density = 1.0;  // 10 makes robots move slowly, smaller than 1 they skip the bar
+		 fixDef.density = 5;  // 10 makes robots move slowly, smaller than 1 they skip the bar
 		 fixDef.friction = 0.0;
          fixDef.restitution = 0.1;  //bouncing value
          var m_Robot = new Array();
@@ -189,8 +245,9 @@
             // bodyDef.position.x = 1120/60+10*rnd2();
             // bodyDef.position.y = 630/60+10*rnd2();
               ///  put the robots in a loose rectangle
-            bodyDef.position.x =  (i%rowLength)*2*robotrad;//canvasHeight/mapScale+
-            bodyDef.position.y = 12-Math.floor(i/rowLength)*2*robotrad;
+            bodyDef.position.x =14 + (i%rowLength)*2*robotrad;//canvasHeight/mapScale+
+            // bodyDef.position.y = canvasHeight/mapScale - objectWidth*2* goalC;//12-Math.floor(i/rowLength)*2*robotrad;
+            bodyDef.position.y = canvasHeight/mapScale - objectWidth*2* goalC- Math.floor(i/rowLength)*2*robotrad;
 
              ///  put the robots in a tight rectangle
 	         //   bodyDef.position.x = 0.5+(i%rowLength)*2*robotrad;
@@ -303,9 +360,6 @@
 	    		sum_yprime += y_prime;
 	    		affectedRobots ++;
 	    	}
-	    	
-	    	
-
 	    }
 	    var mean_position_x = sum_position_x / affectedRobots;
 	    var mean_position_y = sum_position_y / affectedRobots;
@@ -456,12 +510,7 @@
 
 			}
 		}
-		var joint_def = new b2RevoluteJointDef();
-		joint_def.bodyA = jointBox;
-    	joint_def.bodyB = joint;
-    	joint_def.localAnchorA = new b2Vec2(0, objectWidth);
-    	joint_def.localAnchorB = new b2Vec2(0, 0);
-    	world.CreateJoint(joint_def);
+
 
 		var day = new Date();
 
@@ -470,6 +519,7 @@
 			overall_time = day.getTime();
 		}
 		var elapsedTimeSec = (day.getTime()- overall_time )/1000;
+		
 
 		var sum_velocity_x = 0;
 		var sum_velocity_y = 0;
@@ -483,10 +533,7 @@
 		var mean_velocity_y = sum_velocity_y / numrobots;
 		var impulseV=new b2Vec2(0,0);
      	var day = new Date();
-
 		var e = 0.5;//was 0.5
-
-
 
 		if(!collect)
 		{
@@ -503,7 +550,7 @@
 			// }
 			// else 
 			{
-				var goalC = 0.8;
+
 				goalX = canvasWidth/mapScale/2 + Math.sin(Rad)* objectWidth*2* goalC;
 				goalY = canvasHeight/mapScale - Math.cos(Rad) * objectWidth*2* goalC;
 			}
@@ -531,15 +578,20 @@
 		{
 			impulseV = 1;
 		}
-		impulseV.x = 3*impulseV.x/impulseDenom;
-		impulseV.y = 3*impulseV.y/impulseDenom;
+		impulseV.x = .2*impulseV.x/impulseDenom;
+		impulseV.y = .2*impulseV.y/impulseDenom;
 
 		console.log(elapsedTimeSec + " " + rAngle);
 
+		//obst.SetLinearVelocity( new b2Vec2(0,0) );
+		//obst.SetAngularVelocity(-20.0  );
+
 		for(var i =0; i<m_Robot.length; i++) 
 		{
-			m_Robot[i].SetLinearVelocity( new b2Vec2(0,0) );
+			//m_Robot[i].SetLinearVelocity( new b2Vec2(0,0) );
+			//m_Robot[i].ApplyLinearImpulse(impulseV, m_Robot[i].GetWorldPoint(new b2Vec2(0,0))); //doesn't work
 			m_Robot[i].ApplyForce(impulseV,m_Robot[i].GetWorldPoint(new b2Vec2(0,0)));
+			//m_Robot[i].SetLinearVelocity( new b2Vec2(impulseV.x,impulseV.y) );
 		}
 		//console.log(m_Robot[0].GetPosition().y)
 		//x: mean_position_xprime* mapScale, y: mean_position_yprime * mapScale,
@@ -552,8 +604,20 @@
 		  startArrow: true,
 		  arrowRadius: 15,
 		  arrowAngle: 90,
-		  x1: 200+ 10*impulseV.x, y1: 200 + 10*impulseV.y, 
+		  x1: 200+ 80*impulseV.x, y1: 200 + 80*impulseV.y, 
 		  x2: 200, y2: 200
+		});
+
+		// DRAW THE IMPULSE.... WEIRD. It was jumping all over because someone was scaling the Kgain by the magnitude.
+		$('canvas').drawLine({
+		  strokeStyle: '#000',
+		  strokeWidth: 4,
+		  rounded: true,
+		  startArrow: true,
+		  arrowRadius: 15,
+		  arrowAngle: 90,
+		  x1:  goalX* mapScale+ 80*impulseV.x, y1: goalY * mapScale + 80*impulseV.y, 
+		  x2: goalX* mapScale, y2: goalY * mapScale
 		});
 
 
@@ -581,6 +645,47 @@
 		}).restoreCanvas();
 
        // elapsedTimeSec
+       // Draw text
+$('canvas').drawText({
+  layer: true,
+  name: 'myText',
+  fillStyle: '#36c',
+  strokeWidth: 2,
+  x: 180, y: 110,
+  align: 'left',
+  respectAlign: true,
+  fontSize: '36pt',
+  fontFamily: 'Verdana, sans-serif',
+  text: "time "+ elapsedTimeSec.toFixed(2) //+ " " + rAngle
+})
+
+$('canvas').drawText({
+  layer: true,
+  name: 'myText',
+  fillStyle: '#36c',
+  strokeWidth: 2,
+  x: 180, y: 150,
+  align: 'left',
+  respectAlign: true,
+  fontSize: '36pt',
+  fontFamily: 'Verdana, sans-serif',
+  text: "angle "+  rAngle.toFixed(2)
+})
+
+if( rAngle < 60.0)
+{	elapsedTimeSec60 = elapsedTimeSec;}
+$('canvas').drawText({
+  layer: true,
+  name: 'myText',
+  fillStyle: '#36c',
+  strokeWidth: 2,
+  x: 180, y: 70,
+  align: 'left',
+  respectAlign: true,
+  fontSize: '36pt',
+  fontFamily: 'Verdana, sans-serif',
+  text: "60d "+ elapsedTimeSec60.toFixed(2) //+ " " + rAngle
+})
 
     }; //end update
 };
