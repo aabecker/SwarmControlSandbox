@@ -106,9 +106,12 @@
 //.66 23.38, .5 19.40
 //.5 25.33
 
-//using only impulses
+//using only impulses, starting in a square pattern:
 // 0.66 25.18, 25.02, 0.5 29.19, 29.06
-				var goalC = 0.5;
+
+// using only impulses, starting in straight line: 
+// 0.5 is 31.68, 0.66 is 27.5
+				var goalC = 0.66;
 		
 
       	var   b2Vec2 = Box2D.Common.Math.b2Vec2
@@ -227,7 +230,7 @@
          bodyDef.type = b2Body.b2_dynamicBody;
          var robotrad = 0.08;
 		 var numrobots = 100;// Math.floor(20/(4*robotrad*robotrad));
-		 var rowLength = 10;//Math.floor(5/(2*robotrad));
+		 var rowLength = 100;//Math.floor(5/(2*robotrad));
 	     fixDef.filter.categoryBits = catRobot;          // used to determine collision
 	     fixDef.filter.maskBits = catSolid | catRobot;     // masked bits do collide
 		 fixDef.density = 5;  // 10 makes robots move slowly, smaller than 1 they skip the bar
@@ -244,14 +247,17 @@
             // start the robots in a Gaussian distribution
             // bodyDef.position.x = 1120/60+10*rnd2();
             // bodyDef.position.y = 630/60+10*rnd2();
-              ///  put the robots in a loose rectangle
-            bodyDef.position.x =14 + (i%rowLength)*2*robotrad;//canvasHeight/mapScale+
-            // bodyDef.position.y = canvasHeight/mapScale - objectWidth*2* goalC;//12-Math.floor(i/rowLength)*2*robotrad;
-            bodyDef.position.y = canvasHeight/mapScale - objectWidth*2* goalC- Math.floor(i/rowLength)*2*robotrad;
+             
+              //  start the robots in a straight line
+           // bodyDef.position.x =1 + (i%rowLength)*2*robotrad;//canvasHeight/mapScale+
+            //bodyDef.position.y = canvasHeight/mapScale - objectWidth*2* goalC;//12-Math.floor(i/rowLength)*2*robotrad;
+            
+            // start in a square
+            // rowLength = 10;
+            //bodyDef.position.x =14 + (i%rowLength)*2*robotrad;
+            //bodyDef.position.y = canvasHeight/mapScale - objectWidth*2* goalC- Math.floor(i/rowLength)*2*robotrad;
 
-             ///  put the robots in a tight rectangle
-	         //   bodyDef.position.x = 0.5+(i%rowLength)*2*robotrad;
-	         //   bodyDef.position.y = 19.5-Math.floor(i/rowLength)*2*robotrad;
+   
 	         m_Robot[i] = world.CreateBody(bodyDef);
 	         m_Robot[i].CreateFixture(fixDef);
 	         m_Robot[i].m_angularDamping = 1;
